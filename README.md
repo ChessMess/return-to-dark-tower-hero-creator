@@ -1,8 +1,26 @@
 # RTDT Hero Card Creator
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Live Site](https://img.shields.io/badge/Live%20Site-GitHub%20Pages-blue)](https://chessmess.github.io/return-to-dark-tower-hero-creator/)
+
 Create custom hero boards for [Return to Dark Tower](https://restorationgames.com/return-to-dark-tower/).
 
+## Just want to use it?
+
+**[Open the app in your browser](https://chessmess.github.io/return-to-dark-tower-hero-creator/)** — no installation required.
+
+---
+
 ![Hero Card Preview](hero_card_template.svg)
+
+## Features
+
+- **Live SVG Preview** — See your hero card update in real time as you edit
+- **Vector PDF Export** — Download a print-ready PDF powered by jspdf + svg2pdf.js
+- **Custom Portraits** — Upload any image with automatic clip-path framing
+- **Full Virtue System** — Define up to 5 virtues with names, advantage types, and ability text
+- **Champion Terrain** — Select terrain type for champion abilities
+- **No Backend Required** — Runs entirely in the browser as a static site
 
 ## Requirements
 
@@ -11,7 +29,7 @@ Create custom hero boards for [Return to Dark Tower](https://restorationgames.co
 ## Install & Run
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/return-to-dark-tower-hero-creator.git
+git clone https://github.com/ChessMess/return-to-dark-tower-hero-creator.git
 cd return-to-dark-tower-hero-creator
 npm install
 npm run dev
@@ -57,4 +75,8 @@ src/
 
 ## Contributing
 
-Pull requests welcome. Please open an issue first to discuss larger changes.
+Pull requests welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow, code standards, and the release process. Open an [issue](https://github.com/ChessMess/return-to-dark-tower-hero-creator/issues) first to discuss larger changes.
+
+## License
+
+[MIT](LICENSE) — see [LICENSE](LICENSE) for details.

@@ -5,19 +5,45 @@ import HeroCard from './components/HeroCard';
 import HeroForm from './components/HeroForm';
 import { defaultHero } from './data/defaultHero';
 
+const STORAGE_KEY = 'rtdt-hero';
+
+function loadHero() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : defaultHero;
+  } catch {
+    return defaultHero;
+  }
+}
+
+function persist(hero) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(hero)); } catch {}
+}
+
 export default function App() {
-  const [hero, setHero] = useState(defaultHero);
+  const [hero, setHero] = useState(loadHero);
   const [downloading, setDownloading] = useState(false);
 
   const updateHero = (field, value) =>
-    setHero((prev) => ({ ...prev, [field]: value }));
+    setHero((prev) => {
+      const next = { ...prev, [field]: value };
+      persist(next);
+      return next;
+    });
 
   const updateVirtue = (index, field, value) =>
     setHero((prev) => {
       const virtues = [...prev.virtues];
       virtues[index] = { ...virtues[index], [field]: value };
-      return { ...prev, virtues };
+      const next = { ...prev, virtues };
+      persist(next);
+      return next;
     });
+
+  const resetHero = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setHero(defaultHero);
+  };
 
   const handleDownloadPdf = async () => {
     setDownloading(true);
@@ -47,6 +73,13 @@ export default function App() {
             <h1 className="text-sm font-bold text-amber-400 tracking-wider uppercase">Hero Creator</h1>
             <p className="text-xs text-gray-500">Return to Dark Tower</p>
           </div>
+          <button
+            type="button"
+            onClick={resetHero}
+            className="text-xs text-gray-500 hover:text-red-400 transition-colors"
+          >
+            Reset
+          </button>
         </div>
 
         {/* Form scroll area */}
