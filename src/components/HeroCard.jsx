@@ -213,6 +213,19 @@ export default function HeroCard({ hero }) {
           </symbol>
         </defs>
 
+        {/* ============================================================ */}
+        {/* LAYOUT GRID                                                  */}
+        {/* Canvas: 910 × 606                                            */}
+        {/* Row 1 — main content:  y=14  → y=504  (h=490)               */}
+        {/* Row 2 — treasures:     y=506 → y=606  (h=100)               */}
+        {/*                                                              */}
+        {/* Col A — left panel:    x=16  → x=290  (w=274)               */}
+        {/* Gap A→B:               x=290 → x=300  (w=10)                */}
+        {/* Col B — center panel:  x=300 → x=594  (w=294)               */}
+        {/* Gap B→C:               x=594 → x=602  (w=8)                 */}
+        {/* Col C — right panel:   x=602 → x=900  (w=298)               */}
+        {/* ============================================================ */}
+
         {/* ============================== */}
         {/* BACKGROUND                     */}
         {/* ============================== */}
@@ -232,13 +245,19 @@ export default function HeroCard({ hero }) {
         {/* ============================== */}
         <g id="leftPanel">
           {/* Hero Name */}
-          <text x="22" y="42" fontFamily="Georgia, 'Times New Roman', serif" fontSize="28" fontWeight="bold" fill="#2a1f12" letterSpacing="1.5">{hero.name}</text>
+          <text x="22" y="38" fontFamily="Georgia, 'Times New Roman', serif" fontSize="28" fontWeight="bold" fill="#2a1f12" letterSpacing="1.5">{hero.name}</text>
+
+          {/* Decorative double-line with open-arc divider under hero name */}
+          {/* Arc: center (26,50) r=7, opens left at x≈19 — lines extend to right edge of Col A (x=290) */}
+          <path d="M 19,48 A 7,7 0 1,1 19,52" fill="none" stroke="#5a4a35" strokeWidth="0.8" opacity="0.7"/>
+          <line x1="19" y1="48" x2="290" y2="48" stroke="#5a4a35" strokeWidth="0.8" opacity="0.7"/>
+          <line x1="19" y1="52" x2="290" y2="52" stroke="#5a4a35" strokeWidth="0.8" opacity="0.7"/>
 
           {/* Starting resources line */}
-          <text x="22" y="62" fontFamily="Arial, sans-serif" fontSize="10" fill="#4a3d2e" fontVariant="small-caps" letterSpacing="0.5">{`START WITH: ${hero.warriors}`}</text>
-          <use href="#iconWarrior" x="102" y="51" width="13" height="13"/>
-          <text x="119" y="62" fontFamily="Arial, sans-serif" fontSize="10" fill="#4a3d2e">{`|  ${hero.spirit}`}</text>
-          <use href="#iconSpirit" x="137" y="51" width="13" height="13"/>
+          <text x="22" y="68" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e" fontVariant="small-caps" letterSpacing="0.5">{`START WITH: ${hero.warriors}`}</text>
+          <use href="#iconWarrior" x="99" y="59" width="10" height="10"/>
+          <text x="112" y="68" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{`|  ${hero.spirit}`}</text>
+          <use href="#iconSpirit" x="128" y="59" width="10" height="10"/>
 
           {/* Hero Portrait Area */}
           <rect x="16" y="74" width="274" height="375" rx="3" fill="#9a8a6e" stroke="#7a6a50" strokeWidth="1"/>
@@ -279,10 +298,22 @@ export default function HeroCard({ hero }) {
           <rect x="300" y="14" width="294" height="490" rx="3" fill="#3d3529" opacity="0.8"/>
           <rect x="302" y="16" width="290" height="486" rx="2" fill="none" stroke="#5a4a35" strokeWidth="0.5"/>
 
+          {/* ============================== */}
+          {/* SECTION BORDERS                */}
+          {/* Three named sections, each     */}
+          {/* outlined like an HTML div      */}
+          {/* ============================== */}
+          {/* Start of Turn border: y=18–95  */}
+          <rect x="302" y="18" width="290" height="77" rx="2" fill="none" stroke="#7a6a52" strokeWidth="1.5"/>
+          {/* Middle of Turn border: y=101–458 (encompasses Move, Heroic Action, Reinforce) */}
+          <rect x="302" y="101" width="290" height="357" rx="2" fill="none" stroke="#7a6a52" strokeWidth="1.5"/>
+          {/* End of Turn border: y=464–503  */}
+          <rect x="302" y="464" width="290" height="39" rx="2" fill="none" stroke="#7a6a52" strokeWidth="1.5"/>
+
           {/* START OF TURN */}
           <g id="startOfTurn">
-            <rect x="310" y="22" width="274" height="18" rx="2" fill="url(#sectionHeader)"/>
-            <text x="447" y="35" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="10" fontWeight="bold" fill="#d4c4a8" letterSpacing="2" fontVariant="small-caps">START OF TURN</text>
+            <rect x="302" y="18" width="290" height="18" rx="2" fill="url(#sectionHeader)"/>
+            <text x="316" y="31" fontFamily="Arial, sans-serif" fontSize="10" fontWeight="bold" fill="#d4c4a8" letterSpacing="2" fontVariant="small-caps">START OF TURN</text>
 
             {/* Banner action */}
             <rect x="310" y="46" width="274" height="46" rx="3" fill="#4a4035" stroke="#5a4a35" strokeWidth="0.5"/>
@@ -293,9 +324,9 @@ export default function HeroCard({ hero }) {
 
           {/* MIDDLE OF TURN */}
           <g id="middleOfTurn">
-            <rect x="310" y="100" width="274" height="18" rx="2" fill="url(#sectionHeader)"/>
-            <text x="316" y="113" fontFamily="Arial, sans-serif" fontSize="10" fontWeight="bold" fill="#d4c4a8" letterSpacing="1.5" fontVariant="small-caps">MIDDLE OF TURN</text>
-            <text x="460" y="113" fontFamily="Arial, sans-serif" fontSize="8" fill="#a09080" fontVariant="small-caps">IN ANY ORDER</text>
+            <rect x="302" y="101" width="290" height="18" rx="2" fill="url(#sectionHeader)"/>
+            <text x="316" y="114" fontFamily="Arial, sans-serif" fontSize="10" fontWeight="bold" fill="#d4c4a8" letterSpacing="1.5" fontVariant="small-caps">MIDDLE OF TURN</text>
+            <text x="460" y="114" fontFamily="Arial, sans-serif" fontSize="8" fill="#a09080" fontVariant="small-caps">IN ANY ORDER</text>
 
             {/* Move action */}
             <rect x="310" y="124" width="274" height="44" rx="3" fill="#4a4035" stroke="#5a4a35" strokeWidth="0.5"/>
@@ -408,8 +439,8 @@ export default function HeroCard({ hero }) {
 
           {/* END OF TURN */}
           <g id="endOfTurn">
-            <rect x="310" y="462" width="274" height="18" rx="2" fill="url(#sectionHeader)"/>
-            <text x="447" y="475" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="10" fontWeight="bold" fill="#d4c4a8" letterSpacing="1.5" fontVariant="small-caps">END OF TURN</text>
+            <rect x="302" y="464" width="290" height="18" rx="2" fill="url(#sectionHeader)"/>
+            <text x="316" y="477" fontFamily="Arial, sans-serif" fontSize="10" fontWeight="bold" fill="#d4c4a8" letterSpacing="1.5" fontVariant="small-caps">END OF TURN</text>
             <text x="316" y="496" fontFamily="Arial, sans-serif" fontSize="10" fill="#b0a088">Drop 1 skull into the Tower</text>
           </g>
         </g>
@@ -425,129 +456,129 @@ export default function HeroCard({ hero }) {
 
           {/* ===== Row 1: Large left virtue + Small right virtue ===== */}
 
-          {/* Virtue 1 (large - primary ability with glyph) */}
+          {/* Virtue 1 (primary ability with glyph) */}
           <g id="virtue1Slot">
             {/* Ornamental outer border */}
-            <rect x="602" y="52" width="182" height="82" rx="5" fill="#c8b898" stroke="url(#goldOrnament)" strokeWidth="2.5"/>
+            <rect x="602" y="52" width="144" height="82" rx="5" fill="#c8b898" stroke="url(#goldOrnament)" strokeWidth="2.5"/>
             {/* Inner fill */}
-            <rect x="605" y="55" width="176" height="76" rx="4" fill="#d8c8a4"/>
+            <rect x="605" y="55" width="138" height="76" rx="4" fill="#d8c8a4"/>
             {/* Corner accents */}
             <line x1="602" y1="60" x2="608" y2="60" stroke="url(#goldOrnament)" strokeWidth="2"/>
             <line x1="602" y1="60" x2="602" y2="66" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="784" y1="60" x2="778" y2="60" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="784" y1="60" x2="784" y2="66" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="746" y1="60" x2="740" y2="60" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="746" y1="60" x2="746" y2="66" stroke="url(#goldOrnament)" strokeWidth="2"/>
             <line x1="602" y1="126" x2="608" y2="126" stroke="url(#goldOrnament)" strokeWidth="2"/>
             <line x1="602" y1="126" x2="602" y2="120" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="784" y1="126" x2="778" y2="126" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="784" y1="126" x2="784" y2="120" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="746" y1="126" x2="740" y2="126" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="746" y1="126" x2="746" y2="120" stroke="url(#goldOrnament)" strokeWidth="2"/>
             {/* Virtue name tab */}
-            <rect x="632" y="45" width="90" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" strokeWidth="1.5"/>
-            <text x="677" y="57" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="8" fontWeight="bold" fill="#d4c4a8" letterSpacing="1.5">{hero.virtues[0].name.toUpperCase()}</text>
+            <rect x="634" y="45" width="80" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" strokeWidth="1.5"/>
+            <text x="674" y="57" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="8" fontWeight="bold" fill="#d4c4a8" letterSpacing="1.5">{hero.virtues[0].name.toUpperCase()}</text>
             {/* Glyph icon */}
-            <use href="#iconGlyph" x="679" y="66" width="24" height="24" color="#6b5d4a"/>
+            <use href="#iconGlyph" x="662" y="66" width="24" height="24" color="#6b5d4a"/>
             {/* Ability text */}
-            <text x="693" y="106" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="10" fill="#4a3d2e" fontWeight="bold">{`+1 ${hero.virtues[0].advantageType} Advantage`}</text>
+            <text x="674" y="106" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="10" fill="#4a3d2e" fontWeight="bold">{`+1 ${hero.virtues[0].advantageType} Advantage`}</text>
           </g>
 
-          {/* Virtue 2 (small right) */}
+          {/* Virtue 2 */}
           <g id="virtue2Slot">
-            <rect x="793" y="52" width="107" height="82" rx="5" fill="#c8b898" stroke="url(#goldOrnament)" strokeWidth="2.5"/>
-            <rect x="796" y="55" width="101" height="76" rx="4" fill="#d8c8a4"/>
+            <rect x="756" y="52" width="144" height="82" rx="5" fill="#c8b898" stroke="url(#goldOrnament)" strokeWidth="2.5"/>
+            <rect x="759" y="55" width="138" height="76" rx="4" fill="#d8c8a4"/>
             {/* Corner accents */}
-            <line x1="793" y1="60" x2="799" y2="60" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="793" y1="60" x2="793" y2="66" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="756" y1="60" x2="762" y2="60" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="756" y1="60" x2="756" y2="66" stroke="url(#goldOrnament)" strokeWidth="2"/>
             <line x1="900" y1="60" x2="894" y2="60" stroke="url(#goldOrnament)" strokeWidth="2"/>
             <line x1="900" y1="60" x2="900" y2="66" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="793" y1="126" x2="799" y2="126" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="793" y1="126" x2="793" y2="120" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="756" y1="126" x2="762" y2="126" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="756" y1="126" x2="756" y2="120" stroke="url(#goldOrnament)" strokeWidth="2"/>
             <line x1="900" y1="126" x2="894" y2="126" stroke="url(#goldOrnament)" strokeWidth="2"/>
             <line x1="900" y1="126" x2="900" y2="120" stroke="url(#goldOrnament)" strokeWidth="2"/>
             {/* Virtue name tab */}
-            <rect x="812" y="45" width="72" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" strokeWidth="1.5"/>
-            <text x="848" y="57" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="8" fontWeight="bold" fill="#d4c4a8" letterSpacing="1">{hero.virtues[1].name.toUpperCase()}</text>
+            <rect x="788" y="45" width="80" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" strokeWidth="1.5"/>
+            <text x="828" y="57" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="8" fontWeight="bold" fill="#d4c4a8" letterSpacing="1">{hero.virtues[1].name.toUpperCase()}</text>
             {/* Ability text */}
-            <text x="847" y="90" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[1].line1}</text>
-            <text x="847" y="103" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[1].line2}</text>
+            <text x="828" y="90" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[1].line1}</text>
+            <text x="828" y="103" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[1].line2}</text>
           </g>
 
           {/* ===== Row 2: Two equal virtues ===== */}
 
           {/* Virtue 3 */}
           <g id="virtue3Slot">
-            <rect x="602" y="144" width="143" height="78" rx="5" fill="#c8b898" stroke="url(#goldOrnament)" strokeWidth="2.5"/>
-            <rect x="605" y="147" width="137" height="72" rx="4" fill="#d8c8a4"/>
+            <rect x="602" y="144" width="144" height="82" rx="5" fill="#c8b898" stroke="url(#goldOrnament)" strokeWidth="2.5"/>
+            <rect x="605" y="147" width="138" height="76" rx="4" fill="#d8c8a4"/>
             <line x1="602" y1="152" x2="608" y2="152" stroke="url(#goldOrnament)" strokeWidth="2"/>
             <line x1="602" y1="152" x2="602" y2="158" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="745" y1="152" x2="739" y2="152" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="745" y1="152" x2="745" y2="158" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="602" y1="214" x2="608" y2="214" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="602" y1="214" x2="602" y2="208" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="745" y1="214" x2="739" y2="214" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="745" y1="214" x2="745" y2="208" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <rect x="628" y="137" width="80" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" strokeWidth="1.5"/>
-            <text x="668" y="149" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="8" fontWeight="bold" fill="#d4c4a8" letterSpacing="1">{hero.virtues[2].name.toUpperCase()}</text>
-            <text x="673" y="180" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[2].line1}</text>
-            <text x="673" y="193" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[2].line2}</text>
+            <line x1="746" y1="152" x2="740" y2="152" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="746" y1="152" x2="746" y2="158" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="602" y1="218" x2="608" y2="218" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="602" y1="218" x2="602" y2="212" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="746" y1="218" x2="740" y2="218" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="746" y1="218" x2="746" y2="212" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <rect x="634" y="137" width="80" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" strokeWidth="1.5"/>
+            <text x="674" y="149" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="8" fontWeight="bold" fill="#d4c4a8" letterSpacing="1">{hero.virtues[2].name.toUpperCase()}</text>
+            <text x="674" y="182" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[2].line1}</text>
+            <text x="674" y="195" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[2].line2}</text>
           </g>
 
           {/* Virtue 4 */}
           <g id="virtue4Slot">
-            <rect x="754" y="144" width="146" height="78" rx="5" fill="#c8b898" stroke="url(#goldOrnament)" strokeWidth="2.5"/>
-            <rect x="757" y="147" width="140" height="72" rx="4" fill="#d8c8a4"/>
-            <line x1="754" y1="152" x2="760" y2="152" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="754" y1="152" x2="754" y2="158" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <rect x="756" y="144" width="144" height="82" rx="5" fill="#c8b898" stroke="url(#goldOrnament)" strokeWidth="2.5"/>
+            <rect x="759" y="147" width="138" height="76" rx="4" fill="#d8c8a4"/>
+            <line x1="756" y1="152" x2="762" y2="152" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="756" y1="152" x2="756" y2="158" stroke="url(#goldOrnament)" strokeWidth="2"/>
             <line x1="900" y1="152" x2="894" y2="152" stroke="url(#goldOrnament)" strokeWidth="2"/>
             <line x1="900" y1="152" x2="900" y2="158" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="754" y1="214" x2="760" y2="214" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="754" y1="214" x2="754" y2="208" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="900" y1="214" x2="894" y2="214" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="900" y1="214" x2="900" y2="208" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <rect x="782" y="137" width="80" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" strokeWidth="1.5"/>
-            <text x="822" y="149" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="8" fontWeight="bold" fill="#d4c4a8" letterSpacing="1">{hero.virtues[3].name.toUpperCase()}</text>
-            <text x="827" y="180" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[3].line1}</text>
-            <text x="827" y="193" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[3].line2}</text>
+            <line x1="756" y1="218" x2="762" y2="218" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="756" y1="218" x2="756" y2="212" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="900" y1="218" x2="894" y2="218" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="900" y1="218" x2="900" y2="212" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <rect x="788" y="137" width="80" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" strokeWidth="1.5"/>
+            <text x="828" y="149" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="8" fontWeight="bold" fill="#d4c4a8" letterSpacing="1">{hero.virtues[3].name.toUpperCase()}</text>
+            <text x="828" y="182" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[3].line1}</text>
+            <text x="828" y="195" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[3].line2}</text>
           </g>
 
           {/* ===== Row 3: Virtue 5 + Champion ===== */}
 
           {/* Virtue 5 */}
           <g id="virtue5Slot">
-            <rect x="602" y="232" width="143" height="78" rx="5" fill="#c8b898" stroke="url(#goldOrnament)" strokeWidth="2.5"/>
-            <rect x="605" y="235" width="137" height="72" rx="4" fill="#d8c8a4"/>
-            <line x1="602" y1="240" x2="608" y2="240" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="602" y1="240" x2="602" y2="246" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="745" y1="240" x2="739" y2="240" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="745" y1="240" x2="745" y2="246" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="602" y1="302" x2="608" y2="302" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="602" y1="302" x2="602" y2="296" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="745" y1="302" x2="739" y2="302" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="745" y1="302" x2="745" y2="296" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <rect x="628" y="225" width="80" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" strokeWidth="1.5"/>
-            <text x="668" y="237" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="8" fontWeight="bold" fill="#d4c4a8" letterSpacing="1">{hero.virtues[4].name.toUpperCase()}</text>
-            <text x="673" y="268" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[4].line1}</text>
-            <text x="673" y="281" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[4].line2}</text>
+            <rect x="602" y="236" width="144" height="82" rx="5" fill="#c8b898" stroke="url(#goldOrnament)" strokeWidth="2.5"/>
+            <rect x="605" y="239" width="138" height="76" rx="4" fill="#d8c8a4"/>
+            <line x1="602" y1="244" x2="608" y2="244" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="602" y1="244" x2="602" y2="250" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="746" y1="244" x2="740" y2="244" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="746" y1="244" x2="746" y2="250" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="602" y1="310" x2="608" y2="310" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="602" y1="310" x2="602" y2="304" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="746" y1="310" x2="740" y2="310" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="746" y1="310" x2="746" y2="304" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <rect x="634" y="229" width="80" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" strokeWidth="1.5"/>
+            <text x="674" y="241" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="8" fontWeight="bold" fill="#d4c4a8" letterSpacing="1">{hero.virtues[4].name.toUpperCase()}</text>
+            <text x="674" y="272" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[4].line1}</text>
+            <text x="674" y="285" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#4a3d2e">{hero.virtues[4].line2}</text>
           </g>
 
           {/* Champion slot (dark teal/green background) */}
           <g id="championSlot">
-            <rect x="754" y="232" width="146" height="78" rx="5" fill="url(#championBg)" stroke="url(#goldOrnament)" strokeWidth="2.5"/>
-            <rect x="757" y="235" width="140" height="72" rx="4" fill="#3a4a42" opacity="0.6"/>
+            <rect x="756" y="236" width="144" height="82" rx="5" fill="url(#championBg)" stroke="url(#goldOrnament)" strokeWidth="2.5"/>
+            <rect x="759" y="239" width="138" height="76" rx="4" fill="#3a4a42" opacity="0.6"/>
             {/* Corner accents */}
-            <line x1="754" y1="240" x2="760" y2="240" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="754" y1="240" x2="754" y2="246" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="900" y1="240" x2="894" y2="240" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="900" y1="240" x2="900" y2="246" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="754" y1="302" x2="760" y2="302" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="754" y1="302" x2="754" y2="296" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="900" y1="302" x2="894" y2="302" stroke="url(#goldOrnament)" strokeWidth="2"/>
-            <line x1="900" y1="302" x2="900" y2="296" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="756" y1="244" x2="762" y2="244" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="756" y1="244" x2="756" y2="250" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="900" y1="244" x2="894" y2="244" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="900" y1="244" x2="900" y2="250" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="756" y1="310" x2="762" y2="310" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="756" y1="310" x2="756" y2="304" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="900" y1="310" x2="894" y2="310" stroke="url(#goldOrnament)" strokeWidth="2"/>
+            <line x1="900" y1="310" x2="900" y2="304" stroke="url(#goldOrnament)" strokeWidth="2"/>
             {/* Champion name tab (wider) */}
-            <rect x="768" y="225" width="118" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" strokeWidth="1.5"/>
-            <text x="827" y="237" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="7" fontWeight="bold" fill="#d4c4a8" letterSpacing="0.5">CHAMPION OF THE</text>
+            <rect x="769" y="229" width="118" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" strokeWidth="1.5"/>
+            <text x="828" y="241" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="7" fontWeight="bold" fill="#d4c4a8" letterSpacing="0.5">CHAMPION OF THE</text>
             {/* Glyph icon */}
-            <use href="#iconGlyph" x="815" y="246" width="22" height="22" color="#c4a882"/>
-            <text x="827" y="282" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#c4a882">+2 Wild Advantages</text>
-            <text x="827" y="295" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#c4a882">{`in ${hero.championTerrain}`}</text>
+            <use href="#iconGlyph" x="817" y="250" width="22" height="22" color="#c4a882"/>
+            <text x="828" y="286" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#c4a882">+2 Wild Advantages</text>
+            <text x="828" y="299" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#c4a882">{`in ${hero.championTerrain}`}</text>
           </g>
 
           {/* ============================== */}
@@ -555,18 +586,18 @@ export default function HeroCard({ hero }) {
           {/* ============================== */}
           <g id="corruptions">
             {/* Corruptions header */}
-            <rect x="602" y="320" width="298" height="24" rx="3" fill="none"/>
-            <text x="751" y="339" textAnchor="middle" fontFamily="Georgia, 'Times New Roman', serif" fontSize="16" fontWeight="bold" fill="#3d3529" letterSpacing="4">CORRUPTIONS</text>
+            <rect x="602" y="328" width="298" height="24" rx="3" fill="none"/>
+            <text x="751" y="347" textAnchor="middle" fontFamily="Georgia, 'Times New Roman', serif" fontSize="16" fontWeight="bold" fill="#3d3529" letterSpacing="4">CORRUPTIONS</text>
             {/* Decorative line under header */}
-            <line x1="650" y1="346" x2="852" y2="346" stroke="#8b7355" strokeWidth="0.8"/>
+            <line x1="650" y1="354" x2="852" y2="354" stroke="#8b7355" strokeWidth="0.8"/>
 
             {/* Corruption slot 1 */}
-            <rect x="602" y="354" width="143" height="105" rx="5" fill="#c8b898" stroke="#a89878" strokeWidth="1.5" opacity="0.5"/>
-            <rect x="605" y="357" width="137" height="99" rx="4" fill="#d4c4a8" opacity="0.3"/>
+            <rect x="602" y="362" width="144" height="105" rx="5" fill="#c8b898" stroke="#a89878" strokeWidth="1.5" opacity="0.5"/>
+            <rect x="605" y="365" width="138" height="99" rx="4" fill="#d4c4a8" opacity="0.3"/>
 
             {/* Corruption slot 2 */}
-            <rect x="754" y="354" width="146" height="105" rx="5" fill="#c8b898" stroke="#a89878" strokeWidth="1.5" opacity="0.5"/>
-            <rect x="757" y="357" width="140" height="99" rx="4" fill="#d4c4a8" opacity="0.3"/>
+            <rect x="756" y="362" width="144" height="105" rx="5" fill="#c8b898" stroke="#a89878" strokeWidth="1.5" opacity="0.5"/>
+            <rect x="759" y="365" width="138" height="99" rx="4" fill="#d4c4a8" opacity="0.3"/>
           </g>
         </g>
 
