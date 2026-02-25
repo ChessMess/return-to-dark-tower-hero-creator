@@ -4,6 +4,7 @@ import { svg2pdf } from 'svg2pdf.js';
 import HeroCard from './components/HeroCard';
 import HeroForm from './components/HeroForm';
 import { defaultHero } from './data/defaultHero';
+import { validateHeroData, heroToJson } from './utils/heroIO';
 
 const STORAGE_KEY = 'rtdt-hero';
 
@@ -23,6 +24,14 @@ function persist(hero) {
 export default function App() {
   const [hero, setHero] = useState(loadHero);
   const [downloading, setDownloading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState(null);
+  const [showPasteModal, setShowPasteModal] = useState(false);
+  const [zoom, setZoom] = useState(1);
+
+  const showStatus = (text, type = 'success') => {
+    setStatusMsg({ text, type });
+    setTimeout(() => setStatusMsg(null), 3000);
+  };
 
   const updateHero = (field, value) =>
     setHero((prev) => {
@@ -63,6 +72,77 @@ export default function App() {
     }
   };
 
+  const handleSaveJson = () => {
+    const defaultName = hero.name && hero.name !== 'HERO NAME'
+      ? hero.name.toLowerCase().replace(/\s+/g, '-')
+      : 'hero';
+    const filename = prompt('File name:', defaultName);
+    if (!filename) return;
+    const json = heroToJson(hero);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename.endsWith('.json') ? filename : `${filename}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showStatus('Hero saved to file');
+  };
+
+  const handleLoadJson = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const data = JSON.parse(evt.target.result);
+          const result = validateHeroData(data);
+          if (result.valid) {
+            setHero(result.hero);
+            persist(result.hero);
+            showStatus('Hero loaded from file');
+          } else {
+            showStatus(result.error, 'error');
+          }
+        } catch {
+          showStatus('Invalid JSON file', 'error');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
+  const handleCopyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(heroToJson(hero));
+      showStatus('Hero copied to clipboard');
+    } catch {
+      showStatus('Copy failed — check browser permissions', 'error');
+    }
+  };
+
+  const handlePasteSubmit = (text) => {
+    try {
+      const data = JSON.parse(text);
+      const result = validateHeroData(data);
+      if (result.valid) {
+        setHero(result.hero);
+        persist(result.hero);
+        setShowPasteModal(false);
+        showStatus('Hero pasted successfully');
+      } else {
+        showStatus(result.error, 'error');
+      }
+    } catch {
+      showStatus('Invalid JSON — check the pasted text', 'error');
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-900 text-gray-100 overflow-hidden">
       {/* Editor panel */}
@@ -87,8 +167,45 @@ export default function App() {
           <HeroForm hero={hero} updateHero={updateHero} updateVirtue={updateVirtue} />
         </div>
 
-        {/* Download button */}
-        <div className="px-4 py-3 border-t border-gray-700 bg-gray-900 shrink-0">
+        {/* Action buttons */}
+        <div className="px-4 py-3 border-t border-gray-700 bg-gray-900 shrink-0 space-y-2">
+          {statusMsg && (
+            <div className={`text-xs text-center py-1 rounded ${
+              statusMsg.type === 'error' ? 'text-red-400 bg-red-900/30' : 'text-green-400 bg-green-900/30'
+            }`}>
+              {statusMsg.text}
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={handleSaveJson}
+              className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors"
+            >
+              Save Hero
+            </button>
+            <button
+              type="button"
+              onClick={handleLoadJson}
+              className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors"
+            >
+              Load Hero
+            </button>
+            <button
+              type="button"
+              onClick={handleCopyToClipboard}
+              className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors"
+            >
+              Copy
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowPasteModal(true)}
+              className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors"
+            >
+              Paste
+            </button>
+          </div>
           <button
             type="button"
             onClick={handleDownloadPdf}
@@ -101,13 +218,67 @@ export default function App() {
       </aside>
 
       {/* Preview panel */}
-      <main className="flex-1 overflow-auto bg-gray-950 flex items-center justify-center p-8">
-        <div className="shadow-2xl" style={{ maxWidth: '100%', maxHeight: '100%' }}>
-          <div style={{ transform: 'scale(1)', transformOrigin: 'top left' }}>
-            <HeroCard hero={hero} />
-          </div>
+      <main className="flex-1 overflow-auto bg-gray-950 flex items-center justify-center p-8 relative">
+        <div className="shadow-2xl" style={{ transform: `scale(${zoom})`, transformOrigin: 'center center' }}>
+          <HeroCard hero={hero} />
+        </div>
+        {/* Zoom controls */}
+        <div className="absolute bottom-4 right-4 flex items-center gap-1 bg-gray-800/80 border border-gray-700 rounded-lg px-1 py-1">
+          <button
+            type="button"
+            onClick={() => setZoom((z) => Math.max(0.25, +(z - 0.25).toFixed(2)))}
+            className="w-7 h-7 flex items-center justify-center rounded text-gray-300 hover:bg-gray-700 text-sm font-bold transition-colors"
+          >
+            −
+          </button>
+          <button
+            type="button"
+            onClick={() => setZoom(1)}
+            className="px-1.5 h-7 flex items-center justify-center rounded text-gray-400 hover:bg-gray-700 text-xs tabular-nums transition-colors"
+          >
+            {Math.round(zoom * 100)}%
+          </button>
+          <button
+            type="button"
+            onClick={() => setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)))}
+            className="w-7 h-7 flex items-center justify-center rounded text-gray-300 hover:bg-gray-700 text-sm font-bold transition-colors"
+          >
+            +
+          </button>
         </div>
       </main>
+
+      {/* Paste modal */}
+      {showPasteModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-gray-800 border border-gray-600 rounded-lg p-4 w-96 space-y-3">
+            <h2 className="text-sm font-bold text-amber-400 uppercase tracking-wider">Paste Hero JSON</h2>
+            <textarea
+              id="paste-textarea"
+              rows={10}
+              placeholder="Paste hero JSON here..."
+              autoFocus
+              className="w-full rounded bg-gray-700 border border-gray-600 px-3 py-2 text-xs text-gray-100 font-mono focus:outline-none focus:border-amber-500 resize-none"
+            />
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setShowPasteModal(false)}
+                className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs px-4 py-1.5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handlePasteSubmit(document.getElementById('paste-textarea').value)}
+                className="rounded bg-amber-700 hover:bg-amber-600 text-white text-xs px-4 py-1.5 font-bold transition-colors"
+              >
+                Load
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

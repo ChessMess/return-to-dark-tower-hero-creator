@@ -1,10 +1,18 @@
+import { optimizeImage } from '../utils/heroIO';
+
 export default function HeroForm({ hero, updateHero, updateVirtue }) {
-  const handlePortraitUpload = (e) => {
+  const handlePortraitUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (evt) => updateHero('portraitDataUrl', evt.target.result);
-    reader.readAsDataURL(file);
+    try {
+      const dataUrl = await optimizeImage(file);
+      updateHero('portraitDataUrl', dataUrl);
+    } catch {
+      // Fallback: use original file unoptimized
+      const reader = new FileReader();
+      reader.onload = (evt) => updateHero('portraitDataUrl', evt.target.result);
+      reader.readAsDataURL(file);
+    }
   };
 
   return (

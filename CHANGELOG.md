@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-02-25
+
+### Added
+
+-   **Save / Load Hero** — Save hero data to a JSON file and load it back; filename prompt pre-fills with the hero name
+-   **Copy / Paste Hero** — Copy hero JSON to clipboard; paste via a modal textarea for easy sharing
+-   **Portrait Image Optimization** — Uploaded portraits are automatically resized (max 540×740px) and compressed to JPEG at 80% quality, keeping file sizes small without visible quality loss
+-   **Zoom Controls** — Preview panel now has +/− zoom buttons (25%–300%) with a click-to-reset percentage indicator
+-   **Status Feedback** — Transient success/error messages for save, load, copy, and paste operations
+
 ## [1.0.0] - 2026-02-25
 
 ### Added
