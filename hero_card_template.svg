@@ -204,9 +204,8 @@
       <path d="M2,20 L2,12 L8,7 L14,12 L14,20 Z" fill="currentColor" opacity="0.85"/>
       <path d="M12,20 L12,14 L18,10 L18,20 Z" fill="currentColor" opacity="0.85"/>
     </symbol>
-    <symbol id="iconBazaar" viewBox="0 0 22 22">
-      <path d="M3,10 L11,4 L19,10 L19,20 L3,20 Z" fill="currentColor" opacity="0.85"/>
-      <rect x="8" y="15" width="6" height="5" fill="#4a4035"/>
+    <symbol id="iconBazaar" viewBox="0 0 992 1072">
+      <path d="M 482 151.638 C 477.372 152.531, 470.565 154.995, 464.224 158.073 C 455.523 162.296, 452.689 164.320, 445.724 171.280 C 431.283 185.713, 425.088 199.786, 424.246 220.070 C 423.675 233.839, 425.753 243.831, 431.625 255.553 L 435.282 262.854 427.464 276.177 C 418.126 292.091, 385.318 347.822, 353.982 401 C 341.505 422.175, 323.740 452.325, 314.506 468 C 305.272 483.675, 292.674 505.050, 286.511 515.500 C 280.347 525.950, 264.729 552.500, 251.803 574.500 C 238.878 596.500, 216.238 634.975, 201.492 660 C 186.747 685.025, 171.784 710.450, 168.241 716.500 C 164.698 722.550, 161.394 727.996, 160.899 728.603 C 160.404 729.210, 155.837 729.969, 150.749 730.290 C 127.541 731.755, 105.598 745.181, 93.182 765.512 C 91.499 768.269, 88.665 774.794, 86.884 780.012 C 83.971 788.550, 83.640 790.701, 83.574 801.500 C 83.495 814.285, 84.605 820.520, 88.724 830.448 C 97.561 851.745, 116.901 868.121, 139.770 873.672 C 149.237 875.969, 165.351 875.731, 175.154 873.148 C 197.100 867.365, 216.531 850.367, 224.973 829.566 L 227.232 824 496.641 824 L 766.050 824 767.061 826.750 C 769.522 833.440, 774.911 842.702, 779.778 848.609 C 802.037 875.623, 839.748 883.216, 870.943 866.963 C 875.100 864.798, 880.912 861.045, 883.859 858.623 C 911.653 835.786, 918.114 794.095, 898.591 763.575 C 885.633 743.317, 862.221 730, 839.567 730 C 833.104 730, 833.001 729.957, 830.632 726.250 C 828.316 722.626, 793.833 664.016, 748.997 587.500 C 726.424 548.976, 697.485 499.804, 664.249 443.500 C 629.798 385.137, 625.838 378.420, 591.603 320.285 L 557.909 263.069 561.870 254.785 C 567.791 242.399, 569.338 234.567, 568.779 219.802 C 568.042 200.340, 562.501 186.826, 549.697 173.263 C 532.047 154.568, 507.482 146.721, 482 151.638 M 453.956 295.652 C 451.076 300.518, 403.058 382.125, 347.248 477 C 291.439 571.875, 239.151 660.750, 231.051 674.500 C 198.873 729.129, 194.749 736.244, 194.321 737.882 C 194.010 739.069, 195.578 740.754, 199.518 743.468 C 207.894 749.236, 216.464 759.252, 221.367 769 C 223.718 773.675, 225.905 778.513, 226.228 779.752 L 226.814 782.004 496.434 781.752 L 766.053 781.500 769.397 773.809 C 775.039 760.830, 784.252 749.494, 794.866 742.470 C 797.140 740.965, 799 739.176, 799 738.494 C 799 737.312, 780.726 705.715, 753.025 659 C 742.004 640.414, 730.554 620.930, 702.487 573 C 699.105 567.225, 688.908 549.900, 679.827 534.500 C 670.746 519.100, 644.950 475.225, 622.504 437 C 600.058 398.775, 576.890 359.400, 571.020 349.500 C 565.150 339.600, 554.550 321.663, 547.466 309.639 C 540.381 297.615, 533.987 287.549, 533.257 287.268 C 532.527 286.988, 529.357 287.899, 526.214 289.293 C 507.810 297.457, 487.478 297.900, 469.930 290.521 C 459.027 285.936, 459.866 285.667, 453.956 295.652" fill="currentColor" fill-rule="evenodd" opacity="0.85"/>
     </symbol>
 
   </defs>
@@ -473,9 +472,8 @@
       <!-- Virtue name tab -->
       <rect x="788" y="45" width="80" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" stroke-width="1.5"/>
       <text x="828" y="57" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#d4c4a8" letter-spacing="1">VIRTUE 2</text>
-      <!-- Ability text -->
-      <text x="828" y="90" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#4a3d2e">Virtue ability</text>
-      <text x="828" y="103" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#4a3d2e">description here.</text>
+      <!-- Ability text (word-wrapped, vertically centered around cy=96) -->
+      <text x="828" y="96" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#4a3d2e">Virtue ability description here.</text>
     </g>
 
     <!-- ===== Row 2: Two equal virtues ===== -->
@@ -494,8 +492,8 @@
       <line x1="746" y1="218" x2="746" y2="212" stroke="url(#goldOrnament)" stroke-width="2"/>
       <rect x="634" y="137" width="80" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" stroke-width="1.5"/>
       <text x="674" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#d4c4a8" letter-spacing="1">VIRTUE 3</text>
-      <text x="674" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#4a3d2e">Virtue ability</text>
-      <text x="674" y="195" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#4a3d2e">description here.</text>
+      <!-- Ability text (word-wrapped, vertically centered around cy=188) -->
+      <text x="674" y="188" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#4a3d2e">Virtue ability description here.</text>
     </g>
 
     <!-- Virtue 4 -->
@@ -512,8 +510,8 @@
       <line x1="900" y1="218" x2="900" y2="212" stroke="url(#goldOrnament)" stroke-width="2"/>
       <rect x="788" y="137" width="80" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" stroke-width="1.5"/>
       <text x="828" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#d4c4a8" letter-spacing="1">VIRTUE 4</text>
-      <text x="828" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#4a3d2e">Virtue ability</text>
-      <text x="828" y="195" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#4a3d2e">description here.</text>
+      <!-- Ability text (word-wrapped, vertically centered around cy=188) -->
+      <text x="828" y="188" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#4a3d2e">Virtue ability description here.</text>
     </g>
 
     <!-- ===== Row 3: Virtue 5 + Champion ===== -->
@@ -532,8 +530,8 @@
       <line x1="746" y1="310" x2="746" y2="304" stroke="url(#goldOrnament)" stroke-width="2"/>
       <rect x="634" y="229" width="80" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" stroke-width="1.5"/>
       <text x="674" y="241" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#d4c4a8" letter-spacing="1">VIRTUE 5</text>
-      <text x="674" y="272" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#4a3d2e">Virtue ability</text>
-      <text x="674" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#4a3d2e">description here.</text>
+      <!-- Ability text (word-wrapped, vertically centered around cy=278) -->
+      <text x="674" y="278" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#4a3d2e">Virtue ability description here.</text>
     </g>
 
     <!-- Champion slot (dark teal/green background) -->
@@ -551,7 +549,7 @@
       <line x1="900" y1="310" x2="900" y2="304" stroke="url(#goldOrnament)" stroke-width="2"/>
       <!-- Champion name tab (wider) -->
       <rect x="769" y="229" width="118" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" stroke-width="1.5"/>
-      <text x="828" y="241" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" font-weight="bold" fill="#d4c4a8" letter-spacing="0.5">CHAMPION OF THE</text>
+      <text x="828" y="241" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" font-weight="bold" fill="#d4c4a8">CHAMPION OF THE [KINGDOM]</text>
       <!-- Glyph icon -->
       <use href="#iconGlyph" x="817" y="250" width="22" height="22" color="#c4a882"/>
       <text x="828" y="286" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#c4a882">+2 Wild Advantages</text>
