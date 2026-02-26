@@ -11,13 +11,18 @@ export function validateHeroData(data) {
   }
 
   const hero = {
-    name: typeof data.name === 'string' ? data.name : defaultHero.name,
+    name: typeof data.name === 'string' ? data.name.slice(0, 20) : defaultHero.name,
     warriors: typeof data.warriors === 'number' ? Math.max(1, Math.min(99, data.warriors)) : defaultHero.warriors,
     spirit: typeof data.spirit === 'number' ? Math.max(0, Math.min(9, data.spirit)) : defaultHero.spirit,
-    portraitDataUrl: typeof data.portraitDataUrl === 'string' ? data.portraitDataUrl : null,
-    flavorLine1: typeof data.flavorLine1 === 'string' ? data.flavorLine1 : defaultHero.flavorLine1,
-    flavorLine2: typeof data.flavorLine2 === 'string' ? data.flavorLine2 : defaultHero.flavorLine2,
-    championTerrain: typeof data.championTerrain === 'string' ? data.championTerrain : defaultHero.championTerrain,
+    portraitDataUrl: (
+      typeof data.portraitDataUrl === 'string' &&
+      (data.portraitDataUrl.startsWith('data:image/jpeg;base64,') ||
+       data.portraitDataUrl.startsWith('data:image/png;base64,') ||
+       data.portraitDataUrl.startsWith('data:image/gif;base64,'))
+    ) ? data.portraitDataUrl : null,
+    flavorLine1: typeof data.flavorLine1 === 'string' ? data.flavorLine1.slice(0, 35) : defaultHero.flavorLine1,
+    flavorLine2: typeof data.flavorLine2 === 'string' ? data.flavorLine2.slice(0, 35) : defaultHero.flavorLine2,
+    championTerrain: typeof data.championTerrain === 'string' ? data.championTerrain.slice(0, 15) : defaultHero.championTerrain,
     author_name: typeof data.author_name === 'string' ? data.author_name.slice(0, 50) : '',
     revision_no: typeof data.revision_no === 'string' ? data.revision_no.slice(0, 8) : '1.0',
     description: typeof data.description === 'string' ? data.description.slice(0, 1000) : '',
@@ -31,14 +36,14 @@ export function validateHeroData(data) {
     const def = defaultHero.virtues[i];
     if (i === 0) {
       hero.virtues.push({
-        name: typeof src.name === 'string' ? src.name : def.name,
-        advantageType: typeof src.advantageType === 'string' ? src.advantageType : def.advantageType,
+        name: typeof src.name === 'string' ? src.name.slice(0, 12) : def.name,
+        advantageType: typeof src.advantageType === 'string' ? src.advantageType.slice(0, 15) : def.advantageType,
       });
     } else {
       hero.virtues.push({
-        name: typeof src.name === 'string' ? src.name : def.name,
-        line1: typeof src.line1 === 'string' ? src.line1 : def.line1,
-        line2: typeof src.line2 === 'string' ? src.line2 : def.line2,
+        name: typeof src.name === 'string' ? src.name.slice(0, 12) : def.name,
+        line1: typeof src.line1 === 'string' ? src.line1.slice(0, 30) : def.line1,
+        line2: typeof src.line2 === 'string' ? src.line2.slice(0, 30) : def.line2,
       });
     }
   }

@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { optimizeImage } from '../utils/heroIO';
 
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif']);
+
 export default function HeroForm({ hero, updateHero, updateVirtue }) {
   const [activeVirtue, setActiveVirtue] = useState(0);
 
   const [dragging, setDragging] = useState(false);
 
   const loadPortraitFile = async (file) => {
-    if (!file || !file.type.startsWith('image/')) return;
+    if (!file || !ALLOWED_IMAGE_TYPES.has(file.type)) return;
     try {
       const dataUrl = await optimizeImage(file);
       updateHero('portraitDataUrl', dataUrl);
@@ -129,7 +131,7 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
               </div>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/gif"
                 onChange={handlePortraitUpload}
                 className="hidden"
               />

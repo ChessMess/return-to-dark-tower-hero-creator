@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-02-26
+
+### Changed
+
+-   **Portrait Import** — Hero JSON paste and file import now only accept JPEG, PNG, and GIF portrait images; other formats are silently ignored
+-   **Portrait Upload** — Portrait file picker restricted to JPEG, PNG, and GIF; SVG and other formats are rejected
+-   **Import Validation** — Hero data loaded from storage or imported via file/paste now enforces field length limits consistent with the editor
+
 ## [1.3.0] - 2026-02-26
 
 ### Added
@@ -50,6 +58,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 -   **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 -   **Champion Terrain** — Selectable terrain type for champion ability
 
+[1.3.1]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.3.1
 [1.3.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.3.0
 [1.2.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.2.0
 [1.1.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.1.0

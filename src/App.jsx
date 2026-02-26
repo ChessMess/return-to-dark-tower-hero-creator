@@ -11,7 +11,10 @@ const STORAGE_KEY = 'rtdt-hero';
 function loadHero() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : defaultHero;
+    if (!saved) return defaultHero;
+    const data = JSON.parse(saved);
+    const result = validateHeroData(data);
+    return result.valid ? result.hero : defaultHero;
   } catch {
     return defaultHero;
   }
