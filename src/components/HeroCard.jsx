@@ -277,7 +277,7 @@ export default function HeroCard({ hero }) {
               y="75"
               width="270"
               height="370"
-              preserveAspectRatio="xMidYMid slice"
+              preserveAspectRatio="xMidYMin slice"
               clipPath="url(#portraitClip)"
             />
           )}

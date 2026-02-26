@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 -   **Move Icon** — Replaced placeholder chevron with authentic boot silhouette matching the official RTDT hero board design
+-   **Portrait Alignment** — Portrait images now align to the top of the frame instead of centering, so faces and heads are visible first
+-   **Portrait Drag & Drop** — Portrait upload area now accepts drag-and-drop in addition to click-to-browse; you can also drag a new image onto an existing portrait to replace it
 
 ## [1.2.0] - 2026-02-25
 

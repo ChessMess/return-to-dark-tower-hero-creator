@@ -4,18 +4,37 @@ import { optimizeImage } from '../utils/heroIO';
 export default function HeroForm({ hero, updateHero, updateVirtue }) {
   const [activeVirtue, setActiveVirtue] = useState(0);
 
-  const handlePortraitUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const [dragging, setDragging] = useState(false);
+
+  const loadPortraitFile = async (file) => {
+    if (!file || !file.type.startsWith('image/')) return;
     try {
       const dataUrl = await optimizeImage(file);
       updateHero('portraitDataUrl', dataUrl);
     } catch {
-      // Fallback: use original file unoptimized
       const reader = new FileReader();
       reader.onload = (evt) => updateHero('portraitDataUrl', evt.target.result);
       reader.readAsDataURL(file);
     }
+  };
+
+  const handlePortraitUpload = (e) => {
+    loadPortraitFile(e.target.files[0]);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragging(false);
+    loadPortraitFile(e.dataTransfer.files[0]);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragging(false);
   };
 
   return (
@@ -70,12 +89,24 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
         </h2>
         <div className="space-y-2">
           {hero.portraitDataUrl ? (
-            <div className="space-y-2">
-              <img
-                src={hero.portraitDataUrl}
-                alt="Hero portrait preview"
-                className="w-full h-28 object-cover rounded border border-gray-600"
-              />
+            <div
+              className="space-y-2"
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+            >
+              <div className={`relative rounded transition-colors ${dragging ? 'ring-2 ring-amber-400' : ''}`}>
+                <img
+                  src={hero.portraitDataUrl}
+                  alt="Hero portrait preview"
+                  className="w-full h-28 object-cover rounded border border-gray-600"
+                />
+                {dragging && (
+                  <div className="absolute inset-0 bg-amber-900/40 rounded flex items-center justify-center">
+                    <span className="text-xs font-medium text-amber-200">Drop to replace</span>
+                  </div>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={() => updateHero('portraitDataUrl', null)}
@@ -85,10 +116,15 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
               </button>
             </div>
           ) : (
-            <label className="block cursor-pointer">
-              <div className="border-2 border-dashed border-gray-600 hover:border-amber-600 rounded p-4 text-center text-gray-500 hover:text-gray-300 transition-colors">
+            <label
+              className="block cursor-pointer"
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+            >
+              <div className={`border-2 border-dashed rounded p-4 text-center transition-colors ${dragging ? 'border-amber-400 text-gray-200 bg-amber-900/20' : 'border-gray-600 hover:border-amber-600 text-gray-500 hover:text-gray-300'}`}>
                 <div className="text-2xl mb-1">+</div>
-                <div className="text-xs">Click to upload portrait</div>
+                <div className="text-xs">{dragging ? 'Drop image here' : 'Click or drag image here'}</div>
                 <div className="text-xs text-gray-600 mt-1">JPG, PNG, WEBP</div>
               </div>
               <input
