@@ -231,28 +231,16 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
           )}
 
           {activeVirtue > 0 && (
-            <>
-              <label className="block">
-                <span className="text-gray-400 text-xs">Ability Line 1</span>
-                <input
-                  type="text"
-                  value={hero.virtues[activeVirtue].line1}
-                  maxLength={30}
-                  onChange={(e) => updateVirtue(activeVirtue, 'line1', e.target.value)}
-                  className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
-                />
-              </label>
-              <label className="block">
-                <span className="text-gray-400 text-xs">Ability Line 2</span>
-                <input
-                  type="text"
-                  value={hero.virtues[activeVirtue].line2}
-                  maxLength={30}
-                  onChange={(e) => updateVirtue(activeVirtue, 'line2', e.target.value)}
-                  className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
-                />
-              </label>
-            </>
+            <label className="block">
+              <span className="text-gray-400 text-xs">Ability Description</span>
+              <textarea
+                value={hero.virtues[activeVirtue].description}
+                maxLength={80}
+                rows={3}
+                onChange={(e) => updateVirtue(activeVirtue, 'description', e.target.value)}
+                className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
+              />
+            </label>
           )}
         </div>
       </section>
@@ -262,6 +250,19 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
         <h2 className="text-xs font-bold uppercase tracking-widest text-amber-400 mb-3 border-b border-amber-900 pb-1">
           Champion Ability
         </h2>
+        <label className="block mb-3">
+          <span className="text-gray-400 text-xs">Kingdom</span>
+          <select
+            value={hero.championKingdom}
+            onChange={(e) => updateHero('championKingdom', e.target.value)}
+            className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
+          >
+            <option value="NORTH">NORTH</option>
+            <option value="SOUTH">SOUTH</option>
+            <option value="EAST">EAST</option>
+            <option value="WEST">WEST</option>
+          </select>
+        </label>
         <label className="block">
           <span className="text-gray-400 text-xs">Terrain Type</span>
           <span className="text-gray-600 text-xs ml-1">(e.g. Forest, Mountain, Swamp)</span>

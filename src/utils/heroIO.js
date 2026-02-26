@@ -40,10 +40,18 @@ export function validateHeroData(data) {
         advantageType: typeof src.advantageType === 'string' ? src.advantageType.slice(0, 15) : def.advantageType,
       });
     } else {
+      // Migrate old line1/line2 format to single description field
+      let desc;
+      if (typeof src.description === 'string') {
+        desc = src.description;
+      } else if (typeof src.line1 === 'string' || typeof src.line2 === 'string') {
+        desc = [(src.line1 || ''), (src.line2 || '')].filter(Boolean).join(' ');
+      } else {
+        desc = def.description;
+      }
       hero.virtues.push({
         name: typeof src.name === 'string' ? src.name.slice(0, 12) : def.name,
-        line1: typeof src.line1 === 'string' ? src.line1.slice(0, 30) : def.line1,
-        line2: typeof src.line2 === 'string' ? src.line2.slice(0, 30) : def.line2,
+        description: desc.slice(0, 80),
       });
     }
   }
