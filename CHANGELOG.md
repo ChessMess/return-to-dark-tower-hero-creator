@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-02-25
+
+### Changed
+
+-   **Virtue Editor** — Condensed the 5 separate virtue sections into a single unified section with a dropdown selector and ◀ ▶ arrow buttons to cycle between virtues
+
 ## [1.1.0] - 2026-02-25
 
 ### Added

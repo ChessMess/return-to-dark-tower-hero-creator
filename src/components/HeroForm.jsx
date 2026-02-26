@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { optimizeImage } from '../utils/heroIO';
 
 export default function HeroForm({ hero, updateHero, updateVirtue }) {
+  const [activeVirtue, setActiveVirtue] = useState(0);
+
   const handlePortraitUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -128,78 +131,93 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
         </div>
       </section>
 
-      {/* Virtue 1 — Primary Advantage */}
+      {/* Virtues */}
       <section>
         <h2 className="text-xs font-bold uppercase tracking-widest text-amber-400 mb-3 border-b border-amber-900 pb-1">
-          Virtue 1 — Primary Advantage
+          Virtues
         </h2>
         <div className="space-y-2">
+          <div className="flex items-stretch gap-1">
+            <button
+              type="button"
+              onClick={() => setActiveVirtue((v) => (v === 0 ? 4 : v - 1))}
+              className="shrink-0 rounded bg-gray-700 border border-gray-600 px-1.5 py-1 text-xs text-gray-100 hover:border-amber-500 hover:text-amber-400 transition-colors"
+            >
+              ◀
+            </button>
+            <select
+              value={activeVirtue}
+              onChange={(e) => setActiveVirtue(Number(e.target.value))}
+              className="min-w-0 flex-1 rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
+            >
+              <option value={0}>Virtue 1 — Primary Advantage</option>
+              <option value={1}>Virtue 2</option>
+              <option value={2}>Virtue 3</option>
+              <option value={3}>Virtue 4</option>
+              <option value={4}>Virtue 5</option>
+            </select>
+            <button
+              type="button"
+              onClick={() => setActiveVirtue((v) => (v === 4 ? 0 : v + 1))}
+              className="shrink-0 rounded bg-gray-700 border border-gray-600 px-1.5 py-1 text-xs text-gray-100 hover:border-amber-500 hover:text-amber-400 transition-colors"
+            >
+              ▶
+            </button>
+          </div>
+
           <label className="block">
             <span className="text-gray-400 text-xs">Virtue Name</span>
             <input
               type="text"
-              value={hero.virtues[0].name}
+              value={hero.virtues[activeVirtue].name}
               maxLength={12}
-              onChange={(e) => updateVirtue(0, 'name', e.target.value)}
+              onChange={(e) => updateVirtue(activeVirtue, 'name', e.target.value)}
               className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
             />
           </label>
-          <label className="block">
-            <span className="text-gray-400 text-xs">Advantage Type</span>
-            <span className="text-gray-600 text-xs ml-1">(e.g. Stealth, Magic, Humanoid, Wild)</span>
-            <input
-              type="text"
-              value={hero.virtues[0].advantageType}
-              maxLength={15}
-              onChange={(e) => updateVirtue(0, 'advantageType', e.target.value)}
-              placeholder="TYPE"
-              className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
-            />
-            <span className="text-gray-600 text-xs">Shows as: +1 {hero.virtues[0].advantageType || 'TYPE'} Advantage</span>
-          </label>
+
+          {activeVirtue === 0 && (
+            <label className="block">
+              <span className="text-gray-400 text-xs">Advantage Type</span>
+              <span className="text-gray-600 text-xs ml-1">(e.g. Stealth, Magic, Humanoid, Wild)</span>
+              <input
+                type="text"
+                value={hero.virtues[0].advantageType}
+                maxLength={15}
+                onChange={(e) => updateVirtue(0, 'advantageType', e.target.value)}
+                placeholder="TYPE"
+                className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
+              />
+              <span className="text-gray-600 text-xs">Shows as: +1 {hero.virtues[0].advantageType || 'TYPE'} Advantage</span>
+            </label>
+          )}
+
+          {activeVirtue > 0 && (
+            <>
+              <label className="block">
+                <span className="text-gray-400 text-xs">Ability Line 1</span>
+                <input
+                  type="text"
+                  value={hero.virtues[activeVirtue].line1}
+                  maxLength={30}
+                  onChange={(e) => updateVirtue(activeVirtue, 'line1', e.target.value)}
+                  className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
+                />
+              </label>
+              <label className="block">
+                <span className="text-gray-400 text-xs">Ability Line 2</span>
+                <input
+                  type="text"
+                  value={hero.virtues[activeVirtue].line2}
+                  maxLength={30}
+                  onChange={(e) => updateVirtue(activeVirtue, 'line2', e.target.value)}
+                  className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
+                />
+              </label>
+            </>
+          )}
         </div>
       </section>
-
-      {/* Virtues 2–5 */}
-      {[1, 2, 3, 4].map((i) => (
-        <section key={i}>
-          <h2 className="text-xs font-bold uppercase tracking-widest text-amber-400 mb-3 border-b border-amber-900 pb-1">
-            Virtue {i + 1}
-          </h2>
-          <div className="space-y-2">
-            <label className="block">
-              <span className="text-gray-400 text-xs">Virtue Name</span>
-              <input
-                type="text"
-                value={hero.virtues[i].name}
-                maxLength={12}
-                onChange={(e) => updateVirtue(i, 'name', e.target.value)}
-                className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
-              />
-            </label>
-            <label className="block">
-              <span className="text-gray-400 text-xs">Ability Line 1</span>
-              <input
-                type="text"
-                value={hero.virtues[i].line1}
-                maxLength={30}
-                onChange={(e) => updateVirtue(i, 'line1', e.target.value)}
-                className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
-              />
-            </label>
-            <label className="block">
-              <span className="text-gray-400 text-xs">Ability Line 2</span>
-              <input
-                type="text"
-                value={hero.virtues[i].line2}
-                maxLength={30}
-                onChange={(e) => updateVirtue(i, 'line2', e.target.value)}
-                className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
-              />
-            </label>
-          </div>
-        </section>
-      ))}
 
       {/* Champion */}
       <section>
