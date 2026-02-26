@@ -18,6 +18,10 @@ export function validateHeroData(data) {
     flavorLine1: typeof data.flavorLine1 === 'string' ? data.flavorLine1 : defaultHero.flavorLine1,
     flavorLine2: typeof data.flavorLine2 === 'string' ? data.flavorLine2 : defaultHero.flavorLine2,
     championTerrain: typeof data.championTerrain === 'string' ? data.championTerrain : defaultHero.championTerrain,
+    author_name: typeof data.author_name === 'string' ? data.author_name.slice(0, 50) : '',
+    revision_no: typeof data.revision_no === 'string' ? data.revision_no.slice(0, 8) : '1.0',
+    description: typeof data.description === 'string' ? data.description.slice(0, 1000) : '',
+    contact: typeof data.contact === 'string' ? data.contact.slice(0, 250) : '',
     virtues: [],
   };
 

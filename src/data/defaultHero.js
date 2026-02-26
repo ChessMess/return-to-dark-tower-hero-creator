@@ -13,4 +13,8 @@ export const defaultHero = {
     { name: 'VIRTUE 5', line1: 'Virtue ability', line2: 'description here.' },
   ],
   championTerrain: 'terrain',
+  author_name: '',
+  revision_no: '1.0',
+  description: '',
+  contact: '',
 };

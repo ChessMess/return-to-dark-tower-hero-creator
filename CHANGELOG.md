@@ -6,11 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-02-26
+
+### Added
+
+-   **Author Info** — New sidebar section to record author name, revision number, contact info, and design notes/description
+-   **Author / Revision Badge** — Preview panel shows a subtle badge in the top-left corner when author name or revision is set
+-   **Contact Badge** — Preview panel shows a contact badge in the bottom-left corner with a one-click copy button when contact info is set
+
 ### Changed
 
 -   **Move Icon** — Replaced placeholder chevron with authentic boot silhouette matching the official RTDT hero board design
 -   **Portrait Alignment** — Portrait images now align to the top of the frame instead of centering, so faces and heads are visible first
 -   **Portrait Drag & Drop** — Portrait upload area now accepts drag-and-drop in addition to click-to-browse; you can also drag a new image onto an existing portrait to replace it
+-   **Zoom Controls** — Tightened button sizing for a more compact feel
 
 ## [1.2.0] - 2026-02-25
 
@@ -41,4 +50,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 -   **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 -   **Champion Terrain** — Selectable terrain type for champion ability
 
+[1.3.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.3.0
+[1.2.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.2.0
+[1.1.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.1.0
 [1.0.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.0.0

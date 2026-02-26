@@ -275,6 +275,66 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
         </label>
       </section>
 
+      {/* Author Info */}
+      <section>
+        <h2 className="text-xs font-bold uppercase tracking-widest text-amber-400 mb-3 border-b border-amber-900 pb-1">
+          Author Info
+        </h2>
+        <label className="block mb-3">
+          <div className="flex justify-between mb-1">
+            <span className="text-gray-400 text-xs">Author Name</span>
+            <span className="text-gray-600 text-xs">{(hero.author_name || '').length}/50</span>
+          </div>
+          <input
+            type="text"
+            value={hero.author_name || ''}
+            maxLength={50}
+            onChange={(e) => updateHero('author_name', e.target.value)}
+            placeholder="Your name"
+            className="block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
+          />
+        </label>
+        <label className="block mb-3">
+          <span className="text-gray-400 text-xs">Revision</span>
+          <input
+            type="text"
+            value={hero.revision_no || ''}
+            maxLength={8}
+            onChange={(e) => updateHero('revision_no', e.target.value)}
+            placeholder="e.g. 1.0, v2, draft"
+            className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
+          />
+        </label>
+        <label className="block mb-3">
+          <div className="flex justify-between mb-1">
+            <span className="text-gray-400 text-xs">Description</span>
+            <span className="text-gray-600 text-xs">{(hero.description || '').length}/1000</span>
+          </div>
+          <textarea
+            value={hero.description || ''}
+            maxLength={1000}
+            rows={4}
+            onChange={(e) => updateHero('description', e.target.value)}
+            placeholder="Notes about this hero card..."
+            className="block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
+          />
+        </label>
+        <label className="block">
+          <div className="flex justify-between mb-1">
+            <span className="text-gray-400 text-xs">Contact</span>
+            <span className="text-gray-600 text-xs">{(hero.contact || '').length}/250</span>
+          </div>
+          <input
+            type="text"
+            value={hero.contact || ''}
+            maxLength={250}
+            onChange={(e) => updateHero('contact', e.target.value)}
+            placeholder="Email, URL, or handle"
+            className="block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
+          />
+        </label>
+      </section>
+
       {/* Bottom spacer */}
       <div className="h-4" />
     </div>

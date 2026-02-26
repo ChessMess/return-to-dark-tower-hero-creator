@@ -27,6 +27,7 @@ export default function App() {
   const [statusMsg, setStatusMsg] = useState(null);
   const [showPasteModal, setShowPasteModal] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const [contactCopied, setContactCopied] = useState(false);
 
   const showStatus = (text, type = 'success') => {
     setStatusMsg({ text, type });
@@ -219,29 +220,63 @@ export default function App() {
 
       {/* Preview panel */}
       <main className="flex-1 overflow-auto bg-gray-950 flex items-center justify-center p-8 relative">
+        {(hero.author_name || hero.revision_no) && (
+          <div className="absolute top-4 left-4 z-10 flex items-center gap-1.5 bg-gray-800/80 border border-gray-700 rounded-lg px-2.5 py-1">
+            <span className="text-xs text-gray-500">Designed by:</span>
+            {hero.author_name && (
+              <span className="text-xs text-gray-300">{hero.author_name}</span>
+            )}
+            {hero.revision_no && (
+              <span className="text-xs text-gray-500 font-mono">v{hero.revision_no}</span>
+            )}
+          </div>
+        )}
         <div className="shadow-2xl" style={{ transform: `scale(${zoom})`, transformOrigin: 'center center' }}>
           <HeroCard hero={hero} />
         </div>
+        {/* Contact info */}
+        {hero.contact && (
+          <div className="absolute bottom-4 left-4 flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-gray-800/80 border border-gray-700 rounded-lg px-2.5 py-1 max-w-[480px]">
+              <span className="text-xs text-gray-500 shrink-0">Contact:</span>
+              <div className="relative min-w-0 flex-1">
+                <span className={`text-xs text-gray-300 block truncate ${contactCopied ? 'invisible' : ''}`}>{hero.contact}</span>
+                <span className={`text-xs text-green-400 absolute inset-0 ${contactCopied ? '' : 'invisible'}`}>Copied!</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigator.clipboard.writeText(hero.contact).then(() => { setContactCopied(true); setTimeout(() => setContactCopied(false), 1000); }).catch(() => showStatus('Copy failed — check browser permissions', 'error'))}
+              title="Copy contact info"
+              className="flex items-center justify-center bg-gray-800/80 border border-gray-700 rounded-lg p-1.5 text-gray-400 hover:bg-gray-700 hover:text-gray-200 active:bg-gray-600 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+            </button>
+          </div>
+        )}
         {/* Zoom controls */}
-        <div className="absolute bottom-4 right-4 flex items-center gap-1 bg-gray-800/80 border border-gray-700 rounded-lg px-1 py-1">
+        <div className="absolute bottom-4 right-4 flex items-center gap-1 bg-gray-800/80 border border-gray-700 rounded-lg px-1 py-0">
           <button
             type="button"
             onClick={() => setZoom((z) => Math.max(0.25, +(z - 0.25).toFixed(2)))}
-            className="w-7 h-7 flex items-center justify-center rounded text-gray-300 hover:bg-gray-700 text-sm font-bold transition-colors"
+            className="px-2 py-1 flex items-center justify-center rounded text-gray-300 hover:bg-gray-700 text-xs font-bold transition-colors"
           >
             −
           </button>
           <button
             type="button"
             onClick={() => setZoom(1)}
-            className="px-1.5 h-7 flex items-center justify-center rounded text-gray-400 hover:bg-gray-700 text-xs tabular-nums transition-colors"
+            className="px-1.5 py-1 flex items-center justify-center rounded text-gray-400 hover:bg-gray-700 text-xs tabular-nums transition-colors"
           >
             {Math.round(zoom * 100)}%
           </button>
           <button
             type="button"
             onClick={() => setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)))}
-            className="w-7 h-7 flex items-center justify-center rounded text-gray-300 hover:bg-gray-700 text-sm font-bold transition-colors"
+            className="px-2 py-1 flex items-center justify-center rounded text-gray-300 hover:bg-gray-700 text-xs font-bold transition-colors"
           >
             +
           </button>
