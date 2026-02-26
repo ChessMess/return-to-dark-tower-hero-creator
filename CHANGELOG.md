@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+-   **Move Icon** — Replaced placeholder chevron with authentic boot silhouette matching the official RTDT hero board design
+
 ## [1.2.0] - 2026-02-25
 
 ### Changed
