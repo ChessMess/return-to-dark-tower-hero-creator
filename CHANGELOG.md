@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-02-27
+
 ### Added
 
 - **Card Flip Preview** — The hero preview card now features a flip effect: click the 'Show Back' button to flip the card and reveal a back side displaying author information, description, and a custom background image. The back layout adapts to only show fields that are filled in, and the flip animation is smooth and consistent. PDF export remains front-only.
@@ -68,6 +70,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 - **Champion Terrain** — Selectable terrain type for champion ability
 
+[1.4.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.4.0
 [1.3.1]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.3.1
 [1.3.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.3.0
 [1.2.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.2.0
