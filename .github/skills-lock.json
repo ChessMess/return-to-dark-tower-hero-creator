@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "svg": {
+      "source": "tazomatalax/threedee",
+      "sourceType": "github",
+      "computedHash": "7bbe28e0accea3bdd8ac8677d91bfe503a04f0543fb339b481a44b964987c58a"
+    }
+  }
+}

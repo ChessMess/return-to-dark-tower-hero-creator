@@ -606,7 +606,7 @@ export default function HeroCard({ hero }) {
             <line x1="900" y1="310" x2="900" y2="304" stroke="url(#goldOrnament)" strokeWidth="2"/>
             {/* Champion name tab (wider) */}
             <rect x="769" y="229" width="118" height="17" rx="3" fill="#3d3529" stroke="url(#goldOrnament)" strokeWidth="1.5"/>
-            <text x="828" y="241" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="7" fontWeight="bold" fill="#d4c4a8">{`CHAMPION OF THE ${hero.championKingdom}`}</text>
+            <text x="828" y="241" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="7" fontWeight="bold" fill="#d4c4a8">{hero.championKingdom ? `CHAMPION OF THE ${hero.championKingdom}` : 'CHAMPION ABILITY'}</text>
             {/* Glyph icon */}
             <use href="#iconGlyph" x="817" y="250" width="22" height="22" color="#c4a882"/>
             <text x="828" y="286" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9" fill="#c4a882">+2 Wild Advantages</text>

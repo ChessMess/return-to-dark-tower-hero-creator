@@ -257,6 +257,7 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
             onChange={(e) => updateHero('championKingdom', e.target.value)}
             className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
           >
+            <option value="">— none —</option>
             <option value="NORTH">NORTH</option>
             <option value="SOUTH">SOUTH</option>
             <option value="EAST">EAST</option>
