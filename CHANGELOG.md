@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+-   **Collapsible Sidebar** — Toggle button (« / ») in the preview panel collapses and expands the editor sidebar with a smooth slide animation; sidebar state persists across page reloads via localStorage
+
 ## [1.3.1] - 2026-02-26
 
 ### Changed

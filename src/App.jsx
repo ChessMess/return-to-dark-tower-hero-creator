@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import { svg2pdf } from 'svg2pdf.js';
 import HeroCard from './components/HeroCard';
@@ -28,6 +28,11 @@ export default function App() {
   const [hero, setHero] = useState(loadHero);
   const [downloading, setDownloading] = useState(false);
   const [statusMsg, setStatusMsg] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(() => localStorage.getItem('sidebarOpen') !== 'false');
+
+  useEffect(() => {
+    localStorage.setItem('sidebarOpen', sidebarOpen);
+  }, [sidebarOpen]);
   const [showPasteModal, setShowPasteModal] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [contactCopied, setContactCopied] = useState(false);
@@ -150,7 +155,7 @@ export default function App() {
   return (
     <div className="flex h-screen bg-gray-900 text-gray-100 overflow-hidden">
       {/* Editor panel */}
-      <aside className="w-80 flex flex-col bg-gray-800 border-r border-gray-700 overflow-hidden">
+      <aside className={`flex flex-col bg-gray-800 border-r border-gray-700 overflow-hidden transition-all duration-300 ${sidebarOpen ? 'w-80' : 'w-0 border-r-0'}`}>
         {/* Header */}
         <div className="px-4 py-3 border-b border-gray-700 bg-gray-900 flex items-center justify-between shrink-0">
           <div>
@@ -223,8 +228,17 @@ export default function App() {
 
       {/* Preview panel */}
       <main className="flex-1 overflow-auto bg-gray-950 flex items-center justify-center p-8 relative">
+        <button
+          type="button"
+          onClick={() => setSidebarOpen(o => !o)}
+          aria-label="Toggle sidebar"
+          aria-expanded={sidebarOpen}
+          className="absolute top-4 left-4 z-20 w-7 h-7 flex items-center justify-center rounded bg-gray-800 border border-gray-700 text-gray-400 hover:text-amber-400 hover:border-amber-500 transition-colors text-sm"
+        >
+          {sidebarOpen ? '\u00AB' : '\u00BB'}
+        </button>
         {(hero.author_name || hero.revision_no) && (
-          <div className="absolute top-4 left-4 z-10 flex items-center gap-1.5 bg-gray-800/80 border border-gray-700 rounded-lg px-2.5 py-1">
+          <div className="absolute top-4 left-14 z-10 flex items-center gap-1.5 bg-gray-800/80 border border-gray-700 rounded-lg px-2.5 py-1">
             <span className="text-xs text-gray-500">Designed by:</span>
             {hero.author_name && (
               <span className="text-xs text-gray-300">{hero.author_name}</span>
