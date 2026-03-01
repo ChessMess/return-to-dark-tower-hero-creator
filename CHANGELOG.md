@@ -6,6 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- **Responsive Board Preview** — V2 hero board now automatically scales to fit the viewport; resizing the browser or toggling the sidebar reflows the card instantly. Toolbar (sidebar toggle, flip, zoom) moved to a dedicated row above the card so controls never overlap the preview. Zooming beyond 100% produces scrollbars for panning.
+
+## [2.0.0] - 2026-03-01
+
+### Added
+
+- **V2 Hero Board Creator** — All-new board creator based on the full 1213×808px hero board template, replacing the smaller 910×606px hero card as the default view. V1 card creator remains accessible at `/v1`.
+- **Dynamic Virtue System** — 0–6 freely assignable virtue slots (up from V1's fixed 5). Each virtue has a type selector: **Standard** (description text), **Advantage** (+1 type advantage), or **Champion** (+2 wild advantages with kingdom selection).
+- **Dedicated Virtue Artwork** — Three distinct SVG artwork frames (`virtue_standard.svg`, `virtue_advantage.svg`, `virtue_champion.svg`) rendered per-slot based on virtue type, with empty placeholder shapes for unassigned slots.
+- **Champion Virtue Type** — Champion virtues display a centered 2-line title ("CHAMPION OF / THE {KINGDOM}" or "CHAMPION / ABILITY" for all-kingdom), with "+2 Wild Advantages in {terrain}" body text. Kingdom options: ALL, NORTH, SOUTH, EAST, WEST.
+- **Banner Action** — New editable text field for the hero's banner action (e.g., "Gain 1 potion"), rendered on the board.
+- **Hero Portrait** — Drag-and-drop or click-to-upload portrait image with clip-path framing, matching V1's `xMidYMin slice` approach.
+- **PDF Export with Rasterization** — SVG `<image>` references are rasterized to high-res PNG (3× scale) before PDF generation, fixing corruption issues with complex SVG backgrounds in svg2pdf.js.
+- **V1 Data Migration** — Automatically migrates V1 hero data from `rtdt-hero` localStorage key to V2 format on first load.
+
+### Changed
+
+- **Versioned Routing** — App now uses react-router-dom with V2 at `/` (default) and V1 preserved at `/v1`.
+- **Separate Storage** — V2 uses `rtdt-hero-v2` localStorage key, independent of V1's `rtdt-hero`.
+- **Google Fonts** — Added Karma (600, 700) and Aleo (italic) via CDN for accurate board text rendering.
+
 ## [1.4.0] - 2026-02-27
 
 ### Added
@@ -70,6 +93,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 - **Champion Terrain** — Selectable terrain type for champion ability
 
+[2.0.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v2.0.0
 [1.4.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.4.0
 [1.3.1]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.3.1
 [1.3.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.3.0
