@@ -27,11 +27,11 @@ Open **http://localhost:5173** in your browser to verify everything works.
 
 ### Useful Commands
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start dev server with hot reload |
-| `npm run build` | Production build to `dist/` |
-| `npm run preview` | Preview the production build |
+| Command           | Description                      |
+| ----------------- | -------------------------------- |
+| `npm run dev`     | Start dev server with hot reload |
+| `npm run build`   | Production build to `dist/`      |
+| `npm run preview` | Preview the production build     |
 
 ## Code Standards
 
@@ -44,26 +44,29 @@ Open **http://localhost:5173** in your browser to verify everything works.
 ### Style
 
 - Follow existing naming conventions and file structure
-- Keep SVG markup in `HeroCard.jsx` — all dynamic bindings are inline
-- State shape is defined in `src/data/defaultHero.js`
+- Keep SVG markup in `src/v2/components/HeroBoard.jsx` — dynamic bindings are inline
+- State shape is defined in `src/v2/data/defaultHero.js`
 
 ## Project Architecture
 
 ```
 src/
-├── App.jsx            — Layout, state management, PDF download
-├── index.css          — Global styles (Tailwind imports)
-├── components/
-│   ├── HeroCard.jsx   — Inline SVG hero card (~600 lines)
-│   └── HeroForm.jsx   — Editor form with all inputs
-└── data/
-    └── defaultHero.js — Canonical state shape and defaults
+├── main.jsx                 — App bootstrap
+├── RouterApp.jsx            — BrowserRouter shell
+├── index.css                — Global styles (Tailwind import)
+└── v2/
+   ├── App.jsx              — Layout, state management, PDF download
+   ├── components/
+   │   ├── HeroBoard.jsx    — Inline SVG hero board
+   │   └── HeroForm.jsx     — Editor form
+   ├── data/defaultHero.js  — Canonical state shape and defaults
+   └── utils/heroIO.js      — Save/load/import/export + migration
 ```
 
 Key points:
 
 - **No backend** — this is a purely client-side SPA
-- **No state library** — plain React `useState` in `App.jsx`
+- **No state library** — plain React `useState` in `src/v2/App.jsx`
 - **PDF export** — uses `jspdf` + `svg2pdf.js` to convert the live SVG to a vector PDF
 
 ## Release Process
@@ -73,6 +76,7 @@ This project follows [GitHub Flow](https://docs.github.com/en/get-started/using-
 ### Steps
 
 1. **Create a release branch** from `main`:
+
    ```bash
    git checkout -b release/vX.Y.Z
    ```
@@ -82,6 +86,7 @@ This project follows [GitHub Flow](https://docs.github.com/en/get-started/using-
 3. **Update `CHANGELOG.md`** with the new version's changes
 
 4. **Build and verify**:
+
    ```bash
    npm run build
    npm run preview
@@ -90,6 +95,7 @@ This project follows [GitHub Flow](https://docs.github.com/en/get-started/using-
 5. **Open a Pull Request** from the release branch into `main`
 
 6. **After merge, tag the release**:
+
    ```bash
    git checkout main && git pull
    git tag vX.Y.Z

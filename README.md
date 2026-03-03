@@ -25,7 +25,6 @@ Create custom hero boards for [Return to Dark Tower](https://restorationgames.co
 - **Banner Action** — Editable text for the hero's banner action
 - **Flavor Text** — Single textarea with auto-wrapping and live character counter
 - **Collapsible Editor** — Form sections collapse/expand with persistent state
-- **V1 Card Creator** — The original 910×606px hero card creator is still available at `/v1`
 - **No Backend Required** — Runs entirely in the browser as a static site
 
 ## Requirements
@@ -69,14 +68,9 @@ npm run preview
 ```
 src/
 ├── main.jsx              — Mounts RouterApp
-├── RouterApp.jsx          — BrowserRouter with /v1 and / routes
+├── RouterApp.jsx          — BrowserRouter with / route
 ├── index.css              — Shared Tailwind entry
-├── v1/                    — V1 hero card creator (preserved)
-│   ├── App.jsx
-│   ├── components/
-│   ├── data/
-│   └── utils/
-└── v2/                    — V2 hero board creator (default)
+└── v2/                    — Hero board creator
     ├── App.jsx
     ├── components/
     │   ├── HeroBoard.jsx  — Live SVG preview
