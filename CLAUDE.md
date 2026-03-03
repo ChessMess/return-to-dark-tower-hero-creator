@@ -19,9 +19,12 @@ The app is versioned with **react-router-dom**. Two versions live side by side:
 - **V1** (`/v1` route) — Hero **Card** creator (910×606px). Fully working, preserved as-is.
 - **V2** (`/` route) — Hero **Board** creator (1213×808px). Under development.
 
+Default working rule: do not modify anything under `src/v1` unless a task explicitly directs v1 changes.
+
 Routing shell: `src/RouterApp.jsx` → `BrowserRouter` with `basename={import.meta.env.BASE_URL}`.
 
 ### Directory structure
+
 ```
 src/
   main.jsx           # mounts RouterApp
@@ -45,6 +48,7 @@ Left sidebar (editor) + right main area (live SVG preview).
 **Data flow:** `v1/App.jsx` owns all state via `useState`. It passes `hero`, `updateHero`, and `updateVirtue` down to `HeroForm` and `hero` down to `HeroCard`. Every state change is persisted to `localStorage` key `"rtdt-hero"`.
 
 **State shape** (canonical source: `src/v1/data/defaultHero.js`):
+
 ```js
 {
   name, warriors, spirit, portraitDataUrl,
@@ -72,6 +76,7 @@ Uses Tailwind CSS v4 via `@tailwindcss/vite` plugin. There is **no** `tailwind.c
 ## SVG Template Sync — CRITICAL
 
 ### V1: `hero_card_template.svg` ↔ `src/v1/components/HeroCard.jsx`
+
 ### V2: `hero_board_template.svg` ↔ `src/v2/components/HeroBoard.jsx` (when created)
 
 - The SVG template is the authoritative design source — all visual structure, coordinates, gradients, fonts, and layout live there.

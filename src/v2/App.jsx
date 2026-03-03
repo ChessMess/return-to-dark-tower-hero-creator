@@ -3,8 +3,17 @@ import jsPDF from "jspdf";
 import { svg2pdf } from "svg2pdf.js";
 import HeroBoard from "./components/HeroBoard";
 import HeroForm from "./components/HeroForm";
-import { defaultHero, MAX_VIRTUES, createEmptyVirtue } from "./data/defaultHero";
-import { loadHero, saveHero, validateHeroData, heroToJson } from "./utils/heroIO";
+import {
+  defaultHero,
+  MAX_VIRTUES,
+  createEmptyVirtue,
+} from "./data/defaultHero";
+import {
+  loadHero,
+  saveHero,
+  validateHeroData,
+  heroToJson,
+} from "./utils/heroIO";
 import coverBg from "./assets/rtdt_cover2.jpg";
 
 export default function V2App() {
@@ -68,7 +77,10 @@ export default function V2App() {
       if (prev.virtues.length >= MAX_VIRTUES) return prev;
       const next = {
         ...prev,
-        virtues: [...prev.virtues, createEmptyVirtue(`VIRTUE ${prev.virtues.length + 1}`)],
+        virtues: [
+          ...prev.virtues,
+          createEmptyVirtue(`VIRTUE ${prev.virtues.length + 1}`),
+        ],
       };
       saveHero(next);
       return next;
@@ -82,19 +94,29 @@ export default function V2App() {
       return next;
     });
 
-  const hasChanges = () =>
-    JSON.stringify(hero) !== JSON.stringify(defaultHero);
+  const hasChanges = () => JSON.stringify(hero) !== JSON.stringify(defaultHero);
 
   const resetHero = () => {
-    if (hasChanges() && !window.confirm("You have unsaved changes that will be lost. Reset anyway?")) return;
+    if (
+      hasChanges() &&
+      !window.confirm(
+        "You have unsaved changes that will be lost. Reset anyway?",
+      )
+    )
+      return;
     localStorage.removeItem("rtdt-hero-v2");
-    setHero({ ...defaultHero, virtues: defaultHero.virtues.map((v) => ({ ...v })) });
+    setHero({
+      ...defaultHero,
+      virtues: defaultHero.virtues.map((v) => ({ ...v })),
+    });
   };
 
   // Rasterize an SVG <image> element to a high-res PNG data URL
   const rasterizeSvgImage = (imgEl) =>
     new Promise((resolve, reject) => {
-      const href = imgEl.getAttribute("href") || imgEl.getAttributeNS("http://www.w3.org/1999/xlink", "href");
+      const href =
+        imgEl.getAttribute("href") ||
+        imgEl.getAttributeNS("http://www.w3.org/1999/xlink", "href");
       if (!href || href.startsWith("data:")) {
         resolve(null); // already a data URL or no href — skip
         return;
@@ -205,10 +227,16 @@ export default function V2App() {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(28);
       doc.setTextColor(252, 211, 77);
-      doc.text("Return to Dark Tower Hero Board Creator", 1213 / 2, 120, { align: "center" });
+      doc.text("Return to Dark Tower Hero Board Creator", 1213 / 2, 120, {
+        align: "center",
+      });
 
       // Author info
-      const hasInfo = hero.author_name || hero.revision_no || hero.contact || hero.description;
+      const hasInfo =
+        hero.author_name ||
+        hero.revision_no ||
+        hero.contact ||
+        hero.description;
       if (hasInfo) {
         const boxX = 1213 * 0.035;
         const boxW = 1213 * 0.93;
@@ -255,7 +283,7 @@ export default function V2App() {
           doc.setFont("helvetica", "normal");
           doc.setFontSize(14);
           doc.setTextColor(209, 213, 219);
-          const label = "Version: ";
+          const label = "Hero Version: ";
           const labelW = doc.getTextWidth(label);
           doc.setFont("courier", "normal");
           const valW = doc.getTextWidth(hero.revision_no);
@@ -417,16 +445,32 @@ export default function V2App() {
             </div>
           )}
           <div className="grid grid-cols-2 gap-2">
-            <button type="button" onClick={handleSaveJson} className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors">
+            <button
+              type="button"
+              onClick={handleSaveJson}
+              className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors"
+            >
               Save Hero
             </button>
-            <button type="button" onClick={handleLoadJson} className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors">
+            <button
+              type="button"
+              onClick={handleLoadJson}
+              className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors"
+            >
               Load Hero
             </button>
-            <button type="button" onClick={handleCopyToClipboard} className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors">
+            <button
+              type="button"
+              onClick={handleCopyToClipboard}
+              className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors"
+            >
               Copy
             </button>
-            <button type="button" onClick={() => setShowPasteModal(true)} className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors">
+            <button
+              type="button"
+              onClick={() => setShowPasteModal(true)}
+              className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors"
+            >
               Paste
             </button>
           </div>
@@ -457,9 +501,22 @@ export default function V2App() {
             </button>
             {(hero.author_name || hero.revision_no) && (
               <span className="text-xs text-gray-400 tracking-wider">
-                {hero.author_name && <>Hero designed by: <span className="text-amber-200 font-semibold">{hero.author_name}</span></>}
-                {hero.author_name && hero.revision_no && <span className="mx-1.5 text-gray-600">·</span>}
-                {hero.revision_no && <span className="font-mono text-gray-300">v{hero.revision_no}</span>}
+                {hero.author_name && (
+                  <>
+                    Hero designed by:{" "}
+                    <span className="text-amber-200 font-semibold">
+                      {hero.author_name}
+                    </span>
+                  </>
+                )}
+                {hero.author_name && hero.revision_no && (
+                  <span className="mx-1.5 text-gray-600">·</span>
+                )}
+                {hero.revision_no && (
+                  <span className="font-mono text-gray-300">
+                    v{hero.revision_no}
+                  </span>
+                )}
               </span>
             )}
           </div>
@@ -477,7 +534,9 @@ export default function V2App() {
             <div className="flex items-center gap-1 bg-gray-800/80 border border-gray-700 rounded-lg px-1 py-0">
               <button
                 type="button"
-                onClick={() => setZoom((z) => Math.max(0.25, +(z - 0.25).toFixed(2)))}
+                onClick={() =>
+                  setZoom((z) => Math.max(0.25, +(z - 0.25).toFixed(2)))
+                }
                 className="px-2 py-1 flex items-center justify-center rounded text-gray-300 hover:bg-gray-700 text-xs font-bold transition-colors"
               >
                 −
@@ -491,7 +550,9 @@ export default function V2App() {
               </button>
               <button
                 type="button"
-                onClick={() => setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)))}
+                onClick={() =>
+                  setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)))
+                }
                 className="px-2 py-1 flex items-center justify-center rounded text-gray-300 hover:bg-gray-700 text-xs font-bold transition-colors"
               >
                 +
@@ -501,7 +562,10 @@ export default function V2App() {
         </div>
 
         {/* Card area */}
-        <div ref={cardAreaRef} className="flex-1 overflow-auto grid place-items-center px-8 pt-2 pb-8">
+        <div
+          ref={cardAreaRef}
+          className="flex-1 overflow-auto grid justify-items-center items-start px-8 pt-2 pb-8"
+        >
           <div
             className="relative [perspective:2000px] shadow-2xl"
             style={{
@@ -526,27 +590,42 @@ export default function V2App() {
                 className="absolute inset-0 w-full h-full flex flex-col items-center justify-center [backface-visibility:hidden] rotate-y-180 rounded-lg overflow-hidden border-2 border-gray-600"
                 style={{ zIndex: 1 }}
               >
-                <img src={coverBg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                <img
+                  src={coverBg}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
                 <div className="absolute inset-0 w-full h-full bg-black/50" />
                 <div className="relative z-10 flex flex-col items-center justify-center text-center w-full h-full">
-                  <h2 className="text-5xl text-amber-300 drop-shadow mb-4 mt-16" style={{ fontFamily: 'AzkolsKerning7, sans-serif' }}>
+                  <h2
+                    className="text-5xl text-amber-300 drop-shadow mb-4 mt-16"
+                    style={{ fontFamily: "AzkolsKerning7, sans-serif" }}
+                  >
                     Return to Dark Tower Hero Board Creator
                   </h2>
-                  {hero.author_name || hero.revision_no || hero.contact || hero.description ? (
+                  {hero.author_name ||
+                  hero.revision_no ||
+                  hero.contact ||
+                  hero.description ? (
                     <div className="bg-yellow-700/50 rounded-3xl px-8 py-6 shadow-lg w-[93%] mx-auto">
                       {hero.author_name && (
                         <p className="text-lg text-gray-100 font-semibold mb-2">
-                          Designed by: <span className="text-amber-200">{hero.author_name}</span>
+                          Designed by:{" "}
+                          <span className="text-amber-200">
+                            {hero.author_name}
+                          </span>
                         </p>
                       )}
                       {hero.revision_no && (
                         <p className="text-md text-gray-300 mb-2">
-                          Version: <span className="font-mono">{hero.revision_no}</span>
+                          Hero Version:{" "}
+                          <span className="font-mono">{hero.revision_no}</span>
                         </p>
                       )}
                       {hero.contact && (
                         <p className="text-md text-gray-300 mb-2">
-                          Contact: <span className="font-mono">{hero.contact}</span>
+                          Contact:{" "}
+                          <span className="font-mono">{hero.contact}</span>
                         </p>
                       )}
                       {hero.description && (
@@ -587,7 +666,11 @@ export default function V2App() {
               </button>
               <button
                 type="button"
-                onClick={() => handlePasteSubmit(document.getElementById("paste-textarea-v2").value)}
+                onClick={() =>
+                  handlePasteSubmit(
+                    document.getElementById("paste-textarea-v2").value,
+                  )
+                }
                 className="rounded bg-amber-700 hover:bg-amber-600 text-white text-xs px-4 py-1.5 font-bold transition-colors"
               >
                 Load
