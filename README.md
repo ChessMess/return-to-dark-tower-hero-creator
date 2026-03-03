@@ -1,4 +1,4 @@
-# RTDT Hero Card Creator
+# RTDT Hero Board Creator
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Live Site](https://img.shields.io/badge/Live%20Site-GitHub%20Pages-blue)](https://chessmess.github.io/return-to-dark-tower-hero-creator/)
@@ -11,15 +11,21 @@ Create custom hero boards for [Return to Dark Tower](https://restorationgames.co
 
 ---
 
-![Hero Card Preview](hero_card_template.svg)
+![Hero Board Preview](HeroBoardEmpty.png)
 
 ## Features
 
-- **Live SVG Preview** — See your hero card update in real time as you edit
+- **Live SVG Preview** — See your hero board update in real time as you edit
 - **Vector PDF Export** — Download a print-ready PDF powered by jspdf + svg2pdf.js
-- **Custom Portraits** — Upload any image with automatic clip-path framing
-- **Full Virtue System** — Define up to 5 virtues with names, advantage types, and ability text
-- **Champion Terrain** — Select terrain type for champion abilities
+- **Custom Portraits** — Drag-and-drop or click-to-upload with automatic clip-path framing
+- **Dynamic Virtue System** — 0–6 freely assignable virtue slots, each with a selectable type:
+  - **Standard** — name and description text
+  - **Advantage** — +1 type advantage
+  - **Champion** — +2 wild advantages with kingdom selection
+- **Banner Action** — Editable text for the hero's banner action
+- **Flavor Text** — Single textarea with auto-wrapping and live character counter
+- **Collapsible Editor** — Form sections collapse/expand with persistent state
+- **V1 Card Creator** — The original 910×606px hero card creator is still available at `/v1`
 - **No Backend Required** — Runs entirely in the browser as a static site
 
 ## Requirements
@@ -52,25 +58,33 @@ npm run preview
 ## Usage
 
 1. **Hero Identity** — Enter your hero's name and set starting Warriors and Spirit
-2. **Portrait** — Upload a custom portrait image (JPG, PNG, etc.)
-3. **Flavor Text** — Add two lines of atmospheric flavor text
-4. **Virtues** — Define up to 5 virtues:
-   - Virtue 1: choose a name and advantage type (e.g. "Stealth", "Magic", "Humanoid")
-   - Virtues 2–5: add a name and two lines of ability text
-5. **Champion** — Set the terrain type for your champion ability
+2. **Portrait** — Upload a custom portrait image (drag-and-drop or click to browse)
+3. **Banner Action** — Set your hero's banner action text
+4. **Flavor Text** — Add atmospheric flavor text (120 characters, auto-wraps on the board)
+5. **Virtues** — Add up to 6 virtues and choose a type for each (Standard, Advantage, or Champion)
 6. Click **Download PDF** to save your hero board as a print-ready PDF
 
 ## Project Structure
 
 ```
 src/
-├── App.jsx            — Layout and state management
-├── index.css          — Global styles
-├── components/
-│   ├── HeroCard.jsx   — Live SVG preview
-│   └── HeroForm.jsx   — Editor form
-└── data/
-    └── defaultHero.js — Default hero values
+├── main.jsx              — Mounts RouterApp
+├── RouterApp.jsx          — BrowserRouter with /v1 and / routes
+├── index.css              — Shared Tailwind entry
+├── v1/                    — V1 hero card creator (preserved)
+│   ├── App.jsx
+│   ├── components/
+│   ├── data/
+│   └── utils/
+└── v2/                    — V2 hero board creator (default)
+    ├── App.jsx
+    ├── components/
+    │   ├── HeroBoard.jsx  — Live SVG preview
+    │   └── HeroForm.jsx   — Editor form
+    ├── data/
+    │   └── defaultHero.js — Default hero values
+    └── utils/
+        └── heroIO.js      — Save/load/import/export
 ```
 
 ## Contributing
