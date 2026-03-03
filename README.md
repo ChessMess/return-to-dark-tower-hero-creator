@@ -17,6 +17,7 @@ Create custom hero boards for [Return to Dark Tower](https://restorationgames.co
 
 - **Live SVG Preview** — See your hero board update in real time as you edit
 - **Vector PDF Export** — Download a print-ready PDF powered by jspdf + svg2pdf.js
+- **Snapshot Export** — Click the camera icon to copy the board as a PNG to your clipboard; hold for 3 seconds to copy and download simultaneously
 - **Custom Portraits** — Drag-and-drop or click-to-upload with automatic clip-path framing
 - **Dynamic Virtue System** — 0–6 freely assignable virtue slots, each with a selectable type:
   - **Standard** — name and description text

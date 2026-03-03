@@ -384,76 +384,154 @@ export default function V2App() {
     }
   };
 
-  const handleSnapshot = async () => {
-    try {
-      const svgEl = document.querySelector("#hero-board-container svg");
-      if (!svgEl) return;
+  const sanitizeFilename = (name) => {
+    if (!name || name === "HERO NAME") return "hero";
+    const sanitized = name
+      .trim()
+      .replace(/[<>:"/\\|?*]/g, "")
+      .replace(/\s+/g, "-")
+      .toLowerCase();
+    return sanitized || "hero";
+  };
 
-      // Clone SVG so we don't mutate the live DOM
-      const clone = svgEl.cloneNode(true);
+  const renderBoardPngBlob = () =>
+    new Promise(async (resolve, reject) => {
+      try {
+        const svgEl = document.querySelector("#hero-board-container svg");
+        if (!svgEl) return reject(new Error("No SVG element found"));
 
-      // Rasterize external <image> hrefs in the clone to prevent canvas taint
-      const images = clone.querySelectorAll("image");
-      for (const imgEl of images) {
-        const href = imgEl.getAttribute("href") || "";
-        if (href && !href.startsWith("data:")) {
-          try {
-            const dataUrl = await rasterizeSvgImage(imgEl);
-            if (dataUrl) imgEl.setAttribute("href", dataUrl);
-          } catch (e) {
-            console.warn("Could not rasterize image for snapshot:", e);
+        const clone = svgEl.cloneNode(true);
+        const images = clone.querySelectorAll("image");
+        for (const imgEl of images) {
+          const href = imgEl.getAttribute("href") || "";
+          if (href && !href.startsWith("data:")) {
+            try {
+              const dataUrl = await rasterizeSvgImage(imgEl);
+              if (dataUrl) imgEl.setAttribute("href", dataUrl);
+            } catch (e) {
+              console.warn("Could not rasterize image for snapshot:", e);
+            }
           }
         }
+
+        const svgString = new XMLSerializer().serializeToString(clone);
+        const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = 1213;
+        canvas.height = 808;
+        const ctx = canvas.getContext("2d");
+
+        const img = new Image();
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0, 1213, 808);
+          URL.revokeObjectURL(url);
+          canvas.toBlob((pngBlob) => resolve(pngBlob), "image/png");
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(new Error("Could not render board"));
+        };
+        img.src = url;
+      } catch (err) {
+        reject(err);
       }
+    });
 
-      // Serialize to blob URL and draw on canvas at native dimensions
-      const svgString = new XMLSerializer().serializeToString(clone);
-      const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
+  const copyBlobToClipboard = async (blob) => {
+    await navigator.clipboard.write([
+      new ClipboardItem({ "image/png": blob }),
+    ]);
+  };
 
-      const canvas = document.createElement("canvas");
-      canvas.width = 1213;
-      canvas.height = 808;
-      const ctx = canvas.getContext("2d");
+  const downloadBlob = (blob, filename) => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
 
-      const img = new Image();
-      img.onload = async () => {
-        ctx.drawImage(img, 0, 0, 1213, 808);
-        URL.revokeObjectURL(url);
-
-        canvas.toBlob(async (pngBlob) => {
-          try {
-            await navigator.clipboard.write([
-              new ClipboardItem({ "image/png": pngBlob }),
-            ]);
-            setSnapshotFlash(true);
-            setTimeout(() => setSnapshotFlash(false), 600);
-            showStatus("Image copied to clipboard");
-          } catch {
-            // Clipboard write failed — fall back to PNG download
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(pngBlob);
-            const filename =
-              hero.name && hero.name !== "HERO NAME"
-                ? `${hero.name.toLowerCase().replace(/\s+/g, "-")}-hero-board.png`
-                : "hero-board.png";
-            a.download = filename;
-            a.click();
-            URL.revokeObjectURL(a.href);
-            showStatus("Downloaded as PNG (clipboard unavailable)");
-          }
-        }, "image/png");
-      };
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        showStatus("Snapshot failed — could not render board", "error");
-      };
-      img.src = url;
+  // Click: clipboard copy (fallback to download)
+  const handleSnapshot = async () => {
+    try {
+      const pngBlob = await renderBoardPngBlob();
+      const filename = `${sanitizeFilename(hero.name)}.png`;
+      try {
+        await copyBlobToClipboard(pngBlob);
+        setSnapshotFlash(true);
+        setTimeout(() => setSnapshotFlash(false), 600);
+        showStatus("Image copied to clipboard");
+      } catch {
+        downloadBlob(pngBlob, filename);
+        showStatus("Downloaded as PNG (clipboard unavailable)");
+      }
     } catch (err) {
       console.error("Snapshot failed:", err);
       showStatus("Snapshot failed", "error");
     }
   };
+
+  // Long press: clipboard copy + download
+  const handleSnapshotCombo = async () => {
+    try {
+      const pngBlob = await renderBoardPngBlob();
+      const filename = `${sanitizeFilename(hero.name)}.png`;
+      let copied = false;
+      try {
+        await copyBlobToClipboard(pngBlob);
+        copied = true;
+      } catch {
+        // clipboard unavailable — download will still happen
+      }
+      downloadBlob(pngBlob, filename);
+      setSnapshotFlash(true);
+      setTimeout(() => setSnapshotFlash(false), 600);
+      showStatus(copied ? "Copied & downloaded" : "Downloaded as PNG (clipboard unavailable)");
+    } catch (err) {
+      console.error("Snapshot failed:", err);
+      showStatus("Snapshot failed", "error");
+    }
+  };
+
+  // Long-press refs
+  const holdTimerRef = useRef(null);
+  const holdEligibleRef = useRef(false);
+  const holdBusyRef = useRef(false);
+  const [holding, setHolding] = useState(false);
+
+  const cancelHold = useCallback(() => {
+    clearTimeout(holdTimerRef.current);
+    holdTimerRef.current = null;
+    holdEligibleRef.current = false;
+    setHolding(false);
+  }, []);
+
+  const onSnapshotPointerDown = useCallback((e) => {
+    if (holdBusyRef.current) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    holdEligibleRef.current = false;
+    holdTimerRef.current = setTimeout(() => {
+      holdEligibleRef.current = true;
+      setHolding(true);
+    }, 3000);
+  }, []);
+
+  const onSnapshotPointerUp = useCallback(() => {
+    if (holdBusyRef.current) return;
+    const wasEligible = holdEligibleRef.current;
+    cancelHold();
+    holdBusyRef.current = true;
+    const action = wasEligible ? handleSnapshotCombo() : handleSnapshot();
+    action.finally(() => { holdBusyRef.current = false; });
+  }, [cancelHold]);
+
+  // Cancel hold on window blur
+  useEffect(() => {
+    window.addEventListener("blur", cancelHold);
+    return () => window.removeEventListener("blur", cancelHold);
+  }, [cancelHold]);
 
   const handlePasteSubmit = (text) => {
     try {
@@ -633,10 +711,13 @@ export default function V2App() {
 
             <button
               type="button"
-              onClick={handleSnapshot}
+              onPointerDown={onSnapshotPointerDown}
+              onPointerUp={onSnapshotPointerUp}
+              onPointerLeave={cancelHold}
+              onPointerCancel={cancelHold}
               disabled={isFlipped}
-              className={`w-7 h-7 flex items-center justify-center rounded-lg border transition-all duration-300 disabled:opacity-40 disabled:pointer-events-none ${snapshotFlash ? "bg-amber-500 border-amber-400 text-white scale-110" : "bg-gray-800/80 border-gray-700 text-gray-300 hover:text-amber-400 hover:border-amber-500"}`}
-              title="Copy board image to clipboard"
+              className={`w-7 h-7 flex items-center justify-center rounded-lg border transition-all duration-300 disabled:opacity-40 disabled:pointer-events-none select-none touch-none ${holding ? "bg-amber-600 border-amber-400 text-white scale-110" : snapshotFlash ? "bg-amber-500 border-amber-400 text-white scale-110" : "bg-gray-800/80 border-gray-700 text-gray-300 hover:text-amber-400 hover:border-amber-500"}`}
+              title="Click to copy image · Hold 3s to copy & download"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
                 <path fillRule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clipRule="evenodd" />

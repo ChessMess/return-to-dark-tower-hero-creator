@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
-- **Snapshot to Clipboard** — Camera icon button in the preview toolbar captures the hero board as a PNG image and copies it to the system clipboard. Falls back to automatic PNG download if clipboard access is unavailable. Button is disabled when the back face is showing.
+- **Snapshot to Clipboard** — Camera icon button in the preview toolbar captures the hero board as a PNG image and copies it to the system clipboard. Falls back to automatic PNG download if clipboard access is unavailable. Hold the button for 3 seconds to copy **and** download the PNG simultaneously. Filename uses the sanitized hero name (e.g. `my-hero.png`). Button is disabled when the back face is showing.
 
 ## [2.0.0] - 2026-03-02
 
