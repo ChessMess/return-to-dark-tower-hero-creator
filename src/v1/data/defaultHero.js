@@ -1,4 +1,5 @@
 export const defaultHero = {
+  schemaVersion: 1,
   name: 'HERO NAME',
   warriors: 7,
   spirit: 1,
@@ -14,6 +15,7 @@ export const defaultHero = {
   ],
   championKingdom: '',
   championTerrain: 'terrain',
+  bannerAction: '',
   author_name: '',
   revision_no: '',
   description: '',

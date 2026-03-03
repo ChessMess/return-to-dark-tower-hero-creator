@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'AzkolsKerning7';
+  src: url('./v2/assets/azkolskerning7-webfont.woff2') format('woff2'),
+       url('./v2/assets/azkolskerning7-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }

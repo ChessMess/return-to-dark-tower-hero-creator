@@ -4,15 +4,36 @@ const STORAGE_KEY = 'rtdt-hero-v2';
 const V1_STORAGE_KEY = 'rtdt-hero';
 
 /**
+ * Detect whether imported data looks like V1 format.
+ */
+function looksLikeV1(data) {
+  if (data.schemaVersion === 1) return true;
+  if (data.schemaVersion >= 2) return false;
+  // No schemaVersion — sniff fields
+  return typeof data.flavorLine1 === 'string' ||
+    typeof data.flavorLine2 === 'string' ||
+    typeof data.championTerrain === 'string' ||
+    (Array.isArray(data.virtues) && data.virtues[0] && 'advantageType' in data.virtues[0]);
+}
+
+/**
  * Validate and sanitize imported V2 hero data.
  * Merges with defaultHero so missing fields get defaults.
+ * Auto-migrates V1 data when detected.
  */
 export function validateHeroData(data) {
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     return { valid: false, error: 'Invalid data: expected a JSON object.' };
   }
 
+  // Auto-migrate V1 imports
+  if (looksLikeV1(data)) {
+    const migrated = migrateV1ToV2(data);
+    if (migrated) data = migrated;
+  }
+
   const hero = {
+    schemaVersion: 2,
     name: typeof data.name === 'string' ? data.name.slice(0, 20) : defaultHero.name,
     warriors: typeof data.warriors === 'number' ? Math.max(1, Math.min(99, data.warriors)) : defaultHero.warriors,
     spirit: typeof data.spirit === 'number' ? Math.max(0, Math.min(9, data.spirit)) : defaultHero.spirit,
@@ -22,11 +43,10 @@ export function validateHeroData(data) {
        data.portraitDataUrl.startsWith('data:image/png;base64,') ||
        data.portraitDataUrl.startsWith('data:image/gif;base64,'))
     ) ? data.portraitDataUrl : null,
-    flavorLine1: typeof data.flavorLine1 === 'string' ? data.flavorLine1.slice(0, 35) : defaultHero.flavorLine1,
-    flavorLine2: typeof data.flavorLine2 === 'string' ? data.flavorLine2.slice(0, 35) : defaultHero.flavorLine2,
+    flavorText: typeof data.flavorText === 'string'
+      ? data.flavorText.slice(0, 120)
+      : `${data.flavorLine1 || ''} ${data.flavorLine2 || ''}`.trim().slice(0, 120) || defaultHero.flavorText,
     bannerAction: typeof data.bannerAction === 'string' ? data.bannerAction.slice(0, 40) : defaultHero.bannerAction,
-    championKingdom: typeof data.championKingdom === 'string' ? data.championKingdom.slice(0, 20) : '',
-    championTerrain: typeof data.championTerrain === 'string' ? data.championTerrain.slice(0, 15) : defaultHero.championTerrain,
     author_name: typeof data.author_name === 'string' ? data.author_name.slice(0, 50) : '',
     revision_no: typeof data.revision_no === 'string' ? data.revision_no.slice(0, 8) : '1.0',
     description: typeof data.description === 'string' ? data.description.slice(0, 1000) : '',
@@ -38,11 +58,15 @@ export function validateHeroData(data) {
   for (const src of srcVirtues) {
     if (!src || typeof src !== 'object') continue;
     const empty = createEmptyVirtue();
+    // Migrate old advantageType field into description if description is empty
+    let desc = typeof src.description === 'string' ? src.description : '';
+    if (!desc && typeof src.advantageType === 'string' && src.advantageType) {
+      desc = `+1 ${src.advantageType} Advantage`;
+    }
     hero.virtues.push({
       name: typeof src.name === 'string' ? src.name.slice(0, 12) : empty.name,
       type: ['advantage', 'standard', 'champion'].includes(src.type) ? src.type : 'standard',
-      advantageType: typeof src.advantageType === 'string' ? src.advantageType.slice(0, 15) : '',
-      description: typeof src.description === 'string' ? src.description.slice(0, 80) : '',
+      description: desc,
       kingdom: typeof src.kingdom === 'string' ? src.kingdom.slice(0, 20) : '',
     });
   }
@@ -62,11 +86,11 @@ export function migrateV1ToV2(v1Hero) {
   for (let i = 0; i < srcVirtues.length && i < MAX_VIRTUES; i++) {
     const src = srcVirtues[i] || {};
     if (i === 0) {
+      const advType = src.advantageType || 'TYPE';
       virtues.push({
         name: src.name || 'VIRTUE 1',
         type: 'advantage',
-        advantageType: src.advantageType || 'TYPE',
-        description: '',
+        description: `+1 ${advType} Advantage`,
         kingdom: '',
       });
     } else {
@@ -79,11 +103,22 @@ export function migrateV1ToV2(v1Hero) {
       virtues.push({
         name: src.name || `VIRTUE ${i + 1}`,
         type: 'standard',
-        advantageType: '',
         description: desc,
         kingdom: '',
       });
     }
+  }
+
+  // Auto-create a champion virtue from V1's top-level champion fields
+  const champKingdom = v1Hero.championKingdom || '';
+  const champTerrain = v1Hero.championTerrain || '';
+  if ((champKingdom || champTerrain) && virtues.length < MAX_VIRTUES) {
+    virtues.push({
+      name: 'CHAMPION',
+      type: 'champion',
+      description: champTerrain ? `+2 Wild Advantages in ${champTerrain}` : '',
+      kingdom: champKingdom,
+    });
   }
 
   return {
@@ -92,10 +127,8 @@ export function migrateV1ToV2(v1Hero) {
     warriors: v1Hero.warriors || defaultHero.warriors,
     spirit: v1Hero.spirit ?? defaultHero.spirit,
     portraitDataUrl: v1Hero.portraitDataUrl || null,
-    flavorLine1: v1Hero.flavorLine1 || defaultHero.flavorLine1,
-    flavorLine2: v1Hero.flavorLine2 || defaultHero.flavorLine2,
-    championKingdom: v1Hero.championKingdom || '',
-    championTerrain: v1Hero.championTerrain || defaultHero.championTerrain,
+    flavorText: `${v1Hero.flavorLine1 || ''} ${v1Hero.flavorLine2 || ''}`.trim().slice(0, 120) || defaultHero.flavorText,
+    bannerAction: v1Hero.bannerAction || defaultHero.bannerAction,
     author_name: v1Hero.author_name || '',
     revision_no: v1Hero.revision_no || '',
     description: v1Hero.description || '',

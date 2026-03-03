@@ -6,9 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- **Standard Default & Advantage Default Virtue Types** — Two new virtue frame styles (`virtue_standard_default.svg`, `virtue_advantage_default.svg`) added to the type selector alongside the existing Standard, Advantage, and Champion options.
+- **Collapsible Form Sections** — Each editor section (Hero Identity, Banner Action, Virtues, Author Info) has a clickable header with a ▼/▲ toggle to collapse or expand its contents; section states persist across page reloads via localStorage.
+- **Reset Confirmation Dialog** — Clicking the Reset button now warns you if any fields have been changed from their defaults, preventing accidental data loss.
+
 ### Changed
 
+- **Reset Button Styling** — Reset button now has a visible border, rounded corners, and smaller text so it reads as a proper button instead of plain text.
+
 - **Responsive Board Preview** — V2 hero board now automatically scales to fit the viewport; resizing the browser or toggling the sidebar reflows the card instantly. Toolbar (sidebar toggle, flip, zoom) moved to a dedicated row above the card so controls never overlap the preview. Zooming beyond 100% produces scrollbars for panning.
+- **Flavor Text Redesign** — Replaced V2's two separate single-line flavor text inputs with a single textarea (120-character max, up from 2×35). The field includes a live character counter. On the board, text auto-wraps across up to three centered italic lines. Existing saves and V1 migrations are handled transparently.
 
 ## [2.0.0] - 2026-03-01
 

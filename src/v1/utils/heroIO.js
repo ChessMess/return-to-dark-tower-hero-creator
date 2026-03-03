@@ -11,6 +11,7 @@ export function validateHeroData(data) {
   }
 
   const hero = {
+    schemaVersion: 1,
     name: typeof data.name === 'string' ? data.name.slice(0, 20) : defaultHero.name,
     warriors: typeof data.warriors === 'number' ? Math.max(1, Math.min(99, data.warriors)) : defaultHero.warriors,
     spirit: typeof data.spirit === 'number' ? Math.max(0, Math.min(9, data.spirit)) : defaultHero.spirit,
@@ -23,6 +24,7 @@ export function validateHeroData(data) {
     flavorLine1: typeof data.flavorLine1 === 'string' ? data.flavorLine1.slice(0, 35) : defaultHero.flavorLine1,
     flavorLine2: typeof data.flavorLine2 === 'string' ? data.flavorLine2.slice(0, 35) : defaultHero.flavorLine2,
     championTerrain: typeof data.championTerrain === 'string' ? data.championTerrain.slice(0, 15) : defaultHero.championTerrain,
+    bannerAction: typeof data.bannerAction === 'string' ? data.bannerAction.slice(0, 40) : defaultHero.bannerAction,
     author_name: typeof data.author_name === 'string' ? data.author_name.slice(0, 50) : '',
     revision_no: typeof data.revision_no === 'string' ? data.revision_no.slice(0, 8) : '1.0',
     description: typeof data.description === 'string' ? data.description.slice(0, 1000) : '',

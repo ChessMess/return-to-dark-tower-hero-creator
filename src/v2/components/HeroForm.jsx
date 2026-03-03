@@ -7,6 +7,18 @@ const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif']);
 export default function HeroForm({ hero, updateHero, updateVirtue, addVirtue, removeVirtue }) {
   const [activeVirtue, setActiveVirtue] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [openSections, setOpenSections] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('rtdt-v2-sections'));
+      if (saved) return saved;
+    } catch {}
+    return { identity: true, banner: true, virtues: true, author: true };
+  });
+  const toggle = (key) => setOpenSections(s => {
+    const next = { ...s, [key]: !s[key] };
+    localStorage.setItem('rtdt-v2-sections', JSON.stringify(next));
+    return next;
+  });
 
   // Clamp active virtue when virtues are removed
   const clampedActive = Math.min(activeVirtue, Math.max(0, hero.virtues.length - 1));
@@ -48,86 +60,93 @@ export default function HeroForm({ hero, updateHero, updateVirtue, addVirtue, re
     <div className="space-y-6 text-sm">
       {/* Hero Identity */}
       <section>
-        <h2 className={sectionHeader}>Hero Identity</h2>
-        <div className="space-y-2">
-          <label className="block">
-            <span className="text-gray-400 text-xs">Name</span>
-            <input type="text" value={hero.name} maxLength={20} onChange={(e) => updateHero('name', e.target.value)} className={inputClass} />
-          </label>
-          <div className="flex gap-3">
-            <label className="flex-1">
-              <span className="text-gray-400 text-xs">Starting Warriors</span>
-              <input type="number" value={hero.warriors} min={1} max={99} onChange={(e) => updateHero('warriors', Math.max(1, Math.min(99, parseInt(e.target.value) || 1)))} className={inputClass} />
+        <h2 className={sectionHeader + " flex items-center justify-between cursor-pointer select-none"} onClick={() => toggle('identity')}>
+          <span>Hero Identity</span>
+          <span className="w-6 h-6 inline-flex items-center justify-center rounded bg-gray-800 border border-gray-700 text-amber-600 hover:text-amber-400 hover:border-amber-500 transition-colors text-[10px] leading-[0]">{openSections.identity ? '▼' : '▲'}</span>
+        </h2>
+        {openSections.identity && <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="block">
+              <span className="text-gray-400 text-xs">Name</span>
+              <input type="text" value={hero.name} maxLength={20} onChange={(e) => updateHero('name', e.target.value)} className={inputClass} />
             </label>
-            <label className="flex-1">
-              <span className="text-gray-400 text-xs">Starting Spirit</span>
-              <input type="number" value={hero.spirit} min={0} max={9} onChange={(e) => updateHero('spirit', Math.max(0, Math.min(9, parseInt(e.target.value) || 0)))} className={inputClass} />
-            </label>
-          </div>
-        </div>
-      </section>
-
-      {/* Portrait */}
-      <section>
-        <h2 className={sectionHeader}>Portrait</h2>
-        <div className="space-y-2">
-          {hero.portraitDataUrl ? (
-            <div className="space-y-2" onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave}>
-              <div className={`relative rounded transition-colors ${dragging ? 'ring-2 ring-amber-400' : ''}`}>
-                <img src={hero.portraitDataUrl} alt="Hero portrait preview" className="w-full h-28 object-cover rounded border border-gray-600" />
-                {dragging && (
-                  <div className="absolute inset-0 bg-amber-900/40 rounded flex items-center justify-center">
-                    <span className="text-xs font-medium text-amber-200">Drop to replace</span>
-                  </div>
-                )}
-              </div>
-              <button type="button" onClick={() => updateHero('portraitDataUrl', null)} className="w-full text-xs text-gray-400 hover:text-red-400 border border-gray-600 hover:border-red-700 rounded py-1 transition-colors">
-                Remove portrait
-              </button>
+            <div className="flex gap-3">
+              <label className="flex-1">
+                <span className="text-gray-400 text-xs">Starting Warriors</span>
+                <input type="number" value={hero.warriors} min={1} max={99} onChange={(e) => updateHero('warriors', Math.max(1, Math.min(99, parseInt(e.target.value) || 1)))} className={inputClass} />
+              </label>
+              <label className="flex-1">
+                <span className="text-gray-400 text-xs">Starting Spirit</span>
+                <input type="number" value={hero.spirit} min={0} max={9} onChange={(e) => updateHero('spirit', Math.max(0, Math.min(9, parseInt(e.target.value) || 0)))} className={inputClass} />
+              </label>
             </div>
-          ) : (
-            <label className="block cursor-pointer" onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave}>
-              <div className={`border-2 border-dashed rounded p-4 text-center transition-colors ${dragging ? 'border-amber-400 text-gray-200 bg-amber-900/20' : 'border-gray-600 hover:border-amber-600 text-gray-500 hover:text-gray-300'}`}>
-                <div className="text-2xl mb-1">+</div>
-                <div className="text-xs">{dragging ? 'Drop image here' : 'Click or drag image here'}</div>
-                <div className="text-xs text-gray-600 mt-1">JPG, PNG, GIF</div>
+          </div>
+
+          {/* Portrait */}
+          <div className="space-y-2">
+            <span className="text-gray-400 text-xs">Portrait</span>
+            {hero.portraitDataUrl ? (
+              <div className="space-y-2" onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave}>
+                <div className={`relative rounded transition-colors ${dragging ? 'ring-2 ring-amber-400' : ''}`}>
+                  <img src={hero.portraitDataUrl} alt="Hero portrait preview" className="w-full h-28 object-cover rounded border border-gray-600" />
+                  {dragging && (
+                    <div className="absolute inset-0 bg-amber-900/40 rounded flex items-center justify-center">
+                      <span className="text-xs font-medium text-amber-200">Drop to replace</span>
+                    </div>
+                  )}
+                </div>
+                <button type="button" onClick={() => updateHero('portraitDataUrl', null)} className="w-full text-xs text-gray-400 hover:text-red-400 border border-gray-600 hover:border-red-700 rounded py-1 transition-colors">
+                  Remove portrait
+                </button>
               </div>
-              <input type="file" accept="image/jpeg,image/png,image/gif" onChange={handlePortraitUpload} className="hidden" />
-            </label>
-          )}
-        </div>
+            ) : (
+              <label className="block cursor-pointer" onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave}>
+                <div className={`border-2 border-dashed rounded p-4 text-center transition-colors ${dragging ? 'border-amber-400 text-gray-200 bg-amber-900/20' : 'border-gray-600 hover:border-amber-600 text-gray-500 hover:text-gray-300'}`}>
+                  <div className="text-2xl mb-1">+</div>
+                  <div className="text-xs">{dragging ? 'Drop image here' : 'Click or drag image here'}</div>
+                  <div className="text-xs text-gray-600 mt-1">JPG, PNG, GIF</div>
+                </div>
+                <input type="file" accept="image/jpeg,image/png,image/gif" onChange={handlePortraitUpload} className="hidden" />
+              </label>
+            )}
+          </div>
+
+          {/* Flavor Text */}
+          <label className="block">
+            <span className="text-gray-400 text-xs">Flavor Text</span>
+            <textarea
+              value={hero.flavorText}
+              maxLength={120}
+              rows={4}
+              onChange={(e) => updateHero('flavorText', e.target.value)}
+              className={`${inputClass} resize-none`}
+            />
+            <span className="text-gray-500 text-xs text-right block mt-0.5">
+              {(hero.flavorText ?? '').length}/120
+            </span>
+          </label>
+        </div>}
       </section>
 
       {/* Banner Action */}
       <section>
-        <h2 className={sectionHeader}>Banner Action</h2>
-        <label className="block">
+        <h2 className={sectionHeader + " flex items-center justify-between cursor-pointer select-none"} onClick={() => toggle('banner')}>
+          <span>Banner Action</span>
+          <span className="w-6 h-6 inline-flex items-center justify-center rounded bg-gray-800 border border-gray-700 text-amber-600 hover:text-amber-400 hover:border-amber-500 transition-colors text-[10px] leading-[0]">{openSections.banner ? '▼' : '▲'}</span>
+        </h2>
+        {openSections.banner && <label className="block">
           <span className="text-gray-400 text-xs">Action Text</span>
           <input type="text" value={hero.bannerAction} maxLength={40} onChange={(e) => updateHero('bannerAction', e.target.value)} className={inputClass} />
-        </label>
-      </section>
-
-      {/* Flavor Text */}
-      <section>
-        <h2 className={sectionHeader}>Flavor Text</h2>
-        <div className="space-y-2">
-          <label className="block">
-            <span className="text-gray-400 text-xs">Line 1</span>
-            <input type="text" value={hero.flavorLine1} maxLength={35} onChange={(e) => updateHero('flavorLine1', e.target.value)} className={inputClass} />
-          </label>
-          <label className="block">
-            <span className="text-gray-400 text-xs">Line 2</span>
-            <input type="text" value={hero.flavorLine2} maxLength={35} onChange={(e) => updateHero('flavorLine2', e.target.value)} className={inputClass} />
-          </label>
-        </div>
+        </label>}
       </section>
 
       {/* Virtues */}
       <section>
-        <h2 className={sectionHeader}>
-          Virtues ({hero.virtues.length}/{MAX_VIRTUES})
+        <h2 className={sectionHeader + " flex items-center justify-between cursor-pointer select-none"} onClick={() => toggle('virtues')}>
+          <span>Virtues ({hero.virtues.length}/{MAX_VIRTUES})</span>
+          <span className="w-6 h-6 inline-flex items-center justify-center rounded bg-gray-800 border border-gray-700 text-amber-600 hover:text-amber-400 hover:border-amber-500 transition-colors text-[10px] leading-[0]">{openSections.virtues ? '▼' : '▲'}</span>
         </h2>
-        <div className="space-y-2">
+        {openSections.virtues && <div className="space-y-2">
           {hero.virtues.length > 0 ? (
             <>
               {/* Navigation */}
@@ -171,26 +190,12 @@ export default function HeroForm({ hero, updateHero, updateVirtue, addVirtue, re
                     <span className="text-gray-400 text-xs">Type</span>
                     <select value={virtue.type} onChange={(e) => updateVirtue(clampedActive, 'type', e.target.value)} className={inputClass}>
                       <option value="standard">Standard</option>
+                      <option value="standard_default">Standard Default</option>
                       <option value="advantage">Advantage</option>
+                      <option value="advantage_default">Advantage Default</option>
                       <option value="champion">Champion</option>
                     </select>
                   </label>
-
-                  {virtue.type === 'advantage' && (
-                    <label className="block">
-                      <span className="text-gray-400 text-xs">Advantage Type</span>
-                      <span className="text-gray-600 text-xs ml-1">(e.g. Stealth, Magic, Humanoid)</span>
-                      <input type="text" value={virtue.advantageType} maxLength={15} onChange={(e) => updateVirtue(clampedActive, 'advantageType', e.target.value)} placeholder="TYPE" className={inputClass} />
-                      <span className="text-gray-600 text-xs">Shows as: +1 {virtue.advantageType || 'TYPE'} Advantage</span>
-                    </label>
-                  )}
-
-                  {virtue.type === 'standard' && (
-                    <label className="block">
-                      <span className="text-gray-400 text-xs">Ability Description</span>
-                      <textarea value={virtue.description} maxLength={80} rows={3} onChange={(e) => updateVirtue(clampedActive, 'description', e.target.value)} className={inputClass + " resize-none"} />
-                    </label>
-                  )}
 
                   {virtue.type === 'champion' && (
                     <label className="block">
@@ -204,6 +209,14 @@ export default function HeroForm({ hero, updateHero, updateVirtue, addVirtue, re
                       </select>
                     </label>
                   )}
+
+                  <label className="block">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-gray-400 text-xs">Ability Description</span>
+                      <span className="text-gray-600 text-xs">{(virtue.description || '').length}/80</span>
+                    </div>
+                    <textarea value={virtue.description} maxLength={80} rows={3} onChange={(e) => updateVirtue(clampedActive, 'description', e.target.value)} className={inputClass + " resize-none"} />
+                  </label>
 
                   <button
                     type="button"
@@ -231,45 +244,28 @@ export default function HeroForm({ hero, updateHero, updateVirtue, addVirtue, re
               + Add Virtue ({hero.virtues.length}/{MAX_VIRTUES})
             </button>
           )}
-        </div>
-      </section>
-
-      {/* Champion Ability */}
-      <section>
-        <h2 className={sectionHeader}>Champion Ability</h2>
-        <label className="block mb-3">
-          <span className="text-gray-400 text-xs">Kingdom</span>
-          <select value={hero.championKingdom} onChange={(e) => updateHero('championKingdom', e.target.value)} className={inputClass}>
-            <option value="">— none —</option>
-            <option value="NORTH">NORTH</option>
-            <option value="SOUTH">SOUTH</option>
-            <option value="EAST">EAST</option>
-            <option value="WEST">WEST</option>
-          </select>
-        </label>
-        <label className="block">
-          <span className="text-gray-400 text-xs">Terrain Type</span>
-          <span className="text-gray-600 text-xs ml-1">(e.g. Forest, Mountain, Swamp)</span>
-          <input type="text" value={hero.championTerrain} maxLength={15} onChange={(e) => updateHero('championTerrain', e.target.value)} placeholder="terrain" className={inputClass} />
-          <span className="text-gray-600 text-xs">Shows as: +2 Wild Advantages in {hero.championTerrain || 'terrain'}</span>
-        </label>
+        </div>}
       </section>
 
       {/* Author Info */}
       <section>
-        <h2 className={sectionHeader}>Author Info</h2>
-        <label className="block mb-3">
+        <h2 className={sectionHeader + " flex items-center justify-between cursor-pointer select-none"} onClick={() => toggle('author')}>
+          <span>Author Info</span>
+          <span className="w-6 h-6 inline-flex items-center justify-center rounded bg-gray-800 border border-gray-700 text-amber-600 hover:text-amber-400 hover:border-amber-500 transition-colors text-[10px] leading-[0]">{openSections.author ? '▼' : '▲'}</span>
+        </h2>
+        {openSections.author && <div className="space-y-3">
+        <label className="block">
           <div className="flex justify-between mb-1">
             <span className="text-gray-400 text-xs">Author Name</span>
             <span className="text-gray-600 text-xs">{(hero.author_name || '').length}/50</span>
           </div>
           <input type="text" value={hero.author_name || ''} maxLength={50} onChange={(e) => updateHero('author_name', e.target.value)} placeholder="Your name" className={inputClass} />
         </label>
-        <label className="block mb-3">
+        <label className="block">
           <span className="text-gray-400 text-xs">Revision</span>
           <input type="text" value={hero.revision_no || ''} maxLength={8} onChange={(e) => updateHero('revision_no', e.target.value)} placeholder="e.g. 1.0, v2, draft" className={inputClass} />
         </label>
-        <label className="block mb-3">
+        <label className="block">
           <div className="flex justify-between mb-1">
             <span className="text-gray-400 text-xs">Description</span>
             <span className="text-gray-600 text-xs">{(hero.description || '').length}/1000</span>
@@ -283,6 +279,7 @@ export default function HeroForm({ hero, updateHero, updateVirtue, addVirtue, re
           </div>
           <input type="text" value={hero.contact || ''} maxLength={250} onChange={(e) => updateHero('contact', e.target.value)} placeholder="Email, URL, or handle" className={inputClass} />
         </label>
+        </div>}
       </section>
 
       <div className="h-4" />

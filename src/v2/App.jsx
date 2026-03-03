@@ -5,6 +5,7 @@ import HeroBoard from "./components/HeroBoard";
 import HeroForm from "./components/HeroForm";
 import { defaultHero, MAX_VIRTUES, createEmptyVirtue } from "./data/defaultHero";
 import { loadHero, saveHero, validateHeroData, heroToJson } from "./utils/heroIO";
+import coverBg from "./assets/rtdt_cover2.jpg";
 
 export default function V2App() {
   const [hero, setHero] = useState(loadHero);
@@ -81,7 +82,11 @@ export default function V2App() {
       return next;
     });
 
+  const hasChanges = () =>
+    JSON.stringify(hero) !== JSON.stringify(defaultHero);
+
   const resetHero = () => {
+    if (hasChanges() && !window.confirm("You have unsaved changes that will be lost. Reset anyway?")) return;
     localStorage.removeItem("rtdt-hero-v2");
     setHero({ ...defaultHero, virtues: defaultHero.virtues.map((v) => ({ ...v })) });
   };
@@ -109,6 +114,21 @@ export default function V2App() {
       };
       img.onerror = () => reject(new Error(`Failed to rasterize: ${href}`));
       img.src = href;
+    });
+
+  const loadImageAsDataUrl = (src) =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext("2d").drawImage(img, 0, 0);
+        resolve(canvas.toDataURL("image/jpeg", 0.92));
+      };
+      img.onerror = reject;
+      img.src = src;
     });
 
   const handleDownloadPdf = async () => {
@@ -144,6 +164,128 @@ export default function V2App() {
       imagesAfter.forEach((imgEl, i) => {
         if (origHrefs[i]) imgEl.setAttribute("href", origHrefs[i]);
       });
+
+      // Page 2 — back side
+      doc.addPage([1213, 808], "landscape");
+
+      // Background cover image — centered, maintaining aspect ratio
+      const coverDataUrl = await loadImageAsDataUrl(coverBg);
+      const coverImg = await new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.src = coverDataUrl;
+      });
+      const imgRatio = coverImg.naturalWidth / coverImg.naturalHeight;
+      const pageRatio = 1213 / 808;
+      let drawW, drawH;
+      if (imgRatio > pageRatio) {
+        // Image is wider — fit to width, center vertically
+        drawW = 1213;
+        drawH = 1213 / imgRatio;
+      } else {
+        // Image is taller — fit to height, center horizontally
+        drawH = 808;
+        drawW = 808 * imgRatio;
+      }
+      const drawX = (1213 - drawW) / 2;
+      const drawY = (808 - drawH) / 2;
+
+      // Fill page with black first so letterbox areas aren't white
+      doc.setFillColor(0, 0, 0);
+      doc.rect(0, 0, 1213, 808, "F");
+      doc.addImage(coverDataUrl, "JPEG", drawX, drawY, drawW, drawH);
+
+      // Dark overlay
+      doc.setGState(new doc.GState({ opacity: 0.5 }));
+      doc.setFillColor(0, 0, 0);
+      doc.rect(0, 0, 1213, 808, "F");
+      doc.setGState(new doc.GState({ opacity: 1 }));
+
+      // Title
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(28);
+      doc.setTextColor(252, 211, 77);
+      doc.text("Return to Dark Tower Hero Board Creator", 1213 / 2, 120, { align: "center" });
+
+      // Author info
+      const hasInfo = hero.author_name || hero.revision_no || hero.contact || hero.description;
+      if (hasInfo) {
+        const boxX = 1213 * 0.035;
+        const boxW = 1213 * 0.93;
+        const boxY = 160;
+        let textY = boxY + 40;
+
+        // Measure box height based on filled fields
+        let boxH = 60; // padding top + bottom
+        if (hero.author_name) boxH += 30;
+        if (hero.revision_no) boxH += 26;
+        if (hero.contact) boxH += 26;
+        if (hero.description) {
+          const descLines = doc.splitTextToSize(hero.description, boxW - 60);
+          boxH += 20 + descLines.length * 18;
+        }
+
+        // Gold-tinted box background
+        doc.setGState(new doc.GState({ opacity: 0.5 }));
+        doc.setFillColor(161, 98, 7); // yellow-700
+        doc.roundedRect(boxX, boxY, boxW, boxH, 24, 24, "F");
+        doc.setGState(new doc.GState({ opacity: 1 }));
+
+        const labelX = boxX + 30;
+
+        const centerX = 1213 / 2;
+
+        if (hero.author_name) {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(16);
+          doc.setTextColor(243, 244, 246);
+          const label = "Designed by: ";
+          const labelW = doc.getTextWidth(label);
+          doc.setTextColor(253, 230, 138);
+          const nameW = doc.getTextWidth(hero.author_name);
+          const totalW = labelW + nameW;
+          const startX = centerX - totalW / 2;
+          doc.setTextColor(243, 244, 246);
+          doc.text(label, startX, textY);
+          doc.setTextColor(253, 230, 138);
+          doc.text(hero.author_name, startX + labelW, textY);
+          textY += 30;
+        }
+        if (hero.revision_no) {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(14);
+          doc.setTextColor(209, 213, 219);
+          const label = "Version: ";
+          const labelW = doc.getTextWidth(label);
+          doc.setFont("courier", "normal");
+          const valW = doc.getTextWidth(hero.revision_no);
+          const totalW = labelW + valW;
+          const startX = centerX - totalW / 2;
+          doc.setFont("helvetica", "normal");
+          doc.text(label, startX, textY);
+          doc.setFont("courier", "normal");
+          doc.text(hero.revision_no, startX + labelW, textY);
+          textY += 26;
+        }
+        if (hero.contact) {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(14);
+          doc.setTextColor(209, 213, 219);
+          doc.text("Contact: ", labelX, textY);
+          const labelW = doc.getTextWidth("Contact: ");
+          doc.setFont("courier", "normal");
+          doc.text(hero.contact, labelX + labelW, textY);
+          textY += 26;
+        }
+        if (hero.description) {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(14);
+          doc.setTextColor(229, 231, 235);
+          textY += 10;
+          const descLines = doc.splitTextToSize(hero.description, boxW - 60);
+          doc.text(descLines, labelX, textY);
+        }
+      }
 
       const filename =
         hero.name && hero.name !== "HERO NAME"
@@ -246,7 +388,7 @@ export default function V2App() {
           <button
             type="button"
             onClick={resetHero}
-            className="text-xs text-gray-500 hover:text-red-400 transition-colors"
+            className="text-[10px] px-2 py-0.5 border border-gray-600 rounded text-gray-500 hover:text-red-400 hover:border-red-400 transition-colors"
           >
             Reset
           </button>
@@ -303,21 +445,30 @@ export default function V2App() {
       <main className="flex-1 flex flex-col bg-gray-950 overflow-hidden">
         {/* Toolbar row */}
         <div className="flex items-center justify-between px-4 py-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => setSidebarOpen((o) => !o)}
-            aria-label="Toggle sidebar"
-            aria-expanded={sidebarOpen}
-            className="w-7 h-7 flex items-center justify-center rounded bg-gray-800 border border-gray-700 text-gray-400 hover:text-amber-400 hover:border-amber-500 transition-colors text-sm"
-          >
-            {sidebarOpen ? "\u00AB" : "\u00BB"}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen((o) => !o)}
+              aria-label="Toggle sidebar"
+              aria-expanded={sidebarOpen}
+              className="w-7 h-7 flex items-center justify-center rounded bg-gray-800 border border-gray-700 text-gray-400 hover:text-amber-400 hover:border-amber-500 transition-colors text-sm"
+            >
+              {sidebarOpen ? "\u00AB" : "\u00BB"}
+            </button>
+            {(hero.author_name || hero.revision_no) && (
+              <span className="text-xs text-gray-400 tracking-wider">
+                {hero.author_name && <>Hero designed by: <span className="text-amber-200 font-semibold">{hero.author_name}</span></>}
+                {hero.author_name && hero.revision_no && <span className="mx-1.5 text-gray-600">·</span>}
+                {hero.revision_no && <span className="font-mono text-gray-300">v{hero.revision_no}</span>}
+              </span>
+            )}
+          </div>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setIsFlipped((f) => !f)}
-              className="h-7 min-w-[128px] flex items-center justify-center rounded bg-amber-700 border border-amber-800 text-white font-bold text-xs uppercase tracking-widest shadow transition-colors"
+              className="min-w-[128px] flex items-center justify-center rounded-lg bg-gray-800/80 border border-gray-700 text-gray-300 hover:text-amber-400 hover:border-amber-500 font-bold text-xs uppercase tracking-widest px-3 py-1 transition-colors"
             >
               {isFlipped ? "Show Front" : "Show Back"}
             </button>
@@ -372,16 +523,17 @@ export default function V2App() {
               </div>
               {/* Back face */}
               <div
-                className="absolute inset-0 w-full h-full flex flex-col items-center justify-center [backface-visibility:hidden] rotate-y-180 bg-gray-900"
+                className="absolute inset-0 w-full h-full flex flex-col items-center justify-center [backface-visibility:hidden] rotate-y-180 rounded-lg overflow-hidden border-2 border-gray-600"
                 style={{ zIndex: 1 }}
               >
-                <div className="absolute inset-0 w-full h-full bg-black/60" />
+                <img src={coverBg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-0 w-full h-full bg-black/50" />
                 <div className="relative z-10 flex flex-col items-center justify-center text-center w-full h-full">
-                  <h2 className="text-3xl font-bold text-amber-300 drop-shadow mb-4 mt-16">
+                  <h2 className="text-5xl text-amber-300 drop-shadow mb-4 mt-16" style={{ fontFamily: 'AzkolsKerning7, sans-serif' }}>
                     Return to Dark Tower Hero Board Creator
                   </h2>
                   {hero.author_name || hero.revision_no || hero.contact || hero.description ? (
-                    <div className="bg-gray-900/70 rounded-3xl px-8 py-6 shadow-lg w-[93%] mx-auto">
+                    <div className="bg-yellow-700/50 rounded-3xl px-8 py-6 shadow-lg w-[93%] mx-auto">
                       {hero.author_name && (
                         <p className="text-lg text-gray-100 font-semibold mb-2">
                           Designed by: <span className="text-amber-200">{hero.author_name}</span>
