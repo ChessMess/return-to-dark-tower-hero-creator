@@ -1,7 +1,12 @@
-import { useState } from 'react';
-import { optimizeImage } from '../utils/heroIO';
+import { useState } from "react";
+import { optimizeImage } from "../utils/heroIO";
 
-const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif']);
+const ALLOWED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+]);
 
 export default function HeroForm({ hero, updateHero, updateVirtue }) {
   const [activeVirtue, setActiveVirtue] = useState(0);
@@ -12,10 +17,10 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
     if (!file || !ALLOWED_IMAGE_TYPES.has(file.type)) return;
     try {
       const dataUrl = await optimizeImage(file);
-      updateHero('portraitDataUrl', dataUrl);
+      updateHero("portraitDataUrl", dataUrl);
     } catch {
       const reader = new FileReader();
-      reader.onload = (evt) => updateHero('portraitDataUrl', evt.target.result);
+      reader.onload = (evt) => updateHero("portraitDataUrl", evt.target.result);
       reader.readAsDataURL(file);
     }
   };
@@ -53,7 +58,7 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
               type="text"
               value={hero.name}
               maxLength={20}
-              onChange={(e) => updateHero('name', e.target.value)}
+              onChange={(e) => updateHero("name", e.target.value)}
               className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
             />
           </label>
@@ -65,7 +70,12 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
                 value={hero.warriors}
                 min={1}
                 max={99}
-                onChange={(e) => updateHero('warriors', Math.max(1, Math.min(99, parseInt(e.target.value) || 1)))}
+                onChange={(e) =>
+                  updateHero(
+                    "warriors",
+                    Math.max(1, Math.min(99, parseInt(e.target.value) || 1)),
+                  )
+                }
                 className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
               />
             </label>
@@ -76,7 +86,12 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
                 value={hero.spirit}
                 min={0}
                 max={9}
-                onChange={(e) => updateHero('spirit', Math.max(0, Math.min(9, parseInt(e.target.value) || 0)))}
+                onChange={(e) =>
+                  updateHero(
+                    "spirit",
+                    Math.max(0, Math.min(9, parseInt(e.target.value) || 0)),
+                  )
+                }
                 className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
               />
             </label>
@@ -97,7 +112,9 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
             >
-              <div className={`relative rounded transition-colors ${dragging ? 'ring-2 ring-amber-400' : ''}`}>
+              <div
+                className={`relative rounded transition-colors ${dragging ? "ring-2 ring-amber-400" : ""}`}
+              >
                 <img
                   src={hero.portraitDataUrl}
                   alt="Hero portrait preview"
@@ -105,13 +122,15 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
                 />
                 {dragging && (
                   <div className="absolute inset-0 bg-amber-900/40 rounded flex items-center justify-center">
-                    <span className="text-xs font-medium text-amber-200">Drop to replace</span>
+                    <span className="text-xs font-medium text-amber-200">
+                      Drop to replace
+                    </span>
                   </div>
                 )}
               </div>
               <button
                 type="button"
-                onClick={() => updateHero('portraitDataUrl', null)}
+                onClick={() => updateHero("portraitDataUrl", null)}
                 className="w-full text-xs text-gray-400 hover:text-red-400 border border-gray-600 hover:border-red-700 rounded py-1 transition-colors"
               >
                 Remove portrait
@@ -124,14 +143,18 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
             >
-              <div className={`border-2 border-dashed rounded p-4 text-center transition-colors ${dragging ? 'border-amber-400 text-gray-200 bg-amber-900/20' : 'border-gray-600 hover:border-amber-600 text-gray-500 hover:text-gray-300'}`}>
+              <div
+                className={`border-2 border-dashed rounded p-4 text-center transition-colors ${dragging ? "border-amber-400 text-gray-200 bg-amber-900/20" : "border-gray-600 hover:border-amber-600 text-gray-500 hover:text-gray-300"}`}
+              >
                 <div className="text-2xl mb-1">+</div>
-                <div className="text-xs">{dragging ? 'Drop image here' : 'Click or drag image here'}</div>
+                <div className="text-xs">
+                  {dragging ? "Drop image here" : "Click or drag image here"}
+                </div>
                 <div className="text-xs text-gray-600 mt-1">JPG, PNG, WEBP</div>
               </div>
               <input
                 type="file"
-                accept="image/jpeg,image/png,image/gif"
+                accept="image/jpeg,image/png,image/gif,image/webp"
                 onChange={handlePortraitUpload}
                 className="hidden"
               />
@@ -152,7 +175,7 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
               type="text"
               value={hero.flavorLine1}
               maxLength={35}
-              onChange={(e) => updateHero('flavorLine1', e.target.value)}
+              onChange={(e) => updateHero("flavorLine1", e.target.value)}
               className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
             />
           </label>
@@ -162,7 +185,7 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
               type="text"
               value={hero.flavorLine2}
               maxLength={35}
-              onChange={(e) => updateHero('flavorLine2', e.target.value)}
+              onChange={(e) => updateHero("flavorLine2", e.target.value)}
               className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
             />
           </label>
@@ -209,7 +232,9 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
               type="text"
               value={hero.virtues[activeVirtue].name}
               maxLength={12}
-              onChange={(e) => updateVirtue(activeVirtue, 'name', e.target.value)}
+              onChange={(e) =>
+                updateVirtue(activeVirtue, "name", e.target.value)
+              }
               className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
             />
           </label>
@@ -217,16 +242,22 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
           {activeVirtue === 0 && (
             <label className="block">
               <span className="text-gray-400 text-xs">Advantage Type</span>
-              <span className="text-gray-600 text-xs ml-1">(e.g. Stealth, Magic, Humanoid, Wild)</span>
+              <span className="text-gray-600 text-xs ml-1">
+                (e.g. Stealth, Magic, Humanoid, Wild)
+              </span>
               <input
                 type="text"
                 value={hero.virtues[0].advantageType}
                 maxLength={15}
-                onChange={(e) => updateVirtue(0, 'advantageType', e.target.value)}
+                onChange={(e) =>
+                  updateVirtue(0, "advantageType", e.target.value)
+                }
                 placeholder="TYPE"
                 className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
               />
-              <span className="text-gray-600 text-xs">Shows as: +1 {hero.virtues[0].advantageType || 'TYPE'} Advantage</span>
+              <span className="text-gray-600 text-xs">
+                Shows as: +1 {hero.virtues[0].advantageType || "TYPE"} Advantage
+              </span>
             </label>
           )}
 
@@ -237,7 +268,9 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
                 value={hero.virtues[activeVirtue].description}
                 maxLength={80}
                 rows={3}
-                onChange={(e) => updateVirtue(activeVirtue, 'description', e.target.value)}
+                onChange={(e) =>
+                  updateVirtue(activeVirtue, "description", e.target.value)
+                }
                 className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
               />
             </label>
@@ -254,7 +287,7 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
           <span className="text-gray-400 text-xs">Kingdom</span>
           <select
             value={hero.championKingdom}
-            onChange={(e) => updateHero('championKingdom', e.target.value)}
+            onChange={(e) => updateHero("championKingdom", e.target.value)}
             className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
           >
             <option value="">— none —</option>
@@ -266,16 +299,20 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
         </label>
         <label className="block">
           <span className="text-gray-400 text-xs">Terrain Type</span>
-          <span className="text-gray-600 text-xs ml-1">(e.g. Forest, Mountain, Swamp)</span>
+          <span className="text-gray-600 text-xs ml-1">
+            (e.g. Forest, Mountain, Swamp)
+          </span>
           <input
             type="text"
             value={hero.championTerrain}
             maxLength={15}
-            onChange={(e) => updateHero('championTerrain', e.target.value)}
+            onChange={(e) => updateHero("championTerrain", e.target.value)}
             placeholder="terrain"
             className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
           />
-          <span className="text-gray-600 text-xs">Shows as: +2 Wild Advantages in {hero.championTerrain || 'terrain'}</span>
+          <span className="text-gray-600 text-xs">
+            Shows as: +2 Wild Advantages in {hero.championTerrain || "terrain"}
+          </span>
         </label>
       </section>
 
@@ -287,13 +324,15 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
         <label className="block mb-3">
           <div className="flex justify-between mb-1">
             <span className="text-gray-400 text-xs">Author Name</span>
-            <span className="text-gray-600 text-xs">{(hero.author_name || '').length}/50</span>
+            <span className="text-gray-600 text-xs">
+              {(hero.author_name || "").length}/50
+            </span>
           </div>
           <input
             type="text"
-            value={hero.author_name || ''}
+            value={hero.author_name || ""}
             maxLength={50}
-            onChange={(e) => updateHero('author_name', e.target.value)}
+            onChange={(e) => updateHero("author_name", e.target.value)}
             placeholder="Your name"
             className="block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
           />
@@ -302,9 +341,9 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
           <span className="text-gray-400 text-xs">Revision</span>
           <input
             type="text"
-            value={hero.revision_no || ''}
+            value={hero.revision_no || ""}
             maxLength={8}
-            onChange={(e) => updateHero('revision_no', e.target.value)}
+            onChange={(e) => updateHero("revision_no", e.target.value)}
             placeholder="e.g. 1.0, v2, draft"
             className="mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
           />
@@ -312,13 +351,15 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
         <label className="block mb-3">
           <div className="flex justify-between mb-1">
             <span className="text-gray-400 text-xs">Description</span>
-            <span className="text-gray-600 text-xs">{(hero.description || '').length}/1000</span>
+            <span className="text-gray-600 text-xs">
+              {(hero.description || "").length}/1000
+            </span>
           </div>
           <textarea
-            value={hero.description || ''}
+            value={hero.description || ""}
             maxLength={1000}
             rows={4}
-            onChange={(e) => updateHero('description', e.target.value)}
+            onChange={(e) => updateHero("description", e.target.value)}
             placeholder="Notes about this hero card..."
             className="block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
           />
@@ -326,13 +367,15 @@ export default function HeroForm({ hero, updateHero, updateVirtue }) {
         <label className="block">
           <div className="flex justify-between mb-1">
             <span className="text-gray-400 text-xs">Contact</span>
-            <span className="text-gray-600 text-xs">{(hero.contact || '').length}/250</span>
+            <span className="text-gray-600 text-xs">
+              {(hero.contact || "").length}/250
+            </span>
           </div>
           <input
             type="text"
-            value={hero.contact || ''}
+            value={hero.contact || ""}
             maxLength={250}
-            onChange={(e) => updateHero('contact', e.target.value)}
+            onChange={(e) => updateHero("contact", e.target.value)}
             placeholder="Email, URL, or handle"
             className="block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
           />

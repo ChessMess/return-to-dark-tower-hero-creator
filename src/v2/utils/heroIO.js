@@ -1,7 +1,11 @@
-import { defaultHero, MAX_VIRTUES, createEmptyVirtue } from '../data/defaultHero';
+import {
+  defaultHero,
+  MAX_VIRTUES,
+  createEmptyVirtue,
+} from "../data/defaultHero";
 
-const STORAGE_KEY = 'rtdt-hero-v2';
-const V1_STORAGE_KEY = 'rtdt-hero';
+const STORAGE_KEY = "rtdt-hero-v2";
+const V1_STORAGE_KEY = "rtdt-hero";
 
 /**
  * Detect whether imported data looks like V1 format.
@@ -10,10 +14,14 @@ function looksLikeV1(data) {
   if (data.schemaVersion === 1) return true;
   if (data.schemaVersion >= 2) return false;
   // No schemaVersion — sniff fields
-  return typeof data.flavorLine1 === 'string' ||
-    typeof data.flavorLine2 === 'string' ||
-    typeof data.championTerrain === 'string' ||
-    (Array.isArray(data.virtues) && data.virtues[0] && 'advantageType' in data.virtues[0]);
+  return (
+    typeof data.flavorLine1 === "string" ||
+    typeof data.flavorLine2 === "string" ||
+    typeof data.championTerrain === "string" ||
+    (Array.isArray(data.virtues) &&
+      data.virtues[0] &&
+      "advantageType" in data.virtues[0])
+  );
 }
 
 /**
@@ -22,8 +30,8 @@ function looksLikeV1(data) {
  * Auto-migrates V1 data when detected.
  */
 export function validateHeroData(data) {
-  if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    return { valid: false, error: 'Invalid data: expected a JSON object.' };
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    return { valid: false, error: "Invalid data: expected a JSON object." };
   }
 
   // Auto-migrate V1 imports
@@ -34,40 +42,66 @@ export function validateHeroData(data) {
 
   const hero = {
     schemaVersion: 2,
-    name: typeof data.name === 'string' ? data.name.slice(0, 20) : defaultHero.name,
-    warriors: typeof data.warriors === 'number' ? Math.max(1, Math.min(99, data.warriors)) : defaultHero.warriors,
-    spirit: typeof data.spirit === 'number' ? Math.max(0, Math.min(9, data.spirit)) : defaultHero.spirit,
-    portraitDataUrl: (
-      typeof data.portraitDataUrl === 'string' &&
-      (data.portraitDataUrl.startsWith('data:image/jpeg;base64,') ||
-       data.portraitDataUrl.startsWith('data:image/png;base64,') ||
-       data.portraitDataUrl.startsWith('data:image/gif;base64,'))
-    ) ? data.portraitDataUrl : null,
-    flavorText: typeof data.flavorText === 'string'
-      ? data.flavorText.slice(0, 120)
-      : `${data.flavorLine1 || ''} ${data.flavorLine2 || ''}`.trim().slice(0, 120) || defaultHero.flavorText,
-    bannerAction: typeof data.bannerAction === 'string' ? data.bannerAction.slice(0, 40) : defaultHero.bannerAction,
-    author_name: typeof data.author_name === 'string' ? data.author_name.slice(0, 50) : '',
-    revision_no: typeof data.revision_no === 'string' ? data.revision_no.slice(0, 8) : '1.0',
-    description: typeof data.description === 'string' ? data.description.slice(0, 1000) : '',
-    contact: typeof data.contact === 'string' ? data.contact.slice(0, 250) : '',
+    name:
+      typeof data.name === "string" ? data.name.slice(0, 20) : defaultHero.name,
+    warriors:
+      typeof data.warriors === "number"
+        ? Math.max(1, Math.min(99, data.warriors))
+        : defaultHero.warriors,
+    spirit:
+      typeof data.spirit === "number"
+        ? Math.max(0, Math.min(9, data.spirit))
+        : defaultHero.spirit,
+    portraitDataUrl:
+      typeof data.portraitDataUrl === "string" &&
+      (data.portraitDataUrl.startsWith("data:image/jpeg;base64,") ||
+        data.portraitDataUrl.startsWith("data:image/png;base64,") ||
+        data.portraitDataUrl.startsWith("data:image/gif;base64,") ||
+        data.portraitDataUrl.startsWith("data:image/webp;base64,"))
+        ? data.portraitDataUrl
+        : null,
+    flavorText:
+      typeof data.flavorText === "string"
+        ? data.flavorText.slice(0, 120)
+        : `${data.flavorLine1 || ""} ${data.flavorLine2 || ""}`
+            .trim()
+            .slice(0, 120) || defaultHero.flavorText,
+    bannerAction:
+      typeof data.bannerAction === "string"
+        ? data.bannerAction.slice(0, 40)
+        : defaultHero.bannerAction,
+    author_name:
+      typeof data.author_name === "string" ? data.author_name.slice(0, 50) : "",
+    revision_no:
+      typeof data.revision_no === "string"
+        ? data.revision_no.slice(0, 8)
+        : "1.0",
+    description:
+      typeof data.description === "string"
+        ? data.description.slice(0, 1000)
+        : "",
+    contact: typeof data.contact === "string" ? data.contact.slice(0, 250) : "",
     virtues: [],
   };
 
-  const srcVirtues = Array.isArray(data.virtues) ? data.virtues.slice(0, MAX_VIRTUES) : [];
+  const srcVirtues = Array.isArray(data.virtues)
+    ? data.virtues.slice(0, MAX_VIRTUES)
+    : [];
   for (const src of srcVirtues) {
-    if (!src || typeof src !== 'object') continue;
+    if (!src || typeof src !== "object") continue;
     const empty = createEmptyVirtue();
     // Migrate old advantageType field into description if description is empty
-    let desc = typeof src.description === 'string' ? src.description : '';
-    if (!desc && typeof src.advantageType === 'string' && src.advantageType) {
+    let desc = typeof src.description === "string" ? src.description : "";
+    if (!desc && typeof src.advantageType === "string" && src.advantageType) {
       desc = `+1 ${src.advantageType} Advantage`;
     }
     hero.virtues.push({
-      name: typeof src.name === 'string' ? src.name.slice(0, 12) : empty.name,
-      type: ['advantage', 'standard', 'champion'].includes(src.type) ? src.type : 'standard',
+      name: typeof src.name === "string" ? src.name.slice(0, 12) : empty.name,
+      type: ["advantage", "standard", "champion"].includes(src.type)
+        ? src.type
+        : "standard",
       description: desc,
-      kingdom: typeof src.kingdom === 'string' ? src.kingdom.slice(0, 20) : '',
+      kingdom: typeof src.kingdom === "string" ? src.kingdom.slice(0, 20) : "",
     });
   }
 
@@ -78,7 +112,7 @@ export function validateHeroData(data) {
  * Migrate V1 hero data to V2 format.
  */
 export function migrateV1ToV2(v1Hero) {
-  if (!v1Hero || typeof v1Hero !== 'object') return null;
+  if (!v1Hero || typeof v1Hero !== "object") return null;
 
   const virtues = [];
   const srcVirtues = Array.isArray(v1Hero.virtues) ? v1Hero.virtues : [];
@@ -86,37 +120,40 @@ export function migrateV1ToV2(v1Hero) {
   for (let i = 0; i < srcVirtues.length && i < MAX_VIRTUES; i++) {
     const src = srcVirtues[i] || {};
     if (i === 0) {
-      const advType = src.advantageType || 'TYPE';
+      const advType = src.advantageType || "TYPE";
       virtues.push({
-        name: src.name || 'VIRTUE 1',
-        type: 'advantage',
+        name: src.name || "VIRTUE 1",
+        type: "advantage",
         description: `+1 ${advType} Advantage`,
-        kingdom: '',
+        kingdom: "",
       });
     } else {
-      let desc = '';
-      if (typeof src.description === 'string') {
+      let desc = "";
+      if (typeof src.description === "string") {
         desc = src.description;
-      } else if (typeof src.line1 === 'string' || typeof src.line2 === 'string') {
-        desc = [(src.line1 || ''), (src.line2 || '')].filter(Boolean).join(' ');
+      } else if (
+        typeof src.line1 === "string" ||
+        typeof src.line2 === "string"
+      ) {
+        desc = [src.line1 || "", src.line2 || ""].filter(Boolean).join(" ");
       }
       virtues.push({
         name: src.name || `VIRTUE ${i + 1}`,
-        type: 'standard',
+        type: "standard",
         description: desc,
-        kingdom: '',
+        kingdom: "",
       });
     }
   }
 
   // Auto-create a champion virtue from V1's top-level champion fields
-  const champKingdom = v1Hero.championKingdom || '';
-  const champTerrain = v1Hero.championTerrain || '';
+  const champKingdom = v1Hero.championKingdom || "";
+  const champTerrain = v1Hero.championTerrain || "";
   if ((champKingdom || champTerrain) && virtues.length < MAX_VIRTUES) {
     virtues.push({
-      name: 'CHAMPION',
-      type: 'champion',
-      description: champTerrain ? `+2 Wild Advantages in ${champTerrain}` : '',
+      name: "CHAMPION",
+      type: "champion",
+      description: champTerrain ? `+2 Wild Advantages in ${champTerrain}` : "",
       kingdom: champKingdom,
     });
   }
@@ -127,12 +164,15 @@ export function migrateV1ToV2(v1Hero) {
     warriors: v1Hero.warriors || defaultHero.warriors,
     spirit: v1Hero.spirit ?? defaultHero.spirit,
     portraitDataUrl: v1Hero.portraitDataUrl || null,
-    flavorText: `${v1Hero.flavorLine1 || ''} ${v1Hero.flavorLine2 || ''}`.trim().slice(0, 120) || defaultHero.flavorText,
+    flavorText:
+      `${v1Hero.flavorLine1 || ""} ${v1Hero.flavorLine2 || ""}`
+        .trim()
+        .slice(0, 120) || defaultHero.flavorText,
     bannerAction: v1Hero.bannerAction || defaultHero.bannerAction,
-    author_name: v1Hero.author_name || '',
-    revision_no: v1Hero.revision_no || '',
-    description: v1Hero.description || '',
-    contact: v1Hero.contact || '',
+    author_name: v1Hero.author_name || "",
+    revision_no: v1Hero.revision_no || "",
+    description: v1Hero.description || "",
+    contact: v1Hero.contact || "",
     virtues,
   };
 }
@@ -147,7 +187,9 @@ export function loadHero() {
       const result = validateHeroData(JSON.parse(v2Raw));
       if (result.valid) return result.hero;
     }
-  } catch { /* fall through */ }
+  } catch {
+    /* fall through */
+  }
 
   try {
     const v1Raw = localStorage.getItem(V1_STORAGE_KEY);
@@ -158,9 +200,14 @@ export function loadHero() {
         if (result.valid) return result.hero;
       }
     }
-  } catch { /* fall through */ }
+  } catch {
+    /* fall through */
+  }
 
-  return { ...defaultHero, virtues: defaultHero.virtues.map(v => ({ ...v })) };
+  return {
+    ...defaultHero,
+    virtues: defaultHero.virtues.map((v) => ({ ...v })),
+  };
 }
 
 /**
@@ -180,7 +227,10 @@ export function heroToJson(hero) {
 /**
  * Resize and compress an image file using Canvas API.
  */
-export function optimizeImage(file, { maxWidth = 540, maxHeight = 740, quality = 0.8 } = {}) {
+export function optimizeImage(
+  file,
+  { maxWidth = 540, maxHeight = 740, quality = 0.8 } = {},
+) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -196,18 +246,18 @@ export function optimizeImage(file, { maxWidth = 540, maxHeight = 740, quality =
         height = Math.round(height * ratio);
       }
 
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, width, height);
 
-      resolve(canvas.toDataURL('image/jpeg', quality));
+      resolve(canvas.toDataURL("image/jpeg", quality));
     };
 
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error('Failed to load image for optimization.'));
+      reject(new Error("Failed to load image for optimization."));
     };
 
     img.src = url;

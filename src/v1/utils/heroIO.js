@@ -1,4 +1,4 @@
-import { defaultHero } from '../data/defaultHero';
+import { defaultHero } from "../data/defaultHero";
 
 /**
  * Validate and sanitize imported hero data.
@@ -6,29 +6,57 @@ import { defaultHero } from '../data/defaultHero';
  * Returns { valid: true, hero } or { valid: false, error: string }.
  */
 export function validateHeroData(data) {
-  if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    return { valid: false, error: 'Invalid data: expected a JSON object.' };
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    return { valid: false, error: "Invalid data: expected a JSON object." };
   }
 
   const hero = {
     schemaVersion: 1,
-    name: typeof data.name === 'string' ? data.name.slice(0, 20) : defaultHero.name,
-    warriors: typeof data.warriors === 'number' ? Math.max(1, Math.min(99, data.warriors)) : defaultHero.warriors,
-    spirit: typeof data.spirit === 'number' ? Math.max(0, Math.min(9, data.spirit)) : defaultHero.spirit,
-    portraitDataUrl: (
-      typeof data.portraitDataUrl === 'string' &&
-      (data.portraitDataUrl.startsWith('data:image/jpeg;base64,') ||
-       data.portraitDataUrl.startsWith('data:image/png;base64,') ||
-       data.portraitDataUrl.startsWith('data:image/gif;base64,'))
-    ) ? data.portraitDataUrl : null,
-    flavorLine1: typeof data.flavorLine1 === 'string' ? data.flavorLine1.slice(0, 35) : defaultHero.flavorLine1,
-    flavorLine2: typeof data.flavorLine2 === 'string' ? data.flavorLine2.slice(0, 35) : defaultHero.flavorLine2,
-    championTerrain: typeof data.championTerrain === 'string' ? data.championTerrain.slice(0, 15) : defaultHero.championTerrain,
-    bannerAction: typeof data.bannerAction === 'string' ? data.bannerAction.slice(0, 40) : defaultHero.bannerAction,
-    author_name: typeof data.author_name === 'string' ? data.author_name.slice(0, 50) : '',
-    revision_no: typeof data.revision_no === 'string' ? data.revision_no.slice(0, 8) : '1.0',
-    description: typeof data.description === 'string' ? data.description.slice(0, 1000) : '',
-    contact: typeof data.contact === 'string' ? data.contact.slice(0, 250) : '',
+    name:
+      typeof data.name === "string" ? data.name.slice(0, 20) : defaultHero.name,
+    warriors:
+      typeof data.warriors === "number"
+        ? Math.max(1, Math.min(99, data.warriors))
+        : defaultHero.warriors,
+    spirit:
+      typeof data.spirit === "number"
+        ? Math.max(0, Math.min(9, data.spirit))
+        : defaultHero.spirit,
+    portraitDataUrl:
+      typeof data.portraitDataUrl === "string" &&
+      (data.portraitDataUrl.startsWith("data:image/jpeg;base64,") ||
+        data.portraitDataUrl.startsWith("data:image/png;base64,") ||
+        data.portraitDataUrl.startsWith("data:image/gif;base64,") ||
+        data.portraitDataUrl.startsWith("data:image/webp;base64,"))
+        ? data.portraitDataUrl
+        : null,
+    flavorLine1:
+      typeof data.flavorLine1 === "string"
+        ? data.flavorLine1.slice(0, 35)
+        : defaultHero.flavorLine1,
+    flavorLine2:
+      typeof data.flavorLine2 === "string"
+        ? data.flavorLine2.slice(0, 35)
+        : defaultHero.flavorLine2,
+    championTerrain:
+      typeof data.championTerrain === "string"
+        ? data.championTerrain.slice(0, 15)
+        : defaultHero.championTerrain,
+    bannerAction:
+      typeof data.bannerAction === "string"
+        ? data.bannerAction.slice(0, 40)
+        : defaultHero.bannerAction,
+    author_name:
+      typeof data.author_name === "string" ? data.author_name.slice(0, 50) : "",
+    revision_no:
+      typeof data.revision_no === "string"
+        ? data.revision_no.slice(0, 8)
+        : "1.0",
+    description:
+      typeof data.description === "string"
+        ? data.description.slice(0, 1000)
+        : "",
+    contact: typeof data.contact === "string" ? data.contact.slice(0, 250) : "",
     virtues: [],
   };
 
@@ -38,21 +66,27 @@ export function validateHeroData(data) {
     const def = defaultHero.virtues[i];
     if (i === 0) {
       hero.virtues.push({
-        name: typeof src.name === 'string' ? src.name.slice(0, 12) : def.name,
-        advantageType: typeof src.advantageType === 'string' ? src.advantageType.slice(0, 15) : def.advantageType,
+        name: typeof src.name === "string" ? src.name.slice(0, 12) : def.name,
+        advantageType:
+          typeof src.advantageType === "string"
+            ? src.advantageType.slice(0, 15)
+            : def.advantageType,
       });
     } else {
       // Migrate old line1/line2 format to single description field
       let desc;
-      if (typeof src.description === 'string') {
+      if (typeof src.description === "string") {
         desc = src.description;
-      } else if (typeof src.line1 === 'string' || typeof src.line2 === 'string') {
-        desc = [(src.line1 || ''), (src.line2 || '')].filter(Boolean).join(' ');
+      } else if (
+        typeof src.line1 === "string" ||
+        typeof src.line2 === "string"
+      ) {
+        desc = [src.line1 || "", src.line2 || ""].filter(Boolean).join(" ");
       } else {
         desc = def.description;
       }
       hero.virtues.push({
-        name: typeof src.name === 'string' ? src.name.slice(0, 12) : def.name,
+        name: typeof src.name === "string" ? src.name.slice(0, 12) : def.name,
         description: desc.slice(0, 80),
       });
     }
@@ -73,7 +107,10 @@ export function heroToJson(hero) {
  * Outputs JPEG at the given quality, capped to maxWidth × maxHeight.
  * Returns a Promise<string> resolving to a base64 data URL.
  */
-export function optimizeImage(file, { maxWidth = 540, maxHeight = 740, quality = 0.8 } = {}) {
+export function optimizeImage(
+  file,
+  { maxWidth = 540, maxHeight = 740, quality = 0.8 } = {},
+) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -90,18 +127,18 @@ export function optimizeImage(file, { maxWidth = 540, maxHeight = 740, quality =
         height = Math.round(height * ratio);
       }
 
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, width, height);
 
-      resolve(canvas.toDataURL('image/jpeg', quality));
+      resolve(canvas.toDataURL("image/jpeg", quality));
     };
 
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error('Failed to load image for optimization.'));
+      reject(new Error("Failed to load image for optimization."));
     };
 
     img.src = url;
