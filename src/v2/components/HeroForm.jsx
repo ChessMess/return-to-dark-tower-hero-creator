@@ -68,6 +68,12 @@ export default function HeroForm({
 
   const handleDragLeave = () => setDragging(false);
 
+  const handleAddVirtue = () => {
+    const newVirtueIndex = hero.virtues.length;
+    addVirtue();
+    setActiveVirtue(newVirtueIndex);
+  };
+
   const inputClass =
     "mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500";
   const sectionHeader =
@@ -416,7 +422,7 @@ export default function HeroForm({
             {hero.virtues.length < MAX_VIRTUES && (
               <button
                 type="button"
-                onClick={addVirtue}
+                onClick={handleAddVirtue}
                 className="w-full rounded bg-gray-700 hover:bg-gray-600 border border-gray-600 hover:border-amber-500 text-gray-300 hover:text-amber-400 text-xs py-1.5 transition-colors"
               >
                 + Add Virtue ({hero.virtues.length}/{MAX_VIRTUES})
