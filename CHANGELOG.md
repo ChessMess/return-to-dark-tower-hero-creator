@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-03-04
+
+### Added
+
+- **Portrait Quality Slider** — A range slider (10–100%) in the Hero Identity section controls JPEG compression quality for new portrait uploads. Defaults to 80%.
+- **Recompress Button** — When a portrait is loaded, a "Recompress at X%" button re-encodes it at the current slider value without needing to re-upload. Useful for reducing localStorage size.
+- **Portrait Size Estimate** — Live KB estimate shown next to the quality slider when a portrait is loaded.
+- **localStorage Usage Warning** — A warning banner appears below the portrait controls when stored data exceeds 3 MB (yellow) or 4.5 MB (red), prompting the user to reduce portrait quality.
+- **Drag-to-Reorder Virtues** — The virtue selector is now a row of draggable chips. Drag any chip to reorder virtues; the live preview updates immediately.
+
 ## [2.1.0] - 2026-03-04
 
 ### Added
@@ -105,6 +115,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 - **Champion Terrain** — Selectable terrain type for champion ability
 
+[2.2.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v2.1.0
 [2.0.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v2.0.0
 [1.4.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.4.0

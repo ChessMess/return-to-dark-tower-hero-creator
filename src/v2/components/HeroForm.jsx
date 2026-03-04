@@ -15,9 +15,16 @@ export default function HeroForm({
   updateVirtue,
   addVirtue,
   removeVirtue,
+  reorderVirtues,
+  portraitQuality,
+  setPortraitQuality,
+  storageWarning,
+  storageBytes,
 }) {
   const [activeVirtue, setActiveVirtue] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [dragFrom, setDragFrom] = useState(null);
+  const [dragOver, setDragOver] = useState(null);
   const [openSections, setOpenSections] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("rtdt-v2-sections"));
@@ -44,13 +51,26 @@ export default function HeroForm({
   const loadPortraitFile = async (file) => {
     if (!file || !ALLOWED_IMAGE_TYPES.has(file.type)) return;
     try {
-      const dataUrl = await optimizeImage(file);
+      const dataUrl = await optimizeImage(file, { quality: portraitQuality });
       updateHero("portraitDataUrl", dataUrl);
     } catch {
       const reader = new FileReader();
       reader.onload = (evt) => updateHero("portraitDataUrl", evt.target.result);
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleRecompress = () => {
+    if (!hero.portraitDataUrl) return;
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.getContext("2d").drawImage(img, 0, 0);
+      updateHero("portraitDataUrl", canvas.toDataURL("image/jpeg", portraitQuality));
+    };
+    img.src = hero.portraitDataUrl;
   };
 
   const handlePortraitUpload = (e) => loadPortraitFile(e.target.files[0]);
@@ -211,6 +231,53 @@ export default function HeroForm({
                   />
                 </label>
               )}
+
+              {/* Quality controls */}
+              <div className="space-y-1 pt-1">
+                <p className={`text-xs text-right ${storageWarning === "danger" ? "text-red-400" : storageWarning === "warn" ? "text-yellow-400" : "text-gray-600"}`}>
+                  storage size: {storageBytes < 1048576
+                    ? `${Math.round(storageBytes / 1024)} KB`
+                    : `${(storageBytes / 1048576).toFixed(1)} MB`}
+                </p>
+                {storageWarning && (
+                  <>
+                    <div
+                      className={`text-xs rounded p-2 ${
+                        storageWarning === "danger"
+                          ? "bg-red-900/40 border border-red-700 text-red-300"
+                          : "bg-yellow-900/40 border border-yellow-700 text-yellow-300"
+                      }`}
+                    >
+                      {storageWarning === "danger"
+                        ? "Storage nearly full. Reduce portrait quality to avoid data loss."
+                        : "Portrait is large. Consider recompressing at a lower quality."}
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400 text-xs">
+                        Quality: {Math.round(portraitQuality * 100)}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.1"
+                      max="1.0"
+                      step="0.05"
+                      value={portraitQuality}
+                      onChange={(e) => setPortraitQuality(Number(e.target.value))}
+                      className="w-full accent-amber-500"
+                    />
+                    {hero.portraitDataUrl && (
+                      <button
+                        type="button"
+                        onClick={handleRecompress}
+                        className="w-full text-xs text-gray-400 hover:text-amber-400 border border-gray-600 hover:border-amber-600 rounded py-1 transition-colors"
+                      >
+                        Recompress at {Math.round(portraitQuality * 100)}%
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Flavor Text */}
@@ -410,6 +477,49 @@ export default function HeroForm({
                     >
                       Remove Virtue
                     </button>
+                  </div>
+                )}
+
+                {/* Reorder */}
+                {hero.virtues.length > 1 && (
+                  <div className="pt-1 space-y-1">
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider">
+                      Drag to reorder · click to select
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {hero.virtues.map((v, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          draggable
+                          onDragStart={() => setDragFrom(i)}
+                          onDragOver={(e) => { e.preventDefault(); setDragOver(i); }}
+                          onDragLeave={() => setDragOver(null)}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            if (dragFrom !== null && dragFrom !== i) {
+                              reorderVirtues(dragFrom, i);
+                              setActiveVirtue(i);
+                            }
+                            setDragFrom(null);
+                            setDragOver(null);
+                          }}
+                          onDragEnd={() => { setDragFrom(null); setDragOver(null); }}
+                          onClick={() => setActiveVirtue(i)}
+                          className={[
+                            "flex items-center gap-1 px-2 py-1 rounded text-xs border transition-colors cursor-grab active:cursor-grabbing select-none",
+                            clampedActive === i
+                              ? "border-amber-500 text-amber-300 bg-gray-700"
+                              : "border-gray-600 text-gray-300 bg-gray-800 hover:border-amber-600 hover:text-gray-100",
+                            dragFrom === i ? "opacity-40" : "",
+                            dragOver === i && dragFrom !== i ? "border-amber-400 bg-amber-900/20" : "",
+                          ].join(" ")}
+                        >
+                          <span className="text-gray-500 text-[10px]">⠿</span>
+                          <span>{v.name || "—"}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </>

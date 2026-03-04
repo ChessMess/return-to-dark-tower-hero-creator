@@ -218,6 +218,14 @@ export function saveHero(hero) {
 }
 
 /**
+ * Returns the byte size of the stored hero data.
+ */
+export function getStorageBytes() {
+  const val = localStorage.getItem(STORAGE_KEY) ?? "";
+  return new Blob([val]).size;
+}
+
+/**
  * Serialize hero to indented JSON string.
  */
 export function heroToJson(hero) {

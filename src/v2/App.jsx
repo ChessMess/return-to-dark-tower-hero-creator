@@ -11,6 +11,7 @@ import {
 import {
   loadHero,
   saveHero,
+  getStorageBytes,
   validateHeroData,
   heroToJson,
 } from "./utils/heroIO";
@@ -18,6 +19,9 @@ import coverBg from "./assets/rtdt_cover2.jpg";
 
 export default function V2App() {
   const [hero, setHero] = useState(loadHero);
+  const [portraitQuality, setPortraitQuality] = useState(1.0);
+  const [storageWarning, setStorageWarning] = useState(null);
+  const [storageBytes, setStorageBytes] = useState(() => getStorageBytes());
   const [downloading, setDownloading] = useState(false);
   const [statusMsg, setStatusMsg] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(
@@ -57,10 +61,19 @@ export default function V2App() {
     setTimeout(() => setStatusMsg(null), 3000);
   };
 
+  const saveAndCheck = (next) => {
+    saveHero(next);
+    const bytes = getStorageBytes();
+    setStorageBytes(bytes);
+    if (bytes > 4_500_000) setStorageWarning("danger");
+    else if (bytes > 3_000_000) setStorageWarning("warn");
+    else setStorageWarning(null);
+  };
+
   const updateHero = (field, value) =>
     setHero((prev) => {
       const next = { ...prev, [field]: value };
-      saveHero(next);
+      saveAndCheck(next);
       return next;
     });
 
@@ -69,7 +82,7 @@ export default function V2App() {
       const virtues = [...prev.virtues];
       virtues[index] = { ...virtues[index], [field]: value };
       const next = { ...prev, virtues };
-      saveHero(next);
+      saveAndCheck(next);
       return next;
     });
 
@@ -83,7 +96,7 @@ export default function V2App() {
           createEmptyVirtue(`VIRTUE ${prev.virtues.length + 1}`),
         ],
       };
-      saveHero(next);
+      saveAndCheck(next);
       return next;
     });
 
@@ -91,7 +104,17 @@ export default function V2App() {
     setHero((prev) => {
       const virtues = prev.virtues.filter((_, i) => i !== index);
       const next = { ...prev, virtues };
-      saveHero(next);
+      saveAndCheck(next);
+      return next;
+    });
+
+  const reorderVirtues = (from, to) =>
+    setHero((prev) => {
+      const virtues = [...prev.virtues];
+      const [moved] = virtues.splice(from, 1);
+      virtues.splice(to, 0, moved);
+      const next = { ...prev, virtues };
+      saveAndCheck(next);
       return next;
     });
 
@@ -361,7 +384,7 @@ export default function V2App() {
           const result = validateHeroData(data);
           if (result.valid) {
             setHero(result.hero);
-            saveHero(result.hero);
+            saveAndCheck(result.hero);
             showStatus("Hero loaded from file");
           } else {
             showStatus(result.error, "error");
@@ -539,7 +562,7 @@ export default function V2App() {
       const result = validateHeroData(data);
       if (result.valid) {
         setHero(result.hero);
-        saveHero(result.hero);
+        saveAndCheck(result.hero);
         setShowPasteModal(false);
         showStatus("Hero pasted successfully");
       } else {
@@ -579,6 +602,11 @@ export default function V2App() {
             updateVirtue={updateVirtue}
             addVirtue={addVirtue}
             removeVirtue={removeVirtue}
+            reorderVirtues={reorderVirtues}
+            portraitQuality={portraitQuality}
+            setPortraitQuality={setPortraitQuality}
+            storageWarning={storageWarning}
+            storageBytes={storageBytes}
           />
         </div>
 
