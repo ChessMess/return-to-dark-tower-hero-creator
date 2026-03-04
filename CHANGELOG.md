@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- **Animated GIF Portraits** — Animated GIFs uploaded as portraits now preserve their animation on the board. Previously, the canvas-based image optimization stripped all but the first frame. GIFs now bypass optimization to keep animation intact. If a GIF is too large, the recompress button clearly warns that converting to JPEG will lose animation.
+
 ## [2.2.0] - 2026-03-04
 
 ### Added

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { optimizeImage } from "../utils/heroIO";
+import { optimizeImage, isGif } from "../utils/heroIO";
 import { MAX_VIRTUES } from "../data/defaultHero";
 
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -50,6 +50,13 @@ export default function HeroForm({
 
   const loadPortraitFile = async (file) => {
     if (!file || !ALLOWED_IMAGE_TYPES.has(file.type)) return;
+    // GIFs bypass canvas optimization to preserve animation frames
+    if (isGif(file)) {
+      const reader = new FileReader();
+      reader.onload = (evt) => updateHero("portraitDataUrl", evt.target.result);
+      reader.readAsDataURL(file);
+      return;
+    }
     try {
       const dataUrl = await optimizeImage(file, { quality: portraitQuality });
       updateHero("portraitDataUrl", dataUrl);
@@ -249,8 +256,8 @@ export default function HeroForm({
                       }`}
                     >
                       {storageWarning === "danger"
-                        ? "Storage nearly full. Reduce portrait quality to avoid data loss."
-                        : "Portrait is large. Consider recompressing at a lower quality."}
+                        ? `Storage nearly full. Reduce portrait quality to avoid data loss.${isGif(hero.portraitDataUrl) ? " Recompressing will convert to static JPEG." : ""}`
+                        : `Portrait is large. Consider recompressing at a lower quality.${isGif(hero.portraitDataUrl) ? " Recompressing will convert to static JPEG." : ""}`}
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-400 text-xs">
@@ -272,7 +279,9 @@ export default function HeroForm({
                         onClick={handleRecompress}
                         className="w-full text-xs text-gray-400 hover:text-amber-400 border border-gray-600 hover:border-amber-600 rounded py-1 transition-colors"
                       >
-                        Recompress at {Math.round(portraitQuality * 100)}%
+                        {isGif(hero.portraitDataUrl)
+                          ? `Convert to JPEG at ${Math.round(portraitQuality * 100)}% (loses animation)`
+                          : `Recompress at ${Math.round(portraitQuality * 100)}%`}
                       </button>
                     )}
                   </>

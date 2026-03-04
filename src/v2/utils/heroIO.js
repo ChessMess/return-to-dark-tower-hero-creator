@@ -233,6 +233,15 @@ export function heroToJson(hero) {
 }
 
 /**
+ * Check if a File object or data URL string is a GIF.
+ */
+export function isGif(fileOrDataUrl) {
+  if (typeof fileOrDataUrl === "string")
+    return fileOrDataUrl.startsWith("data:image/gif");
+  return fileOrDataUrl?.type === "image/gif";
+}
+
+/**
  * Resize and compress an image file using Canvas API.
  */
 export function optimizeImage(
