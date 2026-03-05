@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.3.1] - 2026-03-05
+
+### Fixed
+
+- **Cross-Browser Image Drop** — Dragging an image from another browser window onto the portrait drop zone now works. Previously only local file drops were handled; browser-to-browser drops (which provide a URL instead of a file) are now fetched and loaded automatically.
+- **CORS Drop Error Message** — When a cross-origin image cannot be fetched (e.g. hotlink-protected sites), a brief red toast appears: "Could not load image — please save it locally first." The message auto-dismisses after 3.5 seconds.
+- **Nested Button HTML Warning** — Fixed invalid HTML where the remove button (×) inside each Recent Heroes entry was nested inside another `<button>`. The outer element is now a `<div role="button">` with keyboard support, eliminating the React hydration warning.
+
 ## [2.3.0] - 2026-03-05
 
 ### Added

@@ -824,11 +824,13 @@ export default function V2App() {
               </div>
               <div className="max-h-32 overflow-y-auto space-y-1">
                 {recents.map((entry) => (
-                  <button
+                  <div
                     key={entry.id}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
                     onClick={() => handleLoadRecent(entry)}
-                    className="w-full text-left rounded bg-gray-700/50 hover:bg-gray-700 px-2 py-1 transition-colors group relative"
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleLoadRecent(entry); } }}
+                    className="w-full text-left rounded bg-gray-700/50 hover:bg-gray-700 px-2 py-1 transition-colors group relative cursor-pointer"
                   >
                     <button
                       type="button"
@@ -854,7 +856,7 @@ export default function V2App() {
                       {(entry.author_name || entry.revision_no) && " · "}
                       {entry.virtueCount} virtues
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>

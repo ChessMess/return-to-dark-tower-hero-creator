@@ -23,6 +23,7 @@ export default function HeroForm({
 }) {
   const [activeVirtue, setActiveVirtue] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [dropError, setDropError] = useState(null);
   const [dragFrom, setDragFrom] = useState(null);
   const [dragOver, setDragOver] = useState(null);
   const [openSections, setOpenSections] = useState(() => {
@@ -82,10 +83,42 @@ export default function HeroForm({
 
   const handlePortraitUpload = (e) => loadPortraitFile(e.target.files[0]);
 
-  const handleDrop = (e) => {
+  const handleDrop = async (e) => {
     e.preventDefault();
     setDragging(false);
-    loadPortraitFile(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      loadPortraitFile(e.dataTransfer.files[0]);
+      return;
+    }
+    // Handle images dragged from another browser window (comes as URL, not file)
+    const url =
+      e.dataTransfer.getData("text/uri-list") ||
+      e.dataTransfer.getData("text/plain");
+    if (url) {
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        if (blob.type.startsWith("image/")) {
+          const file = new File([blob], "dropped-image", { type: blob.type });
+          loadPortraitFile(file);
+        }
+      } catch {
+        // Also try extracting src from dragged HTML (e.g. <img src="...">)
+        const html = e.dataTransfer.getData("text/html");
+        const match = html && html.match(/<img[^>]+src=["']([^"']+)["']/i);
+        if (match) {
+          try {
+            const res = await fetch(match[1]);
+            const blob = await res.blob();
+            const file = new File([blob], "dropped-image", { type: blob.type });
+            loadPortraitFile(file);
+            return;
+          } catch { /* fall through to error */ }
+        }
+        setDropError("Could not load image — please save it locally first");
+        setTimeout(() => setDropError(null), 3500);
+      }
+    }
   };
 
   const handleDragOver = (e) => {
@@ -287,6 +320,11 @@ export default function HeroForm({
                   </>
                 )}
               </div>
+              {dropError && (
+                <p className="text-xs text-red-400 bg-red-900/30 border border-red-800 rounded px-2 py-1.5 animate-pulse">
+                  {dropError}
+                </p>
+              )}
             </div>
 
             {/* Flavor Text */}
