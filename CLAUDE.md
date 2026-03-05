@@ -42,6 +42,10 @@ Uses `hero_board_template.svg` (1213×808px) as the design source. localStorage 
 
 **Data flow:** `src/v2/App.jsx` owns state and passes `hero` + updater callbacks into `HeroForm` and `HeroBoard`. State is persisted via `src/v2/utils/heroIO.js`.
 
+**Recent Heroes:** Uses IndexedDB (`rtdt-hero-recents` database) to store File System Access API file handles for up to 5 recently saved/loaded heroes. Entries include metadata (hero name, author, revision, virtue count) but the actual hero data is read from the file on disk when loaded. Only available in browsers supporting the File System Access API (Chrome/Edge).
+
+**Save-to-Same-File:** On Chrome/Edge, save/load uses `showSaveFilePicker`/`showOpenFilePicker` to get a `FileSystemFileHandle`. The handle is stored in a ref so subsequent saves write directly to the same file. Falls back to legacy download/file-input on other browsers.
+
 **Compatibility:** `src/v2/utils/heroIO.js` still supports importing/migrating legacy V1 JSON data when detected.
 
 ## Tailwind

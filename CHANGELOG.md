@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-03-05
+
+### Added
+
+- **Recent Heroes** — A "Recent Heroes" list appears in the sidebar footer showing the last 5 heroes you saved or loaded. Click any entry to reload it directly from the file on disk — including the portrait. Entries show the hero name, author, revision, virtue count, and relative timestamp. Individual entries can be removed with the × button, or clear all at once with the × on the header.
+- **Save-to-Same-File** — On Chrome/Edge, the Save Hero button now uses the File System Access API. The first save opens a native OS file picker; subsequent saves write directly to the same file with no prompt. Loading a file also sets it as the active save target.
+- **Unsaved Changes Guard** — Loading a recent hero only prompts for confirmation when you have actual unsaved changes. If you just saved, clicking a recent loads immediately with no dialog.
+
 ### Fixed
 
 - **Animated GIF Portraits** — Animated GIFs uploaded as portraits now preserve their animation on the board. Previously, the canvas-based image optimization stripped all but the first frame. GIFs now bypass optimization to keep animation intact. If a GIF is too large, the recompress button clearly warns that converting to JPEG will lose animation.
@@ -119,6 +127,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 - **Champion Terrain** — Selectable terrain type for champion ability
 
+[2.3.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v2.1.0
 [2.0.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v2.0.0

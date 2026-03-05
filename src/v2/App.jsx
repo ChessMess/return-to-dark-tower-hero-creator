@@ -14,6 +14,11 @@ import {
   getStorageBytes,
   validateHeroData,
   heroToJson,
+  loadRecents,
+  addToRecents,
+  removeFromRecents,
+  clearAllRecents,
+  loadHeroFromHandle,
 } from "./utils/heroIO";
 import coverBg from "./assets/rtdt_cover2.jpg";
 
@@ -28,6 +33,9 @@ export default function V2App() {
     () => localStorage.getItem("v2-sidebarOpen") !== "false",
   );
   const [showPasteModal, setShowPasteModal] = useState(false);
+  const [recents, setRecents] = useState([]);
+  const fileHandleRef = useRef(null);
+  const savedHeroRef = useRef(JSON.stringify(loadHero()));
   const [zoom, setZoom] = useState(1);
   const [isFlipped, setIsFlipped] = useState(false);
   const [snapshotFlash, setSnapshotFlash] = useState(false);
@@ -55,6 +63,18 @@ export default function V2App() {
   useEffect(() => {
     localStorage.setItem("v2-sidebarOpen", sidebarOpen);
   }, [sidebarOpen]);
+
+  useEffect(() => {
+    loadRecents().then(setRecents);
+  }, []);
+
+  const markSaved = (h) => {
+    savedHeroRef.current = JSON.stringify(h);
+  };
+
+  const hasUnsavedChanges = () => {
+    return JSON.stringify(hero) !== savedHeroRef.current;
+  };
 
   const showStatus = (text, type = "success") => {
     setStatusMsg({ text, type });
@@ -352,14 +372,64 @@ export default function V2App() {
     }
   };
 
-  const handleSaveJson = () => {
+  const writeToFileHandle = async (handle, json) => {
+    const writable = await handle.createWritable();
+    await writable.write(json);
+    await writable.close();
+  };
+
+  const handleSaveJson = async () => {
+    const json = heroToJson(hero);
+
+    // If we already have a file handle, write directly to it
+    if (fileHandleRef.current) {
+      try {
+        await writeToFileHandle(fileHandleRef.current, json);
+        markSaved(hero);
+        showStatus(`Saved to ${fileHandleRef.current.name}`);
+        setRecents(await addToRecents(fileHandleRef.current, hero));
+        return;
+      } catch {
+        // Permission revoked or handle stale — fall through to picker/download
+        fileHandleRef.current = null;
+      }
+    }
+
+    // Try File System Access API (Chrome/Edge)
+    if (window.showSaveFilePicker) {
+      const defaultName =
+        hero.name && hero.name !== "HERO NAME"
+          ? hero.name.toLowerCase().replace(/\s+/g, "-")
+          : "hero";
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: `${defaultName}.json`,
+          types: [
+            {
+              description: "JSON file",
+              accept: { "application/json": [".json"] },
+            },
+          ],
+        });
+        await writeToFileHandle(handle, json);
+        fileHandleRef.current = handle;
+        markSaved(hero);
+        showStatus(`Saved to ${handle.name}`);
+        setRecents(await addToRecents(handle, hero));
+        return;
+      } catch (err) {
+        if (err.name === "AbortError") return; // user cancelled picker
+        // Fall through to legacy download
+      }
+    }
+
+    // Fallback: legacy download (no recents — no file handle available)
     const defaultName =
       hero.name && hero.name !== "HERO NAME"
         ? hero.name.toLowerCase().replace(/\s+/g, "-")
         : "hero";
     const filename = prompt("File name:", defaultName);
     if (!filename) return;
-    const json = heroToJson(hero);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -367,10 +437,48 @@ export default function V2App() {
     a.download = filename.endsWith(".json") ? filename : `${filename}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    markSaved(hero);
     showStatus("Hero saved to file");
   };
 
-  const handleLoadJson = () => {
+  const handleLoadJson = async () => {
+    // Try File System Access API (Chrome/Edge)
+    if (window.showOpenFilePicker) {
+      try {
+        const [handle] = await window.showOpenFilePicker({
+          types: [
+            {
+              description: "JSON file",
+              accept: { "application/json": [".json"] },
+            },
+          ],
+        });
+        const file = await handle.getFile();
+        const text = await file.text();
+        const data = JSON.parse(text);
+        const result = validateHeroData(data);
+        if (result.valid) {
+          fileHandleRef.current = handle;
+          setHero(result.hero);
+          saveAndCheck(result.hero);
+          markSaved(result.hero);
+          showStatus(`Loaded from ${handle.name}`);
+          setRecents(await addToRecents(handle, result.hero));
+        } else {
+          showStatus(result.error, "error");
+        }
+        return;
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        if (err instanceof SyntaxError) {
+          showStatus("Invalid JSON file", "error");
+          return;
+        }
+        // Fall through to legacy file input
+      }
+    }
+
+    // Fallback: legacy file input
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".json,application/json";
@@ -385,6 +493,7 @@ export default function V2App() {
           if (result.valid) {
             setHero(result.hero);
             saveAndCheck(result.hero);
+            markSaved(result.hero);
             showStatus("Hero loaded from file");
           } else {
             showStatus(result.error, "error");
@@ -563,6 +672,7 @@ export default function V2App() {
       if (result.valid) {
         setHero(result.hero);
         saveAndCheck(result.hero);
+        markSaved(result.hero);
         setShowPasteModal(false);
         showStatus("Hero pasted successfully");
       } else {
@@ -572,6 +682,50 @@ export default function V2App() {
       showStatus("Invalid JSON — check the pasted text", "error");
     }
   };
+
+  const handleLoadRecent = async (entry) => {
+    if (
+      hasUnsavedChanges() &&
+      !window.confirm(`Load "${entry.heroName || entry.fileName}"?\nCurrent unsaved changes will be lost.`)
+    )
+      return;
+    try {
+      const data = await loadHeroFromHandle(entry.handle);
+      const result = validateHeroData(data);
+      if (result.valid) {
+        fileHandleRef.current = entry.handle;
+        setHero(result.hero);
+        saveAndCheck(result.hero);
+        markSaved(result.hero);
+        showStatus(`Loaded from ${entry.fileName}`);
+      } else {
+        showStatus(result.error, "error");
+      }
+    } catch {
+      showStatus("File could not be found", "error");
+      setRecents(await removeFromRecents(entry.id));
+    }
+  };
+
+  const handleRemoveRecent = async (e, id) => {
+    e.stopPropagation();
+    setRecents(await removeFromRecents(id));
+  };
+
+  const handleClearRecents = async () => {
+    setRecents(await clearAllRecents());
+  };
+
+  function formatTimeAgo(ts) {
+    const diff = Date.now() - ts;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+  }
 
   return (
     <div className="flex h-screen bg-gray-900 text-gray-100 overflow-hidden">
@@ -652,6 +806,59 @@ export default function V2App() {
               Paste
             </button>
           </div>
+          {recents.length > 0 && (
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  Recent Heroes
+                </h3>
+                <button
+                  type="button"
+                  onClick={handleClearRecents}
+                  className="w-4 h-4 flex items-center justify-center rounded text-gray-500 hover:text-red-400 hover:bg-gray-600 transition-colors text-xs leading-none"
+                  aria-label="Clear all recent heroes"
+                  title="Clear all"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="max-h-32 overflow-y-auto space-y-1">
+                {recents.map((entry) => (
+                  <button
+                    key={entry.id}
+                    type="button"
+                    onClick={() => handleLoadRecent(entry)}
+                    className="w-full text-left rounded bg-gray-700/50 hover:bg-gray-700 px-2 py-1 transition-colors group relative"
+                  >
+                    <button
+                      type="button"
+                      onClick={(e) => handleRemoveRecent(e, entry.id)}
+                      className="absolute top-0.5 right-1 w-4 h-4 flex items-center justify-center rounded text-gray-500 hover:text-red-400 hover:bg-gray-600 transition-colors text-xs"
+                      aria-label={`Remove ${entry.fileName} from recents`}
+                      title="Remove"
+                    >
+                      ×
+                    </button>
+                    <div className="flex items-center justify-between pr-4">
+                      <span className="text-xs text-amber-300 font-bold truncate">
+                        {entry.heroName || entry.fileName}
+                      </span>
+                      <span className="text-[10px] text-gray-500 shrink-0 ml-2">
+                        {formatTimeAgo(entry.savedAt)}
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-gray-400 truncate">
+                      {entry.author_name && `by ${entry.author_name}`}
+                      {entry.author_name && entry.revision_no && " · "}
+                      {entry.revision_no && `v${entry.revision_no}`}
+                      {(entry.author_name || entry.revision_no) && " · "}
+                      {entry.virtueCount} virtues
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <button
             type="button"
             onClick={handleDownloadPdf}
