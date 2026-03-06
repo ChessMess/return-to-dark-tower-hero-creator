@@ -21,6 +21,9 @@ import {
   clearAllRecents,
   loadHeroFromHandle,
 } from "./utils/heroIO";
+import { submitHero } from "./utils/firebase";
+import GalleryModal from "./components/GalleryModal";
+import AdminPanel from "./components/AdminPanel";
 import coverBg from "./assets/rtdt_cover2.jpg";
 
 export default function V2App() {
@@ -34,6 +37,9 @@ export default function V2App() {
     () => localStorage.getItem("v2-sidebarOpen") !== "false",
   );
   const [showPasteModal, setShowPasteModal] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [recents, setRecents] = useState([]);
   const fileHandleRef = useRef(null);
   const savedHeroRef = useRef(JSON.stringify(loadHero()));
@@ -691,6 +697,27 @@ export default function V2App() {
     return () => window.removeEventListener("blur", cancelHold);
   }, [cancelHold]);
 
+  const handleShareToGallery = async () => {
+    if (!window.confirm("Share this hero to the community gallery?\nIt will be reviewed before appearing.")) return;
+    setSubmitting(true);
+    try {
+      await submitHero(hero);
+      showStatus("Hero submitted for review!");
+    } catch (err) {
+      console.error("Submit failed:", err);
+      showStatus("Submit failed — try again later", "error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleLoadFromGallery = (galleryHero) => {
+    setHero(galleryHero);
+    saveAndCheck(galleryHero);
+    markSaved(galleryHero);
+    showStatus("Hero loaded from gallery");
+  };
+
   const handlePasteSubmit = (text) => {
     try {
       const data = JSON.parse(text);
@@ -796,7 +823,17 @@ export default function V2App() {
             <h1 className="text-sm font-bold text-amber-400 tracking-wider uppercase">
               Hero Board Creator
             </h1>
-            <p className="text-xs text-gray-500">Return to Dark Tower</p>
+            <p className="text-xs text-gray-500">
+              Return to Dark Tower
+              <button
+                type="button"
+                onClick={() => setShowAdmin(true)}
+                className="ml-1.5 text-gray-600 hover:text-amber-400 transition-colors"
+                title="Admin"
+              >
+                &bull;
+              </button>
+            </p>
           </div>
           <button
             type="button"
@@ -862,6 +899,23 @@ export default function V2App() {
               className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors"
             >
               Paste
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setShowGallery(true)}
+              className="rounded bg-indigo-800 hover:bg-indigo-700 text-indigo-200 text-xs py-1.5 uppercase tracking-wider transition-colors"
+            >
+              Gallery
+            </button>
+            <button
+              type="button"
+              onClick={handleShareToGallery}
+              disabled={submitting}
+              className="rounded bg-indigo-800 hover:bg-indigo-700 disabled:bg-gray-700 disabled:text-gray-500 text-indigo-200 text-xs py-1.5 uppercase tracking-wider transition-colors"
+            >
+              {submitting ? "Sharing..." : "Share"}
             </button>
           </div>
           {recents.length > 0 && (
@@ -1123,6 +1177,17 @@ export default function V2App() {
           </div>
         </div>
       )}
+
+      {/* Gallery modal */}
+      {showGallery && (
+        <GalleryModal
+          onClose={() => setShowGallery(false)}
+          onLoadHero={handleLoadFromGallery}
+        />
+      )}
+
+      {/* Admin panel */}
+      {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
     </div>
   );
 }

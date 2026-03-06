@@ -6,8 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-03-06
+
 ### Added
 
+- **Community Hero Gallery** — Browse heroes shared by the community from within the app. Click **Gallery** in the sidebar to view approved heroes, **View** to load one into the editor, or **Save** to download the JSON file.
+- **Share to Gallery** — Click **Share** in the sidebar to submit your hero for community review. Requires Google sign-in. Submissions go through an admin approval process before appearing in the gallery. Duplicate submissions and default/empty heroes are automatically rejected.
+- **Admin Moderation Panel** — Hidden admin panel for reviewing, approving, and rejecting hero submissions. Admins can also delete heroes directly from the gallery view. Access is secured via Firebase Authentication with Google sign-in and custom claims.
 - **Open in New Tab** — Each Recent Heroes entry now has a small external-link icon below the × button. Clicking it opens the hero in a new browser Tab without affecting the current draft or triggering unsaved-change warnings. The new Tab loads the hero data but is untethered from the original file (first save will prompt a file picker).
 
 ### Changed
@@ -143,6 +148,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 - **Champion Terrain** — Selectable terrain type for champion ability
 
+[2.4.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.3.1...v2.4.0
 [2.3.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v2.1.0

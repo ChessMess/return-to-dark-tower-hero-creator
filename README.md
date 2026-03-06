@@ -26,7 +26,8 @@ Create custom hero boards for [Return to Dark Tower](https://restorationgames.co
 - **Banner Action** — Editable text for the hero's banner action
 - **Flavor Text** — Single textarea with auto-wrapping and live character counter
 - **Collapsible Editor** — Form sections collapse/expand with persistent state
-- **No Backend Required** — Runs entirely in the browser as a static site
+- **Community Gallery** — Share your heroes with the community and browse others' creations
+- **No Backend Required** — Runs entirely in the browser as a static site (gallery uses Firebase free tier)
 
 ## Requirements
 
@@ -63,6 +64,24 @@ npm run preview
 4. **Flavor Text** — Add atmospheric flavor text (120 characters, auto-wraps on the board)
 5. **Virtues** — Add up to 6 virtues and choose a type for each (Standard, Advantage, or Champion)
 6. Click **Download PDF** to save your hero board as a print-ready PDF
+
+## Sharing Heroes to the Gallery
+
+You can share your custom hero with the community directly from the app:
+
+1. Create and customize your hero — give it a unique name and at least one custom virtue
+2. Click the **Share** button in the sidebar
+3. Sign in with your Google account (prompted automatically if not already signed in)
+4. Confirm the submission — your hero is sent for review
+5. Once approved by an admin, it will appear in the **Gallery** for everyone to browse, view, and download
+
+**What gets shared:** Hero name, stats, virtues, flavor text, banner action, portrait, and author info. Portrait images must be under 2 MB.
+
+**What doesn't get shared:** Contact info is not included in gallery submissions.
+
+**Requirements:** A Google account is required to submit. Heroes with default names or default virtue names will be rejected.
+
+**Duplicate prevention:** Submitting the same hero twice is automatically blocked. If you make changes to your hero, you can submit the updated version as a new entry.
 
 ## Project Structure
 
