@@ -3,6 +3,7 @@ import jsPDF from "jspdf";
 import { svg2pdf } from "svg2pdf.js";
 import HeroBoard from "./components/HeroBoard";
 import HeroForm from "./components/HeroForm";
+import RecentHeroRow from "./components/RecentHeroRow";
 import {
   defaultHero,
   MAX_VIRTUES,
@@ -66,6 +67,25 @@ export default function V2App() {
 
   useEffect(() => {
     loadRecents().then(setRecents);
+  }, []);
+
+  // Detect handoff from "Open in new tab"
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("rtdt-hero-handoff");
+      if (!raw) return;
+      const handoff = JSON.parse(raw);
+      localStorage.removeItem("rtdt-hero-handoff");
+      if (Date.now() - handoff.timestamp > 10_000) return;
+      if (handoff.hero) {
+        setHero(handoff.hero);
+        saveAndCheck(handoff.hero);
+        markSaved(handoff.hero);
+        showStatus(`Opened ${handoff.fileName || "hero"} in new tab`);
+      }
+    } catch {
+      localStorage.removeItem("rtdt-hero-handoff");
+    }
   }, []);
 
   const markSaved = (h) => {
@@ -547,7 +567,9 @@ export default function V2App() {
         }
 
         const svgString = new XMLSerializer().serializeToString(clone);
-        const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+        const blob = new Blob([svgString], {
+          type: "image/svg+xml;charset=utf-8",
+        });
         const url = URL.createObjectURL(blob);
 
         const canvas = document.createElement("canvas");
@@ -572,9 +594,7 @@ export default function V2App() {
     });
 
   const copyBlobToClipboard = async (blob) => {
-    await navigator.clipboard.write([
-      new ClipboardItem({ "image/png": blob }),
-    ]);
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
   };
 
   const downloadBlob = (blob, filename) => {
@@ -620,7 +640,11 @@ export default function V2App() {
       downloadBlob(pngBlob, filename);
       setSnapshotFlash(true);
       setTimeout(() => setSnapshotFlash(false), 600);
-      showStatus(copied ? "Copied & downloaded" : "Downloaded as PNG (clipboard unavailable)");
+      showStatus(
+        copied
+          ? "Copied & downloaded"
+          : "Downloaded as PNG (clipboard unavailable)",
+      );
     } catch (err) {
       console.error("Snapshot failed:", err);
       showStatus("Snapshot failed", "error");
@@ -656,7 +680,9 @@ export default function V2App() {
     cancelHold();
     holdBusyRef.current = true;
     const action = wasEligible ? handleSnapshotCombo() : handleSnapshot();
-    action.finally(() => { holdBusyRef.current = false; });
+    action.finally(() => {
+      holdBusyRef.current = false;
+    });
   }, [cancelHold]);
 
   // Cancel hold on window blur
@@ -686,7 +712,9 @@ export default function V2App() {
   const handleLoadRecent = async (entry) => {
     if (
       hasUnsavedChanges() &&
-      !window.confirm(`Load "${entry.heroName || entry.fileName}"?\nCurrent unsaved changes will be lost.`)
+      !window.confirm(
+        `Load "${entry.heroName || entry.fileName}"?\nCurrent unsaved changes will be lost.`,
+      )
     )
       return;
     try {
@@ -710,6 +738,36 @@ export default function V2App() {
   const handleRemoveRecent = async (e, id) => {
     e.stopPropagation();
     setRecents(await removeFromRecents(id));
+  };
+
+  const handleOpenRecentInNewWindow = async (entry) => {
+    try {
+      const data = await loadHeroFromHandle(entry.handle);
+      const result = validateHeroData(data);
+      if (!result.valid) {
+        showStatus(result.error, "error");
+        return;
+      }
+      localStorage.setItem(
+        "rtdt-hero-handoff",
+        JSON.stringify({
+          hero: result.hero,
+          fileName: entry.fileName,
+          timestamp: Date.now(),
+        }),
+      );
+      const newWin = window.open(import.meta.env.BASE_URL || "/", "_blank");
+      if (!newWin) {
+        localStorage.removeItem("rtdt-hero-handoff");
+        showStatus("Pop-up blocked — allow pop-ups for this site", "error");
+      }
+    } catch {
+      showStatus(
+        "Could not open file — it may have been moved or deleted",
+        "error",
+      );
+      setRecents(await removeFromRecents(entry.id));
+    }
   };
 
   const handleClearRecents = async () => {
@@ -824,39 +882,14 @@ export default function V2App() {
               </div>
               <div className="max-h-32 overflow-y-auto space-y-1">
                 {recents.map((entry) => (
-                  <div
+                  <RecentHeroRow
                     key={entry.id}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => handleLoadRecent(entry)}
-                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleLoadRecent(entry); } }}
-                    className="w-full text-left rounded bg-gray-700/50 hover:bg-gray-700 px-2 py-1 transition-colors group relative cursor-pointer"
-                  >
-                    <button
-                      type="button"
-                      onClick={(e) => handleRemoveRecent(e, entry.id)}
-                      className="absolute top-0.5 right-1 w-4 h-4 flex items-center justify-center rounded text-gray-500 hover:text-red-400 hover:bg-gray-600 transition-colors text-xs"
-                      aria-label={`Remove ${entry.fileName} from recents`}
-                      title="Remove"
-                    >
-                      ×
-                    </button>
-                    <div className="flex items-center justify-between pr-4">
-                      <span className="text-xs text-amber-300 font-bold truncate">
-                        {entry.heroName || entry.fileName}
-                      </span>
-                      <span className="text-[10px] text-gray-500 shrink-0 ml-2">
-                        {formatTimeAgo(entry.savedAt)}
-                      </span>
-                    </div>
-                    <div className="text-[10px] text-gray-400 truncate">
-                      {entry.author_name && `by ${entry.author_name}`}
-                      {entry.author_name && entry.revision_no && " · "}
-                      {entry.revision_no && `v${entry.revision_no}`}
-                      {(entry.author_name || entry.revision_no) && " · "}
-                      {entry.virtueCount} virtues
-                    </div>
-                  </div>
+                    entry={entry}
+                    onLoad={handleLoadRecent}
+                    onRemove={handleRemoveRecent}
+                    onOpenNewWindow={handleOpenRecentInNewWindow}
+                    formatTimeAgo={formatTimeAgo}
+                  />
                 ))}
               </div>
             </div>
@@ -956,8 +989,17 @@ export default function V2App() {
               className={`w-7 h-7 flex items-center justify-center rounded-lg border transition-all duration-300 disabled:opacity-40 disabled:pointer-events-none select-none touch-none ${holding ? "bg-amber-600 border-amber-400 text-white scale-110" : snapshotFlash ? "bg-amber-500 border-amber-400 text-white scale-110" : "bg-gray-800/80 border-gray-700 text-gray-300 hover:text-amber-400 hover:border-amber-500"}`}
               title="Click to copy image · Hold 3s to copy & download"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
-                <path fillRule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clipRule="evenodd" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="w-3.5 h-3.5"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+                  clipRule="evenodd"
+                />
               </svg>
             </button>
           </div>

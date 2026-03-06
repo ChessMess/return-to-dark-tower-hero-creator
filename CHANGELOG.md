@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- **Open in New Tab** — Each Recent Heroes entry now has a small external-link icon below the × button. Clicking it opens the hero in a new browser Tab without affecting the current draft or triggering unsaved-change warnings. The new Tab loads the hero data but is untethered from the original file (first save will prompt a file picker).
+
+### Changed
+
+- **Recent Heroes Row Refactor** — Extracted the Recent Heroes row into a standalone `RecentHeroRow` component with a proper flex layout, replacing the previous absolute-positioning approach.
+
 ## [2.3.1] - 2026-03-05
 
 ### Fixed
