@@ -4,3 +4,6 @@ dist/
 *.local
 local/
 serviceAccountKey.json
+.env
+.env.*
+!.env.example

@@ -9,6 +9,29 @@ const V1_STORAGE_KEY = "rtdt-hero";
 const MAX_RECENTS = 5;
 
 /**
+ * Strip dangerous content from a string field.
+ * Removes HTML tags, script content, event handlers, javascript: URIs,
+ * and other potential XSS vectors. Returns plain text only.
+ */
+export function sanitizeString(str) {
+  if (typeof str !== "string") return "";
+  let s = str;
+  // Remove <script>...</script> blocks (including nested/multiline)
+  s = s.replace(/<script[\s>][\s\S]*?<\/script\s*>/gi, "");
+  // Remove all HTML/XML tags
+  s = s.replace(/<\/?[a-z][^>]*>/gi, "");
+  // Remove javascript:/data:/vbscript: URI schemes
+  s = s.replace(/\b(javascript|data|vbscript)\s*:/gi, "");
+  // Remove on* event handler patterns (e.g. onerror=, onclick=)
+  s = s.replace(/\bon[a-z]+\s*=/gi, "");
+  // Remove CSS expression() / url() injection patterns
+  s = s.replace(/expression\s*\(/gi, "");
+  // Collapse whitespace left behind
+  s = s.replace(/\s{2,}/g, " ").trim();
+  return s;
+}
+
+/**
  * Detect whether imported data looks like V1 format.
  */
 function looksLikeV1(data) {
@@ -44,7 +67,9 @@ export function validateHeroData(data) {
   const hero = {
     schemaVersion: 2,
     name:
-      typeof data.name === "string" ? data.name.slice(0, 20) : defaultHero.name,
+      typeof data.name === "string"
+        ? sanitizeString(data.name).slice(0, 20)
+        : defaultHero.name,
     warriors:
       typeof data.warriors === "number"
         ? Math.max(1, Math.min(99, data.warriors))
@@ -63,25 +88,32 @@ export function validateHeroData(data) {
         : null,
     flavorText:
       typeof data.flavorText === "string"
-        ? data.flavorText.slice(0, 120)
-        : `${data.flavorLine1 || ""} ${data.flavorLine2 || ""}`
+        ? sanitizeString(data.flavorText).slice(0, 120)
+        : sanitizeString(
+            `${data.flavorLine1 || ""} ${data.flavorLine2 || ""}`,
+          )
             .trim()
             .slice(0, 120) || defaultHero.flavorText,
     bannerAction:
       typeof data.bannerAction === "string"
-        ? data.bannerAction.slice(0, 40)
+        ? sanitizeString(data.bannerAction).slice(0, 40)
         : defaultHero.bannerAction,
     author_name:
-      typeof data.author_name === "string" ? data.author_name.slice(0, 50) : "",
+      typeof data.author_name === "string"
+        ? sanitizeString(data.author_name).slice(0, 50)
+        : "",
     revision_no:
       typeof data.revision_no === "string"
-        ? data.revision_no.slice(0, 8)
+        ? sanitizeString(data.revision_no).slice(0, 8)
         : "1.0",
     description:
       typeof data.description === "string"
-        ? data.description.slice(0, 1000)
+        ? sanitizeString(data.description).slice(0, 1000)
         : "",
-    contact: typeof data.contact === "string" ? data.contact.slice(0, 250) : "",
+    contact:
+      typeof data.contact === "string"
+        ? sanitizeString(data.contact).slice(0, 250)
+        : "",
     virtues: [],
   };
 
@@ -97,12 +129,18 @@ export function validateHeroData(data) {
       desc = `+1 ${src.advantageType} Advantage`;
     }
     hero.virtues.push({
-      name: typeof src.name === "string" ? src.name.slice(0, 12) : empty.name,
+      name:
+        typeof src.name === "string"
+          ? sanitizeString(src.name).slice(0, 12)
+          : empty.name,
       type: ["advantage", "standard", "champion"].includes(src.type)
         ? src.type
         : "standard",
-      description: desc,
-      kingdom: typeof src.kingdom === "string" ? src.kingdom.slice(0, 20) : "",
+      description: sanitizeString(desc),
+      kingdom:
+        typeof src.kingdom === "string"
+          ? sanitizeString(src.kingdom).slice(0, 20)
+          : "",
     });
   }
 

@@ -8,6 +8,7 @@ import {
   approveHero,
   rejectHero,
 } from "../utils/firebase";
+import { validateHeroData } from "../utils/heroIO";
 
 export default function AdminPanel({ onClose }) {
   const [user, setUser] = useState(null);
@@ -67,6 +68,27 @@ export default function AdminPanel({ onClose }) {
       setError(err.message);
     } finally {
       setActionId(null);
+    }
+  };
+
+  const handlePreview = (hero) => {
+    const result = validateHeroData(hero);
+    if (!result.valid) {
+      setError("Hero data failed validation — may contain unsafe content.");
+      return;
+    }
+    localStorage.setItem(
+      "rtdt-hero-handoff",
+      JSON.stringify({
+        hero: result.hero,
+        fileName: `${hero.name || "hero"} (review)`,
+        timestamp: Date.now(),
+      }),
+    );
+    const newWin = window.open(import.meta.env.BASE_URL || "/", "_blank");
+    if (!newWin) {
+      localStorage.removeItem("rtdt-hero-handoff");
+      setError("Pop-up blocked — allow pop-ups for this site to preview.");
     }
   };
 
@@ -218,6 +240,13 @@ export default function AdminPanel({ onClose }) {
                       </div>
 
                       <div className="flex gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => handlePreview(hero)}
+                          className="rounded bg-blue-700 hover:bg-blue-600 text-white text-[10px] px-4 py-1 font-bold uppercase tracking-wider transition-colors"
+                        >
+                          Preview
+                        </button>
                         <button
                           type="button"
                           onClick={() => handleApprove(hero.id)}

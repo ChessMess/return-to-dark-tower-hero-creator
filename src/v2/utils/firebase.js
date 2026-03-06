@@ -2,7 +2,6 @@ import { initializeApp } from "firebase/app";
 import {
   getDatabase,
   ref,
-  push,
   set,
   get,
   remove,
@@ -18,25 +17,59 @@ import {
   signOut,
   GoogleAuthProvider,
 } from "firebase/auth";
+import { sanitizeString } from "./heroIO";
 
-const firebaseConfig = {
-  apiKey: "REDACTED_FIREBASE_API_KEY",
-  authDomain: "rtdt-hero-creator.firebaseapp.com",
-  databaseURL: "https://rtdt-hero-creator-default-rtdb.firebaseio.com",
-  projectId: "rtdt-hero-creator",
-  storageBucket: "rtdt-hero-creator.firebasestorage.app",
-  messagingSenderId: "REDACTED_FIREBASE_SENDER_ID",
-  appId: "REDACTED_FIREBASE_APP_ID",
-};
+const requiredFirebaseEnvVars = [
+  "VITE_FIREBASE_API_KEY",
+  "VITE_FIREBASE_AUTH_DOMAIN",
+  "VITE_FIREBASE_DATABASE_URL",
+  "VITE_FIREBASE_PROJECT_ID",
+  "VITE_FIREBASE_STORAGE_BUCKET",
+  "VITE_FIREBASE_MESSAGING_SENDER_ID",
+  "VITE_FIREBASE_APP_ID",
+];
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
+const missingFirebaseEnvVars = requiredFirebaseEnvVars.filter(
+  (name) => !import.meta.env[name],
+);
+
+const hasFirebaseConfig = missingFirebaseEnvVars.length === 0;
+
+if (!hasFirebaseConfig) {
+  console.warn(
+    `[firebase] Missing env vars: ${missingFirebaseEnvVars.join(", ")}. Gallery/admin features are disabled.`,
+  );
+}
+
+const firebaseConfig = hasFirebaseConfig
+  ? {
+      apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+      databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+      appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    }
+  : null;
+
+const app = firebaseConfig ? initializeApp(firebaseConfig) : null;
+const db = app ? getDatabase(app) : null;
+const auth = app ? getAuth(app) : null;
 const googleProvider = new GoogleAuthProvider();
+
+function assertFirebaseAvailable(featureName) {
+  if (!hasFirebaseConfig || !db || !auth) {
+    throw new Error(
+      `${featureName} is unavailable because Firebase is not configured for this deployment.`,
+    );
+  }
+}
 
 /* ── Auth: Google sign-in for submissions ── */
 
 export async function signInWithGoogle() {
+  assertFirebaseAvailable("Sign in");
   return signInWithPopup(auth, googleProvider);
 }
 
@@ -50,13 +83,23 @@ async function hashHero(hero) {
     name: hero.name,
     warriors: hero.warriors,
     spirit: hero.spirit,
-    virtues: (hero.virtues || []).map((v) => ({ name: v.name, line1: v.line1, line2: v.line2 })),
+    virtues: (hero.virtues || []).map((v) => ({
+      name: v.name,
+      line1: v.line1,
+      line2: v.line2,
+    })),
   });
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  const buf = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(str),
+  );
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 export async function submitHero(hero) {
+  assertFirebaseAvailable("Hero sharing");
   // Require Google sign-in
   let user = auth.currentUser;
   if (!user) {
@@ -67,7 +110,15 @@ export async function submitHero(hero) {
 
   // Reject default/empty heroes
   const DEFAULT_NAMES = ["HERO NAME", ""];
-  const DEFAULT_VIRTUE_NAMES = ["VIRTUE", "VIRTUE 1", "VIRTUE 2", "VIRTUE 3", "VIRTUE 4", "VIRTUE 5", "VIRTUE 6"];
+  const DEFAULT_VIRTUE_NAMES = [
+    "VIRTUE",
+    "VIRTUE 1",
+    "VIRTUE 2",
+    "VIRTUE 3",
+    "VIRTUE 4",
+    "VIRTUE 5",
+    "VIRTUE 6",
+  ];
   const heroName = (hero.name || "").trim().toUpperCase();
   if (DEFAULT_NAMES.includes(heroName)) {
     throw new Error("Please give your hero a name before sharing.");
@@ -76,7 +127,9 @@ export async function submitHero(hero) {
   if (virtues.length === 0) {
     throw new Error("Please add at least one virtue before sharing.");
   }
-  const allDefault = virtues.every((v) => DEFAULT_VIRTUE_NAMES.includes((v.name || "").trim().toUpperCase()));
+  const allDefault = virtues.every((v) =>
+    DEFAULT_VIRTUE_NAMES.includes((v.name || "").trim().toUpperCase()),
+  );
   if (allDefault) {
     throw new Error("Please customize your virtue names before sharing.");
   }
@@ -84,35 +137,51 @@ export async function submitHero(hero) {
   // Client-side cooldown
   const now = Date.now();
   if (now - lastSubmitTime < SUBMIT_COOLDOWN_MS) {
-    const secs = Math.ceil((SUBMIT_COOLDOWN_MS - (now - lastSubmitTime)) / 1000);
+    const secs = Math.ceil(
+      (SUBMIT_COOLDOWN_MS - (now - lastSubmitTime)) / 1000,
+    );
     throw new Error(`Please wait ${secs}s before submitting again.`);
   }
 
   // Sanitize portrait — only allow data: URIs with image MIME types
   let portrait = null;
-  if (hero.portraitDataUrl && /^data:image\/(png|jpeg|gif|webp|svg\+xml);base64,/.test(hero.portraitDataUrl)) {
+  if (
+    hero.portraitDataUrl &&
+    /^data:image\/(png|jpeg|gif|webp);base64,/.test(hero.portraitDataUrl)
+  ) {
     portrait = hero.portraitDataUrl;
   }
 
+  const sanitizedVirtues = (hero.virtues || []).map((v) => ({
+    name: sanitizeString(v.name || ""),
+    type: ["advantage", "standard", "champion"].includes(v.type)
+      ? v.type
+      : "standard",
+    description: sanitizeString(v.description || ""),
+    kingdom: sanitizeString(v.kingdom || ""),
+  }));
+
   const payload = {
-    name: hero.name || "HERO NAME",
+    name: sanitizeString(hero.name || "HERO NAME"),
     schemaVersion: hero.schemaVersion || 2,
     warriors: hero.warriors,
     spirit: hero.spirit,
     portraitDataUrl: portrait,
-    flavorText: hero.flavorText || "",
-    bannerAction: hero.bannerAction || "",
-    author_name: hero.author_name || "",
-    revision_no: hero.revision_no || "",
-    description: hero.description || "",
-    virtues: hero.virtues || [],
+    flavorText: sanitizeString(hero.flavorText || ""),
+    bannerAction: sanitizeString(hero.bannerAction || ""),
+    author_name: sanitizeString(hero.author_name || ""),
+    revision_no: sanitizeString(hero.revision_no || ""),
+    description: sanitizeString(hero.description || ""),
+    virtues: sanitizedVirtues,
     submittedBy: user.uid,
     createdAt: serverTimestamp(),
   };
 
   // Reject oversized payloads (>2MB) to protect free-tier storage
   if (portrait && portrait.length > 2_000_000) {
-    throw new Error("Hero data is too large to share. Try using a smaller portrait image.");
+    throw new Error(
+      "Hero data is too large to share. Try using a smaller portrait image.",
+    );
   }
 
   // Use content hash as key — Firebase rule (!data.exists()) prevents duplicate submissions
@@ -126,6 +195,7 @@ export async function submitHero(hero) {
 /* ── Public: Read approved heroes ── */
 
 export async function fetchApprovedHeroes(limit = 50) {
+  assertFirebaseAvailable("Gallery");
   const q = query(
     ref(db, "heroes/approved"),
     orderByChild("createdAt"),
@@ -145,20 +215,27 @@ export async function fetchApprovedHeroes(limit = 50) {
 /* ── Admin: Auth ── */
 
 export function getCurrentUser() {
+  if (!auth) return null;
   return auth.currentUser;
 }
 
 export function onAuthChange(callback) {
+  if (!auth) {
+    callback(null);
+    return () => {};
+  }
   return auth.onAuthStateChanged(callback);
 }
 
 export { signInWithGoogle as signInAdmin };
 
 export async function signOutAdmin() {
+  assertFirebaseAvailable("Admin sign-out");
   return signOut(auth);
 }
 
 export async function isAdmin() {
+  if (!auth) return false;
   const user = auth.currentUser;
   if (!user) return false;
   const token = await user.getIdTokenResult();
@@ -168,6 +245,7 @@ export async function isAdmin() {
 /* ── Admin: Moderation ── */
 
 export async function fetchPendingHeroes() {
+  assertFirebaseAvailable("Admin moderation");
   const snapshot = await get(ref(db, "heroes/pending"));
   if (!snapshot.exists()) return [];
   const heroes = [];
@@ -179,6 +257,7 @@ export async function fetchPendingHeroes() {
 }
 
 export async function approveHero(id) {
+  assertFirebaseAvailable("Admin moderation");
   const snapshot = await get(ref(db, `heroes/pending/${id}`));
   if (!snapshot.exists()) throw new Error("Hero not found in pending");
   const heroData = snapshot.val();
@@ -191,9 +270,24 @@ export async function approveHero(id) {
 }
 
 export async function rejectHero(id) {
+  assertFirebaseAvailable("Admin moderation");
   await remove(ref(db, `heroes/pending/${id}`));
 }
 
 export async function deleteApprovedHero(id) {
+  assertFirebaseAvailable("Gallery moderation");
+  await remove(ref(db, `heroes/approved/${id}`));
+}
+
+export async function deleteOwnHero(id) {
+  assertFirebaseAvailable("Hero deletion");
+  const user = auth.currentUser;
+  if (!user) throw new Error("Sign-in required to remove a hero.");
+  const snapshot = await get(ref(db, `heroes/approved/${id}`));
+  if (!snapshot.exists()) throw new Error("Hero not found in gallery.");
+  const heroData = snapshot.val();
+  if (heroData.submittedBy !== user.uid) {
+    throw new Error("You can only remove heroes you submitted.");
+  }
   await remove(ref(db, `heroes/approved/${id}`));
 }

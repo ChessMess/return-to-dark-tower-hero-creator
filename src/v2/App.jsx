@@ -84,9 +84,11 @@ export default function V2App() {
       localStorage.removeItem("rtdt-hero-handoff");
       if (Date.now() - handoff.timestamp > 10_000) return;
       if (handoff.hero) {
-        setHero(handoff.hero);
-        saveAndCheck(handoff.hero);
-        markSaved(handoff.hero);
+        const result = validateHeroData(handoff.hero);
+        if (!result.valid) return;
+        setHero(result.hero);
+        saveAndCheck(result.hero);
+        markSaved(result.hero);
         showStatus(`Opened ${handoff.fileName || "hero"} in new tab`);
       }
     } catch {

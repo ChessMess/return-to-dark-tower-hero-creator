@@ -44,6 +44,46 @@ npm run dev
 
 Open **http://localhost:5173** in your browser.
 
+## Firebase Setup (Required For Gallery)
+
+The gallery/auth features use Firebase. Configuration is loaded from Vite environment variables.
+If these values are not provided, the app still builds and runs, but gallery/share/admin features are disabled.
+
+1. Copy `.env.example` to `.env.local`
+2. Fill in your Firebase values:
+
+```bash
+cp .env.example .env.local
+```
+
+```env
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_DATABASE_URL=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
+```
+
+Security notes:
+
+- Never commit real `.env` or `.env.local` files.
+- Restrict your Firebase API key to expected referrers/APIs in Google Cloud.
+- If a key is exposed, rotate it immediately in Google Cloud Console.
+
+### GitHub Pages Deploy Secrets
+
+If you deploy via `.github/workflows/deploy.yml`, add these repository secrets so gallery/auth works on the live site:
+
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_DATABASE_URL`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+
 ## Build (standalone)
 
 ```bash
