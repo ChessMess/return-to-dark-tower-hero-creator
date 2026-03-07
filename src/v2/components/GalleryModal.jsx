@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchApprovedHeroes, deleteApprovedHero, isAdmin, getCurrentUser } from "../utils/firebase";
+import { fetchApprovedHeroes, deleteApprovedHero, deleteOwnHero, isAdmin, getCurrentUser } from "../utils/firebase";
 import { validateHeroData, heroToJson } from "../utils/heroIO";
 import GalleryCard from "./GalleryCard";
 
@@ -8,6 +8,7 @@ export default function GalleryModal({ onClose, onLoadHero }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [admin, setAdmin] = useState(false);
+  const [currentUid, setCurrentUid] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -21,7 +22,9 @@ export default function GalleryModal({ onClose, onLoadHero }) {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-    if (getCurrentUser()) {
+    const user = getCurrentUser();
+    if (user) {
+      setCurrentUid(user.uid);
       isAdmin().then((ok) => { if (!cancelled) setAdmin(ok); });
     }
     return () => { cancelled = true; };
@@ -51,6 +54,16 @@ export default function GalleryModal({ onClose, onLoadHero }) {
     if (!window.confirm(`Delete "${hero.name}" from the gallery? This cannot be undone.`)) return;
     try {
       await deleteApprovedHero(hero.id);
+      setHeroes((prev) => prev.filter((h) => h.id !== hero.id));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleRemoveOwn = async (hero) => {
+    if (!window.confirm(`Remove your hero "${hero.name}" from the gallery?`)) return;
+    try {
+      await deleteOwnHero(hero.id);
       setHeroes((prev) => prev.filter((h) => h.id !== hero.id));
     } catch (err) {
       setError(err.message);
@@ -108,6 +121,7 @@ export default function GalleryModal({ onClose, onLoadHero }) {
                   onLoad={handleLoad}
                   onDownload={handleDownload}
                   onDelete={admin ? handleDelete : null}
+                  onRemoveOwn={!admin && currentUid && hero.submittedBy === currentUid ? handleRemoveOwn : null}
                 />
               ))}
             </div>

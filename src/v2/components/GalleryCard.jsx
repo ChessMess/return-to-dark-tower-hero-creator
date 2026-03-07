@@ -1,4 +1,4 @@
-export default function GalleryCard({ hero, onLoad, onDownload, onDelete }) {
+export default function GalleryCard({ hero, onLoad, onDownload, onDelete, onRemoveOwn }) {
   const virtueNames = (hero.virtues || []).map((v) => v.name).join(", ");
 
   return (
@@ -68,6 +68,16 @@ export default function GalleryCard({ hero, onLoad, onDownload, onDelete }) {
           >
             Save
           </button>
+          {onRemoveOwn && (
+            <button
+              type="button"
+              onClick={() => onRemoveOwn(hero)}
+              className="rounded bg-gray-600 hover:bg-red-700 text-gray-300 hover:text-white text-[10px] py-1 px-2 uppercase tracking-wider transition-colors"
+              title="Remove your hero from the gallery"
+            >
+              Remove
+            </button>
+          )}
           {onDelete && (
             <button
               type="button"
