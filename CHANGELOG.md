@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.6.1] - 2026-03-09
+
+### Changed
+
+- **No More Native Browser Dialogs** — Replaced the remaining native `alert()` (PDF export failure) and `prompt()` (legacy filename input) calls with styled custom modals, completing the elimination of all browser-native dialogs from the app.
+
 ## [2.6.0] - 2026-03-09
 
 ### Added

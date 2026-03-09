@@ -13,8 +13,8 @@ export function useConfirm() {
     [],
   );
 
-  const handleConfirm = useCallback(() => {
-    resolverRef.current?.(true);
+  const handleConfirm = useCallback((value) => {
+    resolverRef.current?.(value ?? true);
     resolverRef.current = null;
     setConfirmState(null);
   }, []);
@@ -25,6 +25,15 @@ export function useConfirm() {
     setConfirmState(null);
   }, []);
 
+  const showPrompt = useCallback(
+    ({ title, message, defaultValue = "", confirmLabel = "OK", cancelLabel = "Cancel" }) =>
+      new Promise((resolve) => {
+        resolverRef.current = resolve;
+        setConfirmState({ title, message, confirmLabel, cancelLabel, destructive: false, promptMode: true, promptDefault: defaultValue });
+      }),
+    [],
+  );
+
   const showAlert = useCallback(
     ({ title, message, confirmLabel = "OK" }) =>
       new Promise((resolve) => {
@@ -34,5 +43,5 @@ export function useConfirm() {
     [],
   );
 
-  return { confirmState, confirm, showAlert, handleConfirm, handleCancel };
+  return { confirmState, confirm, showAlert, showPrompt, handleConfirm, handleCancel };
 }

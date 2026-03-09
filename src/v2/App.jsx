@@ -45,7 +45,7 @@ export default function V2App() {
   const [submitting, setSubmitting] = useState(false);
   const [shareWarning, setShareWarning] = useState(null);
   const [recents, setRecents] = useState([]);
-  const { confirmState, confirm, showAlert, handleConfirm, handleCancel } = useConfirm();
+  const { confirmState, confirm, showAlert, showPrompt, handleConfirm, handleCancel } = useConfirm();
   const fileHandleRef = useRef(null);
   const savedHeroRef = useRef(JSON.stringify(loadHero()));
   const [zoom, setZoom] = useState(1);
@@ -403,7 +403,7 @@ export default function V2App() {
       doc.save(filename);
     } catch (err) {
       console.error("PDF export failed:", err);
-      alert("PDF export failed. Please try again.");
+      showAlert({ title: "PDF Export Failed", message: "PDF export failed. Please try again." });
     } finally {
       setDownloading(false);
     }
@@ -465,7 +465,7 @@ export default function V2App() {
       hero.name && hero.name !== "HERO NAME"
         ? hero.name.toLowerCase().replace(/\s+/g, "-")
         : "hero";
-    const filename = prompt("File name:", defaultName);
+    const filename = await showPrompt({ title: "Save Hero", message: "File name:", defaultValue: defaultName });
     if (!filename) return;
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);

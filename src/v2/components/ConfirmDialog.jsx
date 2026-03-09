@@ -1,8 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function ConfirmDialog({ confirmState, onConfirm, onCancel }) {
+  const [inputValue, setInputValue] = useState("");
+  const inputRef = useRef(null);
+
   useEffect(() => {
     if (!confirmState) return;
+    if (confirmState.promptMode) {
+      setInputValue(confirmState.promptDefault ?? "");
+      setTimeout(() => inputRef.current?.select(), 0);
+    }
     const handleKey = (e) => {
       if (e.key === "Escape") {
         if (confirmState.cancelLabel !== null) onCancel();
@@ -15,13 +22,23 @@ export default function ConfirmDialog({ confirmState, onConfirm, onCancel }) {
 
   if (!confirmState) return null;
 
-  const { title, message, confirmLabel, cancelLabel, destructive } = confirmState;
+  const { title, message, confirmLabel, cancelLabel, destructive, promptMode } = confirmState;
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
       <div className="bg-gray-900 border border-amber-700/60 rounded-lg p-6 w-80 space-y-4 shadow-xl">
         <h2 className="text-sm font-bold text-amber-400 uppercase tracking-wider">{title}</h2>
         <p className="text-xs text-gray-300">{message}</p>
+        {promptMode && (
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") onConfirm(inputValue); }}
+            className="w-full rounded bg-gray-800 border border-gray-600 text-gray-100 text-xs px-3 py-1.5 focus:outline-none focus:border-amber-600"
+          />
+        )}
         <div className="flex gap-2 justify-end pt-1">
           {cancelLabel !== null && (
             <button
@@ -34,7 +51,7 @@ export default function ConfirmDialog({ confirmState, onConfirm, onCancel }) {
           )}
           <button
             type="button"
-            onClick={onConfirm}
+            onClick={() => onConfirm(promptMode ? inputValue : undefined)}
             className={`rounded text-white text-xs px-4 py-1.5 font-bold transition-colors ${
               destructive
                 ? "bg-red-800 hover:bg-red-700"
