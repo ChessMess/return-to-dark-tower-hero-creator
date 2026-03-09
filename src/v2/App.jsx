@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { version as appVersion } from "../../../package.json";
 import jsPDF from "jspdf";
 import { svg2pdf } from "svg2pdf.js";
 import HeroBoard from "./components/HeroBoard";
@@ -1103,11 +1104,14 @@ export default function V2App() {
                 <div className="absolute inset-0 w-full h-full bg-black/50" />
                 <div className="relative z-10 flex flex-col items-center justify-center text-center w-full h-full">
                   <h2
-                    className="text-5xl text-amber-300 drop-shadow mb-4 mt-16"
+                    className="text-5xl text-amber-300 drop-shadow mb-1 mt-16"
                     style={{ fontFamily: "AzkolsKerning7, sans-serif" }}
                   >
                     Return to Dark Tower Hero Board Creator
                   </h2>
+                  <p className="text-sm text-amber-200/60 mb-4 font-mono">
+                    v{appVersion}
+                  </p>
                   {hero.author_name ||
                   hero.revision_no ||
                   hero.contact ||
