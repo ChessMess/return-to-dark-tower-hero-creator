@@ -184,9 +184,18 @@ export async function submitHero(hero) {
     );
   }
 
-  // Use content hash as key — Firebase rule (!data.exists()) prevents duplicate submissions
+  // Use content hash as key — check for duplicates before writing
   const hash = await hashHero(hero);
   const heroRef = ref(db, `heroes/pending/${hash}`);
+  const existing = await get(heroRef);
+  if (existing.exists()) {
+    throw new Error("This hero has already been submitted and is awaiting review.");
+  }
+  const approvedRef = ref(db, `heroes/approved/${hash}`);
+  const approved = await get(approvedRef);
+  if (approved.exists()) {
+    throw new Error("This hero is already in the community gallery.");
+  }
   await set(heroRef, payload);
   lastSubmitTime = Date.now();
   return hash;
@@ -277,6 +286,23 @@ export async function rejectHero(id) {
 export async function deleteApprovedHero(id) {
   assertFirebaseAvailable("Gallery moderation");
   await remove(ref(db, `heroes/approved/${id}`));
+}
+
+export async function withdrawPendingHero(hash) {
+  assertFirebaseAvailable("Withdraw submission");
+  const user = auth.currentUser;
+  if (!user) throw new Error("Sign-in required to withdraw a submission.");
+  const snapshot = await get(ref(db, `heroes/pending/${hash}`));
+  if (!snapshot.exists()) return; // already gone — silently OK
+  const data = snapshot.val();
+  if (data.submittedBy !== user.uid) throw new Error("You can only withdraw your own submissions.");
+  await remove(ref(db, `heroes/pending/${hash}`));
+}
+
+export async function isPendingHashValid(hash) {
+  assertFirebaseAvailable("Pending check");
+  const snapshot = await get(ref(db, `heroes/pending/${hash}`));
+  return snapshot.exists();
 }
 
 export async function deleteOwnHero(id) {

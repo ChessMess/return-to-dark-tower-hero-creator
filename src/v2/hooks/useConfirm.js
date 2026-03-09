@@ -25,5 +25,14 @@ export function useConfirm() {
     setConfirmState(null);
   }, []);
 
-  return { confirmState, confirm, handleConfirm, handleCancel };
+  const showAlert = useCallback(
+    ({ title, message, confirmLabel = "OK" }) =>
+      new Promise((resolve) => {
+        resolverRef.current = resolve;
+        setConfirmState({ title, message, confirmLabel, cancelLabel: null, destructive: false });
+      }),
+    [],
+  );
+
+  return { confirmState, confirm, showAlert, handleConfirm, handleCancel };
 }

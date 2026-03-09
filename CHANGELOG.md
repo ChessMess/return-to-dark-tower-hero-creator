@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.6.0] - 2026-03-09
+
+### Added
+
+- **Duplicate Submission Detection** — Sharing a hero that is already pending review or already approved now shows a clear, dismissable error dialog instead of a generic Firebase permission error.
+- **Replace Pending Submission** — If a user has a prior pending submission on record, sharing an updated version prompts to replace it (withdrawing the old entry and submitting the new one). Requires updated Firebase security rules.
+- **Submission Error Dialog** — Gallery share failures now appear in a modal dialog that must be explicitly dismissed, replacing the auto-disappearing toast that was easy to miss.
+
+### Changed
+
+- **Pending Submission Tracking** — After a successful share, a local reference (hash + hero name + timestamp) is stored in localStorage. Entries auto-expire after 30 days. If the prior submission was already approved or rejected, the stale reference is silently cleared with no prompt.
+
 ## [2.5.0] - 2026-03-09
 
 ### Added

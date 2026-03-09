@@ -21,7 +21,8 @@ import {
   clearAllRecents,
   loadHeroFromHandle,
 } from "./utils/heroIO";
-import { submitHero } from "./utils/firebase";
+import { savePendingRef, getPendingRef, clearPendingRef } from "./utils/heroIO";
+import { submitHero, withdrawPendingHero, isPendingHashValid } from "./utils/firebase";
 import GalleryModal from "./components/GalleryModal";
 import AdminPanel from "./components/AdminPanel";
 import ConfirmDialog from "./components/ConfirmDialog";
@@ -44,7 +45,7 @@ export default function V2App() {
   const [submitting, setSubmitting] = useState(false);
   const [shareWarning, setShareWarning] = useState(null);
   const [recents, setRecents] = useState([]);
-  const { confirmState, confirm, handleConfirm, handleCancel } = useConfirm();
+  const { confirmState, confirm, showAlert, handleConfirm, handleCancel } = useConfirm();
   const fileHandleRef = useRef(null);
   const savedHeroRef = useRef(JSON.stringify(loadHero()));
   const [zoom, setZoom] = useState(1);
@@ -748,11 +749,32 @@ export default function V2App() {
     if (!ok) return;
     setSubmitting(true);
     try {
-      await submitHero(hero);
-      showStatus("Hero submitted for review!");
+      // Check for a prior pending submission from this user
+      let isReplacement = false;
+      const prior = getPendingRef();
+      if (prior) {
+        const stillPending = await isPendingHashValid(prior.hash);
+        if (!stillPending) {
+          clearPendingRef(); // approved/rejected — silently drop stale ref
+        } else {
+          const replace = await confirm({
+            title: "Replace Pending Submission?",
+            message: `You have a pending submission for "${prior.heroName}" awaiting review. Replace it with this updated version?`,
+            confirmLabel: "Replace",
+            cancelLabel: "Cancel",
+          });
+          if (!replace) { setSubmitting(false); return; }
+          try { await withdrawPendingHero(prior.hash); } catch { /* already gone */ }
+          clearPendingRef();
+          isReplacement = true;
+        }
+      }
+      const hash = await submitHero(hero);
+      savePendingRef(hash, hero.name);
+      showStatus(isReplacement ? "Hero submission updated!" : "Hero submitted for review!");
     } catch (err) {
       console.error("Submit failed:", err);
-      showStatus(`Submit failed: ${err.message}`, "error");
+      showAlert({ title: "Share Failed", message: err.message });
     } finally {
       setSubmitting(false);
     }

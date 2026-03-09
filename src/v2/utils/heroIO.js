@@ -7,6 +7,28 @@ import {
 const STORAGE_KEY = "rtdt-hero-v2";
 const V1_STORAGE_KEY = "rtdt-hero";
 const MAX_RECENTS = 5;
+const PENDING_KEY = "rtdt-my-pending";
+const PENDING_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+export function savePendingRef(hash, heroName) {
+  localStorage.setItem(PENDING_KEY, JSON.stringify({ hash, heroName, savedAt: Date.now() }));
+}
+
+export function getPendingRef() {
+  try {
+    const entry = JSON.parse(localStorage.getItem(PENDING_KEY));
+    if (!entry) return null;
+    if (Date.now() - entry.savedAt > PENDING_TTL_MS) {
+      localStorage.removeItem(PENDING_KEY);
+      return null;
+    }
+    return entry;
+  } catch { return null; }
+}
+
+export function clearPendingRef() {
+  localStorage.removeItem(PENDING_KEY);
+}
 
 /**
  * Strip dangerous content from a string field.

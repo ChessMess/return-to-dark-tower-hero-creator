@@ -4,11 +4,14 @@ export default function ConfirmDialog({ confirmState, onConfirm, onCancel }) {
   useEffect(() => {
     if (!confirmState) return;
     const handleKey = (e) => {
-      if (e.key === "Escape") onCancel();
+      if (e.key === "Escape") {
+        if (confirmState.cancelLabel !== null) onCancel();
+        else onConfirm();
+      }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [confirmState, onCancel]);
+  }, [confirmState, onCancel, onConfirm]);
 
   if (!confirmState) return null;
 
@@ -20,13 +23,15 @@ export default function ConfirmDialog({ confirmState, onConfirm, onCancel }) {
         <h2 className="text-sm font-bold text-amber-400 uppercase tracking-wider">{title}</h2>
         <p className="text-xs text-gray-300">{message}</p>
         <div className="flex gap-2 justify-end pt-1">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs px-4 py-1.5 transition-colors"
-          >
-            {cancelLabel}
-          </button>
+          {cancelLabel !== null && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs px-4 py-1.5 transition-colors"
+            >
+              {cancelLabel}
+            </button>
+          )}
           <button
             type="button"
             onClick={onConfirm}
