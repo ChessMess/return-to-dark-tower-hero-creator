@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.4.1] - 2026-03-09
+
+### Fixed
+
+- **Stale File Handle Overwrite** — On Chrome/Edge, loading a hero via gallery, paste, legacy file input, Reset, or new-tab handoff no longer retains the previously cached file handle. Subsequent saves now correctly open the file picker instead of silently overwriting an unrelated hero file.
+
 ## [2.4.0] - 2026-03-06
 
 ### Added

@@ -86,6 +86,7 @@ export default function V2App() {
       if (handoff.hero) {
         const result = validateHeroData(handoff.hero);
         if (!result.valid) return;
+        fileHandleRef.current = null;
         setHero(result.hero);
         saveAndCheck(result.hero);
         markSaved(result.hero);
@@ -177,6 +178,7 @@ export default function V2App() {
     )
       return;
     localStorage.removeItem("rtdt-hero-v2");
+    fileHandleRef.current = null;
     setHero({
       ...defaultHero,
       virtues: defaultHero.virtues.map((v) => ({ ...v })),
@@ -519,6 +521,7 @@ export default function V2App() {
           const data = JSON.parse(evt.target.result);
           const result = validateHeroData(data);
           if (result.valid) {
+            fileHandleRef.current = null;
             setHero(result.hero);
             saveAndCheck(result.hero);
             markSaved(result.hero);
@@ -714,6 +717,7 @@ export default function V2App() {
   };
 
   const handleLoadFromGallery = (galleryHero) => {
+    fileHandleRef.current = null;
     setHero(galleryHero);
     saveAndCheck(galleryHero);
     markSaved(galleryHero);
@@ -725,6 +729,7 @@ export default function V2App() {
       const data = JSON.parse(text);
       const result = validateHeroData(data);
       if (result.valid) {
+        fileHandleRef.current = null;
         setHero(result.hero);
         saveAndCheck(result.hero);
         markSaved(result.hero);
