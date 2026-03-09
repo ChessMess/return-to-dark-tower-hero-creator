@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.4.4] - 2026-03-09
+
+### Fixed
+
+- **Unsaved Changes Warning on Gallery Load** — Loading a hero from the gallery now prompts for confirmation when there are unsaved changes, preventing accidental data loss. The same guard was also added to the file load and paste-JSON paths for consistency.
+
 ## [2.4.3] - 2026-03-09
 
 ### Added

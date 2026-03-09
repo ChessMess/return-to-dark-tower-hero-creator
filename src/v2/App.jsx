@@ -473,6 +473,11 @@ export default function V2App() {
   };
 
   const handleLoadJson = async () => {
+    if (
+      hasUnsavedChanges() &&
+      !window.confirm("Load hero from file?\nCurrent unsaved changes will be lost.")
+    )
+      return;
     // Try File System Access API (Chrome/Edge)
     if (window.showOpenFilePicker) {
       try {
@@ -734,6 +739,11 @@ export default function V2App() {
   };
 
   const handleLoadFromGallery = (galleryHero) => {
+    if (
+      hasUnsavedChanges() &&
+      !window.confirm("Load gallery hero?\nCurrent unsaved changes will be lost.")
+    )
+      return;
     fileHandleRef.current = null;
     setHero(galleryHero);
     saveAndCheck(galleryHero);
@@ -742,6 +752,11 @@ export default function V2App() {
   };
 
   const handlePasteSubmit = (text) => {
+    if (
+      hasUnsavedChanges() &&
+      !window.confirm("Load pasted hero?\nCurrent unsaved changes will be lost.")
+    )
+      return;
     try {
       const data = JSON.parse(text);
       const result = validateHeroData(data);
