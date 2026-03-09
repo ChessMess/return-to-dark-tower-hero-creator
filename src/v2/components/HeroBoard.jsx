@@ -4,6 +4,15 @@ import standardSvgUrl from '../assets/virtue_standard.svg';
 import championSvgUrl from '../assets/virtue_champion.svg';
 import standardDefaultSvgUrl from '../assets/virtue_standard_default.svg';
 import advantageDefaultSvgUrl from '../assets/virtue_advantage_default.svg';
+import {
+  SLOT_POSITIONS,
+  ADV_HOME, ADV_HOME_SLOT,
+  STD_HOME, STD_HOME_SLOT,
+  CHP_HOME, CHP_HOME_SLOT,
+  ADV_TITLE_OFFSET, ADV_DESC_OFFSET,
+  STD_TITLE_OFFSET, STD_DESC_OFFSET,
+  CHP_TITLE_OFFSET, CHP_DESC_OFFSET,
+} from '../utils/boardLayout';
 
 function splitFlavor(text) {
   if (!text) return ['', '', ''];
@@ -17,42 +26,6 @@ function splitFlavor(text) {
   const s2 = mid2 > 0 ? mid2 : 40;
   return [line1, rest.slice(0, s2), rest.slice(s2 === mid2 ? s2 + 1 : s2)];
 }
-
-// Slot positions in board coordinates (from Phase 0.6 analysis)
-const SLOT_POSITIONS = [
-  { x: 703.10, y: 177.61 },  // slot 1 (left col, row 1)
-  { x: 969.00, y: 176.77 },  // slot 2 (right col, row 1)
-  { x: 703.93, y: 309.59 },  // slot 3 (left col, row 2)
-  { x: 968.21, y: 309.59 },  // slot 4 (right col, row 2)
-  { x: 703.93, y: 440.52 },  // slot 5 (left col, row 3)
-  { x: 968.21, y: 440.52 },  // slot 6 (right col, row 3)
-];
-
-// Artwork bounding boxes in board pixels (derived from SVG wrapper transforms)
-// Advantage: home at slot 1 area
-const ADV_HOME = { x: 665.0, y: 51.6, w: 259.3, h: 129.1 };
-const ADV_HOME_SLOT = SLOT_POSITIONS[0]; // slot 1
-
-// Standard: home at slot 2 area
-const STD_HOME = { x: 930.32, y: 51.63, w: 259.25, h: 129.12 };
-const STD_HOME_SLOT = SLOT_POSITIONS[1]; // slot 2
-
-// Champion: same home as advantage (slot 1 area) — same wrapper transforms
-const CHP_HOME = { x: 665.0, y: 51.6, w: 259.3, h: 129.1 };
-const CHP_HOME_SLOT = SLOT_POSITIONS[0]; // slot 1
-
-// Text offsets relative to slot position (derived from template text elements)
-// Advantage text (from slot 1: title at 768.708,92.221; desc at 722.623,148.753)
-const ADV_TITLE_OFFSET = { x: 91.03, y: -85.39 };  // same x as standard title
-const ADV_DESC_OFFSET = { x: 91.55, y: -38.86 };  // centered over artwork (artwork center ≈ slotPos.x + 91.55)
-
-// Standard text (from slot 2: title at 1032.529,92.221; desc at 999.932,121.420)
-const STD_TITLE_OFFSET = { x: 91.03, y: -84.55 };  // centered: old 28.53 + 125/2
-const STD_DESC_OFFSET = { x: 90.95, y: -55.35 };  // centered over artwork
-
-// Champion text — 2-line title needs higher start, body text below
-const CHP_TITLE_OFFSET = { x: 93.0, y: -90.0 };
-const CHP_DESC_OFFSET = { x: 91.55, y: -40.0 };   // centered over artwork
 
 // Empty placeholder path data (from virtue_empty.svg, single path)
 const EMPTY_PATH_D = "M 0,0 C -2.894,0 -5.242,2.344 -5.242,5.237 L -5.25,6.654 c 0,1.768 -1.442,3.198 -3.211,3.198 h -3.718 c -2.893,0 -5.237,2.348 -5.237,5.241 v 2.585 c 0,1.936 -1.12,3.64 -2.842,4.352 -2.55,1.039 -4.336,3.606 -4.336,6.225 v 5.353 c 0,1.713 -0.708,3.533 -2.107,5.4 -0.421,0.571 -0.412,1.344 0.025,1.932 1.276,1.696 1.945,3.507 1.945,5.242 l 0.137,6.679 c 0,2.735 1.726,5.242 4.284,6.267 1.731,0.696 2.894,2.447 2.894,4.371 v 2.584 c 0,2.893 2.353,5.241 5.237,5.241 h 3.516 c 1.837,0 3.361,1.494 3.395,3.331 l 0.026,1.258 c 0,2.92 2.357,5.268 5.242,5.268 h 137.613 c 2.885,0 5.241,-2.348 5.241,-5.242 l 0.026,-1.284 c 0.034,-1.837 1.555,-3.331 3.391,-3.331 h 3.516 c 2.885,0 5.241,-2.348 5.241,-5.241 v -2.584 c 0,-1.924 1.159,-3.675 2.894,-4.371 2.558,-1.025 4.28,-3.532 4.28,-6.232 l 0.142,-6.749 c 0,-1.7 0.67,-3.511 1.944,-5.207 0.439,-0.588 0.446,-1.361 0.026,-1.932 -1.4,-1.867 -2.112,-3.687 -2.112,-5.4 v -5.353 c 0,-2.619 -1.782,-5.186 -4.332,-6.225 -1.725,-0.712 -2.842,-2.416 -2.842,-4.352 v -2.585 c 0,-2.893 -2.356,-5.241 -5.241,-5.241 h -3.718 c -1.763,0 -3.206,-1.43 -3.215,-3.198 V 5.246 C 142.854,2.344 140.498,0 137.613,0 Z";

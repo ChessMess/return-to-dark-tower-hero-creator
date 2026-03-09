@@ -1,40 +1,27 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import jsPDF from "jspdf";
-import { svg2pdf } from "svg2pdf.js";
+import { useState, useEffect, useRef } from "react";
 import HeroBoard from "./components/HeroBoard";
 import HeroForm from "./components/HeroForm";
 import RecentHeroRow from "./components/RecentHeroRow";
-import {
-  defaultHero,
-  MAX_VIRTUES,
-  createEmptyVirtue,
-} from "./data/defaultHero";
-import {
-  loadHero,
-  saveHero,
-  getStorageBytes,
-  validateHeroData,
-  heroToJson,
-  loadRecents,
-  addToRecents,
-  removeFromRecents,
-  clearAllRecents,
-  loadHeroFromHandle,
-} from "./utils/heroIO";
-import { savePendingRef, getPendingRef, clearPendingRef } from "./utils/heroIO";
-import { submitHero, withdrawPendingHero, isPendingHashValid } from "./utils/firebase";
+import { defaultHero } from "./data/defaultHero";
+import { validateHeroData } from "./utils/heroIO";
 import GalleryModal from "./components/GalleryModal";
 import AdminPanel from "./components/AdminPanel";
 import ConfirmDialog from "./components/ConfirmDialog";
 import { useConfirm } from "./hooks/useConfirm";
+import { useHeroState } from "./hooks/useHeroState";
+import { useFileIO } from "./hooks/useFileIO";
+import { useExport } from "./hooks/useExport";
+import { useGallery } from "./hooks/useGallery";
 import coverBg from "./assets/rtdt_cover2.jpg";
 
 export default function V2App() {
-  const [hero, setHero] = useState(loadHero);
-  const [portraitQuality, setPortraitQuality] = useState(1.0);
-  const [storageWarning, setStorageWarning] = useState(null);
-  const [storageBytes, setStorageBytes] = useState(() => getStorageBytes());
-  const [downloading, setDownloading] = useState(false);
+  // --- Core state ---
+  const heroState = useHeroState();
+  const { hero, setHero, portraitQuality, setPortraitQuality, storageWarning, storageBytes,
+          markSaved, saveAndCheck, hasChanges } = heroState;
+  const { confirmState, confirm, showAlert, showPrompt, handleConfirm, handleCancel } = useConfirm();
+
+  // --- UI state ---
   const [statusMsg, setStatusMsg] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(
     () => localStorage.getItem("v2-sidebarOpen") !== "false",
@@ -42,18 +29,30 @@ export default function V2App() {
   const [showPasteModal, setShowPasteModal] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [shareWarning, setShareWarning] = useState(null);
-  const [recents, setRecents] = useState([]);
-  const { confirmState, confirm, showAlert, showPrompt, handleConfirm, handleCancel } = useConfirm();
-  const fileHandleRef = useRef(null);
-  const savedHeroRef = useRef(JSON.stringify(loadHero()));
   const [zoom, setZoom] = useState(1);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [snapshotFlash, setSnapshotFlash] = useState(false);
   const [cardSize, setCardSize] = useState({ width: 0, height: 0 });
   const cardAreaRef = useRef(null);
 
+  const showStatus = (text, type = "success") => {
+    setStatusMsg({ text, type });
+    setTimeout(() => setStatusMsg(null), 3000);
+  };
+
+  // --- Feature hooks ---
+  const fileIO = useFileIO({ heroState, confirm, showPrompt, showStatus });
+  const { fileHandleRef, recents, handleSaveJson, handleLoadJson, handleCopyToClipboard,
+          handlePasteSubmit, handleLoadRecent, handleRemoveRecent, handleOpenRecentInNewWindow,
+          handleClearRecents, formatTimeAgo } = fileIO;
+
+  const { downloading, snapshotFlash, holding, handleDownloadPdf,
+          onSnapshotPointerDown, onSnapshotPointerUp, cancelHold } =
+    useExport({ hero, showAlert, showStatus });
+
+  const { submitting, shareWarning, setShareWarning, handleShareToGallery, handleLoadFromGallery } =
+    useGallery({ heroState, fileHandleRef, confirm, showAlert, showStatus });
+
+  // --- Effects ---
   useEffect(() => {
     const el = cardAreaRef.current;
     if (!el) return;
@@ -75,10 +74,6 @@ export default function V2App() {
   useEffect(() => {
     localStorage.setItem("v2-sidebarOpen", sidebarOpen);
   }, [sidebarOpen]);
-
-  useEffect(() => {
-    loadRecents().then(setRecents);
-  }, []);
 
   // Detect handoff from "Open in new tab"
   useEffect(() => {
@@ -102,78 +97,7 @@ export default function V2App() {
     }
   }, []);
 
-  const markSaved = (h) => {
-    savedHeroRef.current = JSON.stringify(h);
-  };
-
-  const hasUnsavedChanges = () => {
-    return JSON.stringify(hero) !== savedHeroRef.current;
-  };
-
-  const showStatus = (text, type = "success") => {
-    setStatusMsg({ text, type });
-    setTimeout(() => setStatusMsg(null), 3000);
-  };
-
-  const saveAndCheck = (next) => {
-    saveHero(next);
-    const bytes = getStorageBytes();
-    setStorageBytes(bytes);
-    if (bytes > 4_500_000) setStorageWarning("danger");
-    else if (bytes > 3_000_000) setStorageWarning("warn");
-    else setStorageWarning(null);
-  };
-
-  const updateHero = (field, value) =>
-    setHero((prev) => {
-      const next = { ...prev, [field]: value };
-      saveAndCheck(next);
-      return next;
-    });
-
-  const updateVirtue = (index, field, value) =>
-    setHero((prev) => {
-      const virtues = [...prev.virtues];
-      virtues[index] = { ...virtues[index], [field]: value };
-      const next = { ...prev, virtues };
-      saveAndCheck(next);
-      return next;
-    });
-
-  const addVirtue = () =>
-    setHero((prev) => {
-      if (prev.virtues.length >= MAX_VIRTUES) return prev;
-      const next = {
-        ...prev,
-        virtues: [
-          ...prev.virtues,
-          createEmptyVirtue(`VIRTUE ${prev.virtues.length + 1}`),
-        ],
-      };
-      saveAndCheck(next);
-      return next;
-    });
-
-  const removeVirtue = (index) =>
-    setHero((prev) => {
-      const virtues = prev.virtues.filter((_, i) => i !== index);
-      const next = { ...prev, virtues };
-      saveAndCheck(next);
-      return next;
-    });
-
-  const reorderVirtues = (from, to) =>
-    setHero((prev) => {
-      const virtues = [...prev.virtues];
-      const [moved] = virtues.splice(from, 1);
-      virtues.splice(to, 0, moved);
-      const next = { ...prev, virtues };
-      saveAndCheck(next);
-      return next;
-    });
-
-  const hasChanges = () => JSON.stringify(hero) !== JSON.stringify(defaultHero);
-
+  // --- Local handlers ---
   const resetHero = async () => {
     if (hasChanges()) {
       const ok = await confirm({
@@ -191,717 +115,6 @@ export default function V2App() {
       virtues: defaultHero.virtues.map((v) => ({ ...v })),
     });
   };
-
-  // Rasterize an SVG <image> element to a high-res PNG data URL
-  const rasterizeSvgImage = (imgEl) =>
-    new Promise((resolve, reject) => {
-      const href =
-        imgEl.getAttribute("href") ||
-        imgEl.getAttributeNS("http://www.w3.org/1999/xlink", "href");
-      if (!href || href.startsWith("data:")) {
-        resolve(null); // already a data URL or no href — skip
-        return;
-      }
-      const w = parseFloat(imgEl.getAttribute("width")) || 1213;
-      const h = parseFloat(imgEl.getAttribute("height")) || 808;
-      const scale = 3; // 3x for high-res PDF output
-      const canvas = document.createElement("canvas");
-      canvas.width = w * scale;
-      canvas.height = h * scale;
-      const ctx = canvas.getContext("2d");
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/png"));
-      };
-      img.onerror = () => reject(new Error(`Failed to rasterize: ${href}`));
-      img.src = href;
-    });
-
-  const loadImageAsDataUrl = (src) =>
-    new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-        canvas.getContext("2d").drawImage(img, 0, 0);
-        resolve(canvas.toDataURL("image/jpeg", 0.92));
-      };
-      img.onerror = reject;
-      img.src = src;
-    });
-
-  const handleDownloadPdf = async () => {
-    setDownloading(true);
-    try {
-      const svgEl = document.querySelector("#hero-board-container svg");
-
-      // Rasterize external SVG <image> elements so svg2pdf can handle them
-      const images = svgEl.querySelectorAll("image");
-      const origHrefs = [];
-      for (const imgEl of images) {
-        const href = imgEl.getAttribute("href") || "";
-        origHrefs.push(href);
-        if (href && !href.startsWith("data:")) {
-          try {
-            const dataUrl = await rasterizeSvgImage(imgEl);
-            if (dataUrl) imgEl.setAttribute("href", dataUrl);
-          } catch (e) {
-            console.warn("Could not rasterize image for PDF:", e);
-          }
-        }
-      }
-
-      const doc = new jsPDF({
-        orientation: "landscape",
-        unit: "px",
-        format: [1213, 808],
-      });
-      await svg2pdf(svgEl, doc, { x: 0, y: 0, width: 1213, height: 808 });
-
-      // Restore original hrefs so the live preview stays SVG-based
-      const imagesAfter = svgEl.querySelectorAll("image");
-      imagesAfter.forEach((imgEl, i) => {
-        if (origHrefs[i]) imgEl.setAttribute("href", origHrefs[i]);
-      });
-
-      // Page 2 — back side
-      doc.addPage([1213, 808], "landscape");
-
-      // Background cover image — centered, maintaining aspect ratio
-      const coverDataUrl = await loadImageAsDataUrl(coverBg);
-      const coverImg = await new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.src = coverDataUrl;
-      });
-      const imgRatio = coverImg.naturalWidth / coverImg.naturalHeight;
-      const pageRatio = 1213 / 808;
-      let drawW, drawH;
-      if (imgRatio > pageRatio) {
-        // Image is wider — fit to width, center vertically
-        drawW = 1213;
-        drawH = 1213 / imgRatio;
-      } else {
-        // Image is taller — fit to height, center horizontally
-        drawH = 808;
-        drawW = 808 * imgRatio;
-      }
-      const drawX = (1213 - drawW) / 2;
-      const drawY = (808 - drawH) / 2;
-
-      // Fill page with black first so letterbox areas aren't white
-      doc.setFillColor(0, 0, 0);
-      doc.rect(0, 0, 1213, 808, "F");
-      doc.addImage(coverDataUrl, "JPEG", drawX, drawY, drawW, drawH);
-
-      // Dark overlay
-      doc.setGState(new doc.GState({ opacity: 0.5 }));
-      doc.setFillColor(0, 0, 0);
-      doc.rect(0, 0, 1213, 808, "F");
-      doc.setGState(new doc.GState({ opacity: 1 }));
-
-      // Title
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(28);
-      doc.setTextColor(252, 211, 77);
-      doc.text("Return to Dark Tower Hero Board Creator", 1213 / 2, 120, {
-        align: "center",
-      });
-
-      // Author info
-      const hasInfo =
-        hero.author_name ||
-        hero.revision_no ||
-        hero.contact ||
-        hero.description;
-      if (hasInfo) {
-        const boxX = 1213 * 0.035;
-        const boxW = 1213 * 0.93;
-        const boxY = 160;
-        let textY = boxY + 40;
-
-        // Measure box height based on filled fields
-        let boxH = 60; // padding top + bottom
-        if (hero.author_name) boxH += 30;
-        if (hero.revision_no) boxH += 26;
-        if (hero.contact) boxH += 26;
-        if (hero.description) {
-          const descLines = doc.splitTextToSize(hero.description, boxW - 60);
-          boxH += 20 + descLines.length * 18;
-        }
-
-        // Gold-tinted box background
-        doc.setGState(new doc.GState({ opacity: 0.5 }));
-        doc.setFillColor(161, 98, 7); // yellow-700
-        doc.roundedRect(boxX, boxY, boxW, boxH, 24, 24, "F");
-        doc.setGState(new doc.GState({ opacity: 1 }));
-
-        const labelX = boxX + 30;
-
-        const centerX = 1213 / 2;
-
-        if (hero.author_name) {
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(16);
-          doc.setTextColor(243, 244, 246);
-          const label = "Designed by: ";
-          const labelW = doc.getTextWidth(label);
-          doc.setTextColor(253, 230, 138);
-          const nameW = doc.getTextWidth(hero.author_name);
-          const totalW = labelW + nameW;
-          const startX = centerX - totalW / 2;
-          doc.setTextColor(243, 244, 246);
-          doc.text(label, startX, textY);
-          doc.setTextColor(253, 230, 138);
-          doc.text(hero.author_name, startX + labelW, textY);
-          textY += 30;
-        }
-        if (hero.revision_no) {
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(14);
-          doc.setTextColor(209, 213, 219);
-          const label = "Hero Version: ";
-          const labelW = doc.getTextWidth(label);
-          doc.setFont("courier", "normal");
-          const valW = doc.getTextWidth(hero.revision_no);
-          const totalW = labelW + valW;
-          const startX = centerX - totalW / 2;
-          doc.setFont("helvetica", "normal");
-          doc.text(label, startX, textY);
-          doc.setFont("courier", "normal");
-          doc.text(hero.revision_no, startX + labelW, textY);
-          textY += 26;
-        }
-        if (hero.contact) {
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(14);
-          doc.setTextColor(209, 213, 219);
-          doc.text("Contact: ", labelX, textY);
-          const labelW = doc.getTextWidth("Contact: ");
-          doc.setFont("courier", "normal");
-          doc.text(hero.contact, labelX + labelW, textY);
-          textY += 26;
-        }
-        if (hero.description) {
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(14);
-          doc.setTextColor(229, 231, 235);
-          textY += 10;
-          const descLines = doc.splitTextToSize(hero.description, boxW - 60);
-          doc.text(descLines, labelX, textY);
-        }
-      }
-
-      const filename =
-        hero.name && hero.name !== "HERO NAME"
-          ? `${hero.name.toLowerCase().replace(/\s+/g, "-")}-hero-board.pdf`
-          : "hero-board.pdf";
-      doc.save(filename);
-    } catch (err) {
-      console.error("PDF export failed:", err);
-      showAlert({ title: "PDF Export Failed", message: "PDF export failed. Please try again." });
-    } finally {
-      setDownloading(false);
-    }
-  };
-
-  const writeToFileHandle = async (handle, json) => {
-    const writable = await handle.createWritable();
-    await writable.write(json);
-    await writable.close();
-  };
-
-  const handleSaveJson = async () => {
-    const json = heroToJson(hero);
-
-    // If we already have a file handle, write directly to it
-    if (fileHandleRef.current) {
-      try {
-        await writeToFileHandle(fileHandleRef.current, json);
-        markSaved(hero);
-        showStatus(`Saved to ${fileHandleRef.current.name}`);
-        setRecents(await addToRecents(fileHandleRef.current, hero));
-        return;
-      } catch {
-        // Permission revoked or handle stale — fall through to picker/download
-        fileHandleRef.current = null;
-      }
-    }
-
-    // Try File System Access API (Chrome/Edge)
-    if (window.showSaveFilePicker) {
-      const defaultName =
-        hero.name && hero.name !== "HERO NAME"
-          ? hero.name.toLowerCase().replace(/\s+/g, "-")
-          : "hero";
-      try {
-        const handle = await window.showSaveFilePicker({
-          suggestedName: `${defaultName}.json`,
-          types: [
-            {
-              description: "JSON file",
-              accept: { "application/json": [".json"] },
-            },
-          ],
-        });
-        await writeToFileHandle(handle, json);
-        fileHandleRef.current = handle;
-        markSaved(hero);
-        showStatus(`Saved to ${handle.name}`);
-        setRecents(await addToRecents(handle, hero));
-        return;
-      } catch (err) {
-        if (err.name === "AbortError") return; // user cancelled picker
-        // Fall through to legacy download
-      }
-    }
-
-    // Fallback: legacy download (no recents — no file handle available)
-    const defaultName =
-      hero.name && hero.name !== "HERO NAME"
-        ? hero.name.toLowerCase().replace(/\s+/g, "-")
-        : "hero";
-    const filename = await showPrompt({ title: "Save Hero", message: "File name:", defaultValue: defaultName });
-    if (!filename) return;
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename.endsWith(".json") ? filename : `${filename}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    markSaved(hero);
-    showStatus("Hero saved to file");
-  };
-
-  const handleLoadJson = async () => {
-    if (hasUnsavedChanges()) {
-      const ok = await confirm({
-        title: "Load Hero",
-        message: "Current unsaved changes will be lost.",
-        confirmLabel: "Load",
-        destructive: true,
-      });
-      if (!ok) return;
-    }
-    // Try File System Access API (Chrome/Edge)
-    if (window.showOpenFilePicker) {
-      try {
-        const [handle] = await window.showOpenFilePicker({
-          types: [
-            {
-              description: "JSON file",
-              accept: { "application/json": [".json"] },
-            },
-          ],
-        });
-        const file = await handle.getFile();
-        const text = await file.text();
-        const data = JSON.parse(text);
-        const result = validateHeroData(data);
-        if (result.valid) {
-          fileHandleRef.current = handle;
-          setHero(result.hero);
-          saveAndCheck(result.hero);
-          markSaved(result.hero);
-          showStatus(`Loaded from ${handle.name}`);
-          setRecents(await addToRecents(handle, result.hero));
-        } else {
-          showStatus(result.error, "error");
-        }
-        return;
-      } catch (err) {
-        if (err.name === "AbortError") return;
-        if (err instanceof SyntaxError) {
-          showStatus("Invalid JSON file", "error");
-          return;
-        }
-        // Fall through to legacy file input
-      }
-    }
-
-    // Fallback: legacy file input
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json,application/json";
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        try {
-          const data = JSON.parse(evt.target.result);
-          const result = validateHeroData(data);
-          if (result.valid) {
-            fileHandleRef.current = null;
-            setHero(result.hero);
-            saveAndCheck(result.hero);
-            markSaved(result.hero);
-            showStatus("Hero loaded from file");
-          } else {
-            showStatus(result.error, "error");
-          }
-        } catch {
-          showStatus("Invalid JSON file", "error");
-        }
-      };
-      reader.readAsText(file);
-    };
-    input.click();
-  };
-
-  const handleCopyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(heroToJson(hero));
-      showStatus("Hero copied to clipboard");
-    } catch {
-      showStatus("Copy failed — check browser permissions", "error");
-    }
-  };
-
-  const sanitizeFilename = (name) => {
-    if (!name || name === "HERO NAME") return "hero";
-    const sanitized = name
-      .trim()
-      .replace(/[<>:"/\\|?*]/g, "")
-      .replace(/\s+/g, "-")
-      .toLowerCase();
-    return sanitized || "hero";
-  };
-
-  const renderBoardPngBlob = () =>
-    new Promise(async (resolve, reject) => {
-      try {
-        const svgEl = document.querySelector("#hero-board-container svg");
-        if (!svgEl) return reject(new Error("No SVG element found"));
-
-        const clone = svgEl.cloneNode(true);
-        const images = clone.querySelectorAll("image");
-        for (const imgEl of images) {
-          const href = imgEl.getAttribute("href") || "";
-          if (href && !href.startsWith("data:")) {
-            try {
-              const dataUrl = await rasterizeSvgImage(imgEl);
-              if (dataUrl) imgEl.setAttribute("href", dataUrl);
-            } catch (e) {
-              console.warn("Could not rasterize image for snapshot:", e);
-            }
-          }
-        }
-
-        const svgString = new XMLSerializer().serializeToString(clone);
-        const blob = new Blob([svgString], {
-          type: "image/svg+xml;charset=utf-8",
-        });
-        const url = URL.createObjectURL(blob);
-
-        const canvas = document.createElement("canvas");
-        canvas.width = 1213;
-        canvas.height = 808;
-        const ctx = canvas.getContext("2d");
-
-        const img = new Image();
-        img.onload = () => {
-          ctx.drawImage(img, 0, 0, 1213, 808);
-          URL.revokeObjectURL(url);
-          canvas.toBlob((pngBlob) => resolve(pngBlob), "image/png");
-        };
-        img.onerror = () => {
-          URL.revokeObjectURL(url);
-          reject(new Error("Could not render board"));
-        };
-        img.src = url;
-      } catch (err) {
-        reject(err);
-      }
-    });
-
-  const copyBlobToClipboard = async (blob) => {
-    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-  };
-
-  const downloadBlob = (blob, filename) => {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
-
-  // Click: clipboard copy (fallback to download)
-  const handleSnapshot = async () => {
-    try {
-      const pngBlob = await renderBoardPngBlob();
-      const filename = `${sanitizeFilename(hero.name)}.png`;
-      try {
-        await copyBlobToClipboard(pngBlob);
-        setSnapshotFlash(true);
-        setTimeout(() => setSnapshotFlash(false), 600);
-        showStatus("Image copied to clipboard");
-      } catch {
-        downloadBlob(pngBlob, filename);
-        showStatus("Downloaded as PNG (clipboard unavailable)");
-      }
-    } catch (err) {
-      console.error("Snapshot failed:", err);
-      showStatus("Snapshot failed", "error");
-    }
-  };
-
-  // Long press: clipboard copy + download
-  const handleSnapshotCombo = async () => {
-    try {
-      const pngBlob = await renderBoardPngBlob();
-      const filename = `${sanitizeFilename(hero.name)}.png`;
-      let copied = false;
-      try {
-        await copyBlobToClipboard(pngBlob);
-        copied = true;
-      } catch {
-        // clipboard unavailable — download will still happen
-      }
-      downloadBlob(pngBlob, filename);
-      setSnapshotFlash(true);
-      setTimeout(() => setSnapshotFlash(false), 600);
-      showStatus(
-        copied
-          ? "Copied & downloaded"
-          : "Downloaded as PNG (clipboard unavailable)",
-      );
-    } catch (err) {
-      console.error("Snapshot failed:", err);
-      showStatus("Snapshot failed", "error");
-    }
-  };
-
-  // Long-press refs
-  const holdTimerRef = useRef(null);
-  const holdEligibleRef = useRef(false);
-  const holdBusyRef = useRef(false);
-  const [holding, setHolding] = useState(false);
-
-  const cancelHold = useCallback(() => {
-    clearTimeout(holdTimerRef.current);
-    holdTimerRef.current = null;
-    holdEligibleRef.current = false;
-    setHolding(false);
-  }, []);
-
-  const onSnapshotPointerDown = useCallback((e) => {
-    if (holdBusyRef.current) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    holdEligibleRef.current = false;
-    holdTimerRef.current = setTimeout(() => {
-      holdEligibleRef.current = true;
-      setHolding(true);
-    }, 3000);
-  }, []);
-
-  const onSnapshotPointerUp = useCallback(() => {
-    if (holdBusyRef.current) return;
-    const wasEligible = holdEligibleRef.current;
-    cancelHold();
-    holdBusyRef.current = true;
-    const action = wasEligible ? handleSnapshotCombo() : handleSnapshot();
-    action.finally(() => {
-      holdBusyRef.current = false;
-    });
-  }, [cancelHold]);
-
-  // Cancel hold on window blur
-  useEffect(() => {
-    window.addEventListener("blur", cancelHold);
-    return () => window.removeEventListener("blur", cancelHold);
-  }, [cancelHold]);
-
-  const SHARE_DEFAULT_NAMES = ["HERO NAME", ""];
-  const SHARE_DEFAULT_VIRTUE_NAMES = ["VIRTUE", "VIRTUE 1", "VIRTUE 2", "VIRTUE 3", "VIRTUE 4", "VIRTUE 5", "VIRTUE 6"];
-  const getShareIssues = (h) => {
-    const issues = [];
-    if (SHARE_DEFAULT_NAMES.includes((h.name || "").trim().toUpperCase()))
-      issues.push("Give your hero a unique name.");
-    const virtues = h.virtues || [];
-    if (virtues.length === 0)
-      issues.push("Add at least one virtue.");
-    else if (virtues.every((v) => SHARE_DEFAULT_VIRTUE_NAMES.includes((v.name || "").trim().toUpperCase())))
-      issues.push("Customize your virtue names (don't use the defaults).");
-    if (!(h.author_name || "").trim())
-      issues.push("Add your author name (Author Info section).");
-    if (!(h.revision_no || "").trim())
-      issues.push("Add a revision number (Author Info section).");
-    if (!(h.contact || "").trim())
-      issues.push("Add contact info (Author Info section).");
-    return issues;
-  };
-
-  const handleShareToGallery = async () => {
-    const issues = getShareIssues(hero);
-    if (issues.length > 0) { setShareWarning(issues); return; }
-    const ok = await confirm({
-      title: "Share to Gallery",
-      message: "This hero will be reviewed before appearing in the community gallery.",
-      confirmLabel: "Share",
-    });
-    if (!ok) return;
-    setSubmitting(true);
-    try {
-      // Check for a prior pending submission from this user
-      let isReplacement = false;
-      const prior = getPendingRef();
-      if (prior) {
-        const stillPending = await isPendingHashValid(prior.hash);
-        if (!stillPending) {
-          clearPendingRef(); // approved/rejected — silently drop stale ref
-        } else {
-          const replace = await confirm({
-            title: "Replace Pending Submission?",
-            message: `You have a pending submission for "${prior.heroName}" awaiting review. Replace it with this updated version?`,
-            confirmLabel: "Replace",
-            cancelLabel: "Cancel",
-          });
-          if (!replace) { setSubmitting(false); return; }
-          try { await withdrawPendingHero(prior.hash); } catch { /* already gone */ }
-          clearPendingRef();
-          isReplacement = true;
-        }
-      }
-      const hash = await submitHero(hero);
-      savePendingRef(hash, hero.name);
-      showStatus(isReplacement ? "Hero submission updated!" : "Hero submitted for review!");
-    } catch (err) {
-      console.error("Submit failed:", err);
-      showAlert({ title: "Share Failed", message: err.message });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleLoadFromGallery = async (galleryHero) => {
-    if (hasUnsavedChanges()) {
-      const ok = await confirm({
-        title: "Load Gallery Hero",
-        message: "Current unsaved changes will be lost.",
-        confirmLabel: "Load",
-        destructive: true,
-      });
-      if (!ok) return;
-    }
-    fileHandleRef.current = null;
-    setHero(galleryHero);
-    saveAndCheck(galleryHero);
-    markSaved(galleryHero);
-    showStatus("Hero loaded from gallery");
-  };
-
-  const handlePasteSubmit = async (text) => {
-    if (hasUnsavedChanges()) {
-      const ok = await confirm({
-        title: "Load Pasted Hero",
-        message: "Current unsaved changes will be lost.",
-        confirmLabel: "Load",
-        destructive: true,
-      });
-      if (!ok) return;
-    }
-    try {
-      const data = JSON.parse(text);
-      const result = validateHeroData(data);
-      if (result.valid) {
-        fileHandleRef.current = null;
-        setHero(result.hero);
-        saveAndCheck(result.hero);
-        markSaved(result.hero);
-        setShowPasteModal(false);
-        showStatus("Hero pasted successfully");
-      } else {
-        showStatus(result.error, "error");
-      }
-    } catch {
-      showStatus("Invalid JSON — check the pasted text", "error");
-    }
-  };
-
-  const handleLoadRecent = async (entry) => {
-    if (hasUnsavedChanges()) {
-      const ok = await confirm({
-        title: "Load Hero",
-        message: `"${entry.heroName || entry.fileName}" — current unsaved changes will be lost.`,
-        confirmLabel: "Load",
-        destructive: true,
-      });
-      if (!ok) return;
-    }
-    try {
-      const data = await loadHeroFromHandle(entry.handle);
-      const result = validateHeroData(data);
-      if (result.valid) {
-        fileHandleRef.current = entry.handle;
-        setHero(result.hero);
-        saveAndCheck(result.hero);
-        markSaved(result.hero);
-        showStatus(`Loaded from ${entry.fileName}`);
-      } else {
-        showStatus(result.error, "error");
-      }
-    } catch {
-      showStatus("File could not be found", "error");
-      setRecents(await removeFromRecents(entry.id));
-    }
-  };
-
-  const handleRemoveRecent = async (e, id) => {
-    e.stopPropagation();
-    setRecents(await removeFromRecents(id));
-  };
-
-  const handleOpenRecentInNewWindow = async (entry) => {
-    try {
-      const data = await loadHeroFromHandle(entry.handle);
-      const result = validateHeroData(data);
-      if (!result.valid) {
-        showStatus(result.error, "error");
-        return;
-      }
-      localStorage.setItem(
-        "rtdt-hero-handoff",
-        JSON.stringify({
-          hero: result.hero,
-          fileName: entry.fileName,
-          timestamp: Date.now(),
-        }),
-      );
-      const newWin = window.open(import.meta.env.BASE_URL || "/", "_blank");
-      if (!newWin) {
-        localStorage.removeItem("rtdt-hero-handoff");
-        showStatus("Pop-up blocked — allow pop-ups for this site", "error");
-      }
-    } catch {
-      showStatus(
-        "Could not open file — it may have been moved or deleted",
-        "error",
-      );
-      setRecents(await removeFromRecents(entry.id));
-    }
-  };
-
-  const handleClearRecents = async () => {
-    setRecents(await clearAllRecents());
-  };
-
-  function formatTimeAgo(ts) {
-    const diff = Date.now() - ts;
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "just now";
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    const days = Math.floor(hrs / 24);
-    return `${days}d ago`;
-  }
 
   return (
     <div className="flex h-screen bg-gray-900 text-gray-100 overflow-hidden">
@@ -939,11 +152,11 @@ export default function V2App() {
         <div className="flex-1 overflow-y-auto px-4 py-4">
           <HeroForm
             hero={hero}
-            updateHero={updateHero}
-            updateVirtue={updateVirtue}
-            addVirtue={addVirtue}
-            removeVirtue={removeVirtue}
-            reorderVirtues={reorderVirtues}
+            updateHero={heroState.updateHero}
+            updateVirtue={heroState.updateVirtue}
+            addVirtue={heroState.addVirtue}
+            removeVirtue={heroState.removeVirtue}
+            reorderVirtues={heroState.reorderVirtues}
             portraitQuality={portraitQuality}
             setPortraitQuality={setPortraitQuality}
             storageWarning={storageWarning}
@@ -1256,11 +469,12 @@ export default function V2App() {
               </button>
               <button
                 type="button"
-                onClick={() =>
-                  handlePasteSubmit(
+                onClick={async () => {
+                  const ok = await handlePasteSubmit(
                     document.getElementById("paste-textarea-v2").value,
-                  )
-                }
+                  );
+                  if (ok) setShowPasteModal(false);
+                }}
                 className="rounded bg-amber-700 hover:bg-amber-600 text-white text-xs px-4 py-1.5 font-bold transition-colors"
               >
                 Load

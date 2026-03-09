@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.6.2] - 2026-03-09
+
+### Changed
+
+- **Code refactor** — Split `App.jsx` (1327 lines) into four focused hooks: `useHeroState` (hero state + virtue mutations), `useFileIO` (save/load/recents/paste), `useExport` (PDF + PNG snapshot), and `useGallery` (Firebase share + gallery load). No behavior changes.
+- **HeroForm refactor** — Extracted a reusable `CollapsibleSection` component (replacing four identical inline toggle patterns) and a `VirtueEditor` component (virtue navigation, editing, drag-to-reorder). No UI changes.
+- **HeroBoard constants** — Moved SVG slot coordinates, artwork bounds, and text offsets into `src/v2/utils/boardLayout.js` so future template syncs have one place to audit.
+
 ## [2.6.1] - 2026-03-09
 
 ### Changed
