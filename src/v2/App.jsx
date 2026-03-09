@@ -832,6 +832,7 @@ export default function V2App() {
             </h1>
             <p className="text-xs text-gray-500">
               Return to Dark Tower
+              <span className="ml-1 text-gray-600 font-mono">v{typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "?.?.?"}</span>
               <button
                 type="button"
                 onClick={() => setShowAdmin(true)}
@@ -1103,14 +1104,11 @@ export default function V2App() {
                 <div className="absolute inset-0 w-full h-full bg-black/50" />
                 <div className="relative z-10 flex flex-col items-center justify-center text-center w-full h-full">
                   <h2
-                    className="text-5xl text-amber-300 drop-shadow mb-1 mt-16"
+                    className="text-5xl text-amber-300 drop-shadow mb-4 mt-16"
                     style={{ fontFamily: "AzkolsKerning7, sans-serif" }}
                   >
                     Return to Dark Tower Hero Board Creator
                   </h2>
-                  <p className="text-sm text-amber-200/60 mb-4 font-mono">
-                    v{__APP_VERSION__}
-                  </p>
                   {hero.author_name ||
                   hero.revision_no ||
                   hero.contact ||
