@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { version as appVersion } from "../../../package.json";
 import jsPDF from "jspdf";
 import { svg2pdf } from "svg2pdf.js";
 import HeroBoard from "./components/HeroBoard";
@@ -1110,7 +1109,7 @@ export default function V2App() {
                     Return to Dark Tower Hero Board Creator
                   </h2>
                   <p className="text-sm text-amber-200/60 mb-4 font-mono">
-                    v{appVersion}
+                    v{__APP_VERSION__}
                   </p>
                   {hero.author_name ||
                   hero.revision_no ||
