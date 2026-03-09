@@ -10,7 +10,7 @@ import {
 } from "../utils/firebase";
 import { validateHeroData } from "../utils/heroIO";
 
-export default function AdminPanel({ onClose }) {
+export default function AdminPanel({ onClose, confirm }) {
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(false);
   const [pending, setPending] = useState([]);
@@ -59,7 +59,13 @@ export default function AdminPanel({ onClose }) {
   };
 
   const handleReject = async (id) => {
-    if (!window.confirm("Reject this hero submission? This cannot be undone.")) return;
+    const ok = await confirm({
+      title: "Reject Submission",
+      message: "Reject this hero submission? This cannot be undone.",
+      confirmLabel: "Reject",
+      destructive: true,
+    });
+    if (!ok) return;
     setActionId(id);
     try {
       await rejectHero(id);

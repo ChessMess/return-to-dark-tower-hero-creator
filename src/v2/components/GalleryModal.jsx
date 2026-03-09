@@ -3,7 +3,7 @@ import { fetchApprovedHeroes, deleteApprovedHero, deleteOwnHero, isAdmin, getCur
 import { validateHeroData, heroToJson } from "../utils/heroIO";
 import GalleryCard from "./GalleryCard";
 
-export default function GalleryModal({ onClose, onLoadHero }) {
+export default function GalleryModal({ onClose, onLoadHero, confirm }) {
   const [heroes, setHeroes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -51,7 +51,13 @@ export default function GalleryModal({ onClose, onLoadHero }) {
   };
 
   const handleDelete = async (hero) => {
-    if (!window.confirm(`Delete "${hero.name}" from the gallery? This cannot be undone.`)) return;
+    const ok = await confirm({
+      title: "Delete Hero",
+      message: `Delete "${hero.name}" from the gallery? This cannot be undone.`,
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
     try {
       await deleteApprovedHero(hero.id);
       setHeroes((prev) => prev.filter((h) => h.id !== hero.id));
@@ -61,7 +67,13 @@ export default function GalleryModal({ onClose, onLoadHero }) {
   };
 
   const handleRemoveOwn = async (hero) => {
-    if (!window.confirm(`Remove your hero "${hero.name}" from the gallery?`)) return;
+    const ok = await confirm({
+      title: "Remove Hero",
+      message: `Remove your hero "${hero.name}" from the gallery?`,
+      confirmLabel: "Remove",
+      destructive: true,
+    });
+    if (!ok) return;
     try {
       await deleteOwnHero(hero.id);
       setHeroes((prev) => prev.filter((h) => h.id !== hero.id));

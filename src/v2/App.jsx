@@ -24,6 +24,8 @@ import {
 import { submitHero } from "./utils/firebase";
 import GalleryModal from "./components/GalleryModal";
 import AdminPanel from "./components/AdminPanel";
+import ConfirmDialog from "./components/ConfirmDialog";
+import { useConfirm } from "./hooks/useConfirm";
 import coverBg from "./assets/rtdt_cover2.jpg";
 
 export default function V2App() {
@@ -42,6 +44,7 @@ export default function V2App() {
   const [submitting, setSubmitting] = useState(false);
   const [shareWarning, setShareWarning] = useState(null);
   const [recents, setRecents] = useState([]);
+  const { confirmState, confirm, handleConfirm, handleCancel } = useConfirm();
   const fileHandleRef = useRef(null);
   const savedHeroRef = useRef(JSON.stringify(loadHero()));
   const [zoom, setZoom] = useState(1);
@@ -170,14 +173,16 @@ export default function V2App() {
 
   const hasChanges = () => JSON.stringify(hero) !== JSON.stringify(defaultHero);
 
-  const resetHero = () => {
-    if (
-      hasChanges() &&
-      !window.confirm(
-        "You have unsaved changes that will be lost. Reset anyway?",
-      )
-    )
-      return;
+  const resetHero = async () => {
+    if (hasChanges()) {
+      const ok = await confirm({
+        title: "Reset Hero",
+        message: "You have unsaved changes that will be lost. Reset anyway?",
+        confirmLabel: "Reset",
+        destructive: true,
+      });
+      if (!ok) return;
+    }
     localStorage.removeItem("rtdt-hero-v2");
     fileHandleRef.current = null;
     setHero({
@@ -473,11 +478,15 @@ export default function V2App() {
   };
 
   const handleLoadJson = async () => {
-    if (
-      hasUnsavedChanges() &&
-      !window.confirm("Load hero from file?\nCurrent unsaved changes will be lost.")
-    )
-      return;
+    if (hasUnsavedChanges()) {
+      const ok = await confirm({
+        title: "Load Hero",
+        message: "Current unsaved changes will be lost.",
+        confirmLabel: "Load",
+        destructive: true,
+      });
+      if (!ok) return;
+    }
     // Try File System Access API (Chrome/Edge)
     if (window.showOpenFilePicker) {
       try {
@@ -719,13 +728,24 @@ export default function V2App() {
       issues.push("Add at least one virtue.");
     else if (virtues.every((v) => SHARE_DEFAULT_VIRTUE_NAMES.includes((v.name || "").trim().toUpperCase())))
       issues.push("Customize your virtue names (don't use the defaults).");
+    if (!(h.author_name || "").trim())
+      issues.push("Add your author name (Author Info section).");
+    if (!(h.revision_no || "").trim())
+      issues.push("Add a revision number (Author Info section).");
+    if (!(h.contact || "").trim())
+      issues.push("Add contact info (Author Info section).");
     return issues;
   };
 
   const handleShareToGallery = async () => {
     const issues = getShareIssues(hero);
     if (issues.length > 0) { setShareWarning(issues); return; }
-    if (!window.confirm("Share this hero to the community gallery?\nIt will be reviewed before appearing.")) return;
+    const ok = await confirm({
+      title: "Share to Gallery",
+      message: "This hero will be reviewed before appearing in the community gallery.",
+      confirmLabel: "Share",
+    });
+    if (!ok) return;
     setSubmitting(true);
     try {
       await submitHero(hero);
@@ -738,12 +758,16 @@ export default function V2App() {
     }
   };
 
-  const handleLoadFromGallery = (galleryHero) => {
-    if (
-      hasUnsavedChanges() &&
-      !window.confirm("Load gallery hero?\nCurrent unsaved changes will be lost.")
-    )
-      return;
+  const handleLoadFromGallery = async (galleryHero) => {
+    if (hasUnsavedChanges()) {
+      const ok = await confirm({
+        title: "Load Gallery Hero",
+        message: "Current unsaved changes will be lost.",
+        confirmLabel: "Load",
+        destructive: true,
+      });
+      if (!ok) return;
+    }
     fileHandleRef.current = null;
     setHero(galleryHero);
     saveAndCheck(galleryHero);
@@ -751,12 +775,16 @@ export default function V2App() {
     showStatus("Hero loaded from gallery");
   };
 
-  const handlePasteSubmit = (text) => {
-    if (
-      hasUnsavedChanges() &&
-      !window.confirm("Load pasted hero?\nCurrent unsaved changes will be lost.")
-    )
-      return;
+  const handlePasteSubmit = async (text) => {
+    if (hasUnsavedChanges()) {
+      const ok = await confirm({
+        title: "Load Pasted Hero",
+        message: "Current unsaved changes will be lost.",
+        confirmLabel: "Load",
+        destructive: true,
+      });
+      if (!ok) return;
+    }
     try {
       const data = JSON.parse(text);
       const result = validateHeroData(data);
@@ -776,13 +804,15 @@ export default function V2App() {
   };
 
   const handleLoadRecent = async (entry) => {
-    if (
-      hasUnsavedChanges() &&
-      !window.confirm(
-        `Load "${entry.heroName || entry.fileName}"?\nCurrent unsaved changes will be lost.`,
-      )
-    )
-      return;
+    if (hasUnsavedChanges()) {
+      const ok = await confirm({
+        title: "Load Hero",
+        message: `"${entry.heroName || entry.fileName}" — current unsaved changes will be lost.`,
+        confirmLabel: "Load",
+        destructive: true,
+      });
+      if (!ok) return;
+    }
     try {
       const data = await loadHeroFromHandle(entry.handle);
       const result = validateHeroData(data);
@@ -1182,8 +1212,8 @@ export default function V2App() {
 
       {/* Paste modal */}
       {showPasteModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-gray-800 border border-gray-600 rounded-lg p-4 w-96 space-y-3">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 w-96 space-y-3">
             <h2 className="text-sm font-bold text-amber-400 uppercase tracking-wider">
               Paste Hero JSON
             </h2>
@@ -1257,11 +1287,19 @@ export default function V2App() {
         <GalleryModal
           onClose={() => setShowGallery(false)}
           onLoadHero={handleLoadFromGallery}
+          confirm={confirm}
         />
       )}
 
       {/* Admin panel */}
-      {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
+      {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} confirm={confirm} />}
+
+      {/* Confirm dialog */}
+      <ConfirmDialog
+        confirmState={confirmState}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 }

@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-03-09
+
+### Added
+
+- **Custom Confirm Dialogs** — All native browser `confirm()` dialogs replaced with styled modals matching the app's dark amber/gray design language. Destructive actions (reset, delete, load-over-unsaved) show a red confirm button; non-destructive actions use amber.
+- **Author Info Required for Gallery Share** — Hero name, revision number, and contact info (Author Info section) are now required before a hero can be submitted to the community gallery.
+
+### Changed
+
+- **Modal Style Consistency** — Paste Modal background and border updated to `bg-gray-900 / border-gray-700`, matching Gallery and Admin Panel modals.
+
 ## [2.4.4] - 2026-03-09
 
 ### Fixed
