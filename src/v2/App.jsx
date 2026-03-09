@@ -710,7 +710,7 @@ export default function V2App() {
       showStatus("Hero submitted for review!");
     } catch (err) {
       console.error("Submit failed:", err);
-      showStatus("Submit failed — try again later", "error");
+      showStatus(`Submit failed: ${err.message}`, "error");
     } finally {
       setSubmitting(false);
     }

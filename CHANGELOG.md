@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.4.2] - 2026-03-09
+
+### Fixed
+
+- **Submission Error Details** — Gallery share failures now display the specific reason (e.g. validation message, rate-limit countdown, Firebase error) instead of a generic "try again later" prompt.
+
 ## [2.4.1] - 2026-03-09
 
 ### Fixed
@@ -154,6 +160,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 - **Champion Terrain** — Selectable terrain type for champion ability
 
+[2.4.2]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.4.1...v2.4.2
+[2.4.1]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.3.1...v2.4.0
 [2.3.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.1.0...v2.2.0
