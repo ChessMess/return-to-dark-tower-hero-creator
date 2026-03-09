@@ -214,7 +214,7 @@ export default function AdminPanel({ onClose }) {
                               <span>by {hero.author_name}</span>
                             )}
                             {hero.revision_no && (
-                              <span>v{hero.revision_no}</span>
+                              <span>{hero.revision_no}</span>
                             )}
                             {hero.virtues && (
                               <span>

@@ -30,7 +30,7 @@ export default function RecentHeroRow({
         <div className="text-[10px] text-gray-400 truncate">
           {entry.author_name && `by ${entry.author_name}`}
           {entry.author_name && entry.revision_no && " · "}
-          {entry.revision_no && `v${entry.revision_no}`}
+          {entry.revision_no && entry.revision_no}
           {(entry.author_name || entry.revision_no) && " · "}
           {entry.virtueCount} virtues
         </div>

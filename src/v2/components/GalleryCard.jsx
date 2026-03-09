@@ -44,7 +44,7 @@ export default function GalleryCard({ hero, onLoad, onDownload, onDelete, onRemo
         {hero.author_name && (
           <p className="text-[10px] text-gray-500 truncate">
             by {hero.author_name}
-            {hero.revision_no ? ` v${hero.revision_no}` : ""}
+            {hero.revision_no ? ` ${hero.revision_no}` : ""}
           </p>
         )}
 

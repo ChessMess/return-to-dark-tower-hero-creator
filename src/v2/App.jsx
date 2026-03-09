@@ -40,6 +40,7 @@ export default function V2App() {
   const [showGallery, setShowGallery] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [shareWarning, setShareWarning] = useState(null);
   const [recents, setRecents] = useState([]);
   const fileHandleRef = useRef(null);
   const savedHeroRef = useRef(JSON.stringify(loadHero()));
@@ -702,7 +703,23 @@ export default function V2App() {
     return () => window.removeEventListener("blur", cancelHold);
   }, [cancelHold]);
 
+  const SHARE_DEFAULT_NAMES = ["HERO NAME", ""];
+  const SHARE_DEFAULT_VIRTUE_NAMES = ["VIRTUE", "VIRTUE 1", "VIRTUE 2", "VIRTUE 3", "VIRTUE 4", "VIRTUE 5", "VIRTUE 6"];
+  const getShareIssues = (h) => {
+    const issues = [];
+    if (SHARE_DEFAULT_NAMES.includes((h.name || "").trim().toUpperCase()))
+      issues.push("Give your hero a unique name.");
+    const virtues = h.virtues || [];
+    if (virtues.length === 0)
+      issues.push("Add at least one virtue.");
+    else if (virtues.every((v) => SHARE_DEFAULT_VIRTUE_NAMES.includes((v.name || "").trim().toUpperCase())))
+      issues.push("Customize your virtue names (don't use the defaults).");
+    return issues;
+  };
+
   const handleShareToGallery = async () => {
+    const issues = getShareIssues(hero);
+    if (issues.length > 0) { setShareWarning(issues); return; }
     if (!window.confirm("Share this hero to the community gallery?\nIt will be reviewed before appearing.")) return;
     setSubmitting(true);
     try {
@@ -996,7 +1013,7 @@ export default function V2App() {
                 )}
                 {hero.revision_no && (
                   <span className="font-mono text-gray-300">
-                    v{hero.revision_no}
+                    {hero.revision_no}
                   </span>
                 )}
               </span>
@@ -1180,6 +1197,40 @@ export default function V2App() {
                 className="rounded bg-amber-700 hover:bg-amber-600 text-white text-xs px-4 py-1.5 font-bold transition-colors"
               >
                 Load
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share warning dialog */}
+      {shareWarning && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-amber-700/60 rounded-lg p-6 w-80 space-y-4 shadow-xl">
+            <div className="flex items-start gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <h2 className="text-sm font-bold text-amber-400 uppercase tracking-wider">
+                Hero isn&apos;t ready to share
+              </h2>
+            </div>
+            <p className="text-xs text-gray-400">Please fix the following before sharing to the gallery:</p>
+            <ul className="space-y-1.5">
+              {shareWarning.map((issue, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs text-gray-200">
+                  <span className="text-amber-500 mt-0.5">•</span>
+                  {issue}
+                </li>
+              ))}
+            </ul>
+            <div className="flex justify-end pt-1">
+              <button
+                type="button"
+                onClick={() => setShareWarning(null)}
+                className="rounded bg-amber-700 hover:bg-amber-600 text-white text-xs px-5 py-1.5 font-bold uppercase tracking-wider transition-colors"
+              >
+                Got it
               </button>
             </div>
           </div>

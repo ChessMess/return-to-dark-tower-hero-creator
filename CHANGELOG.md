@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.4.3] - 2026-03-09
+
+### Added
+
+- **Share Warning Dialog** — Clicking Share now shows a centered modal listing all hero readiness issues (default name, missing virtues, default virtue names) before attempting submission, so users know exactly what to fix.
+
+### Changed
+
+- **Revision No. Display** — The auto-prepended `v` prefix has been removed from all revision number display locations; the value now renders exactly as entered.
+
 ## [2.4.2] - 2026-03-09
 
 ### Fixed
@@ -160,6 +170,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 - **Champion Terrain** — Selectable terrain type for champion ability
 
+[2.4.3]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.4.2...v2.4.3
 [2.4.2]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.3.1...v2.4.0
