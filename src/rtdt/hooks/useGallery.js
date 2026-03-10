@@ -34,8 +34,8 @@ const getShareIssues = (h) => {
   return issues;
 };
 
-export function useGallery({ heroState, fileHandleRef, confirm, showAlert, showStatus }) {
-  const { hero, setHero, saveAndCheck, markSaved, hasUnsavedChanges } = heroState;
+export function useGallery({ heroState, clearFileHandle, confirm, showAlert, showStatus }) {
+  const { hero, replaceHero, hasUnsavedChanges } = heroState;
   const [submitting, setSubmitting] = useState(false);
   const [shareWarning, setShareWarning] = useState(null);
 
@@ -67,10 +67,7 @@ export function useGallery({ heroState, fileHandleRef, confirm, showAlert, showS
             confirmLabel: "Replace",
             cancelLabel: "Cancel",
           });
-          if (!replace) {
-            setSubmitting(false);
-            return;
-          }
+          if (!replace) return;
           try {
             await withdrawPendingHero(prior.hash);
           } catch {
@@ -103,10 +100,8 @@ export function useGallery({ heroState, fileHandleRef, confirm, showAlert, showS
       });
       if (!ok) return;
     }
-    fileHandleRef.current = null;
-    setHero(galleryHero);
-    saveAndCheck(galleryHero);
-    markSaved(galleryHero);
+    clearFileHandle();
+    replaceHero(galleryHero);
     showStatus("Hero loaded from gallery");
   };
 

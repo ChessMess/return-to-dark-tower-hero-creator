@@ -13,17 +13,14 @@ export function useConfirm() {
     [],
   );
 
-  const handleConfirm = useCallback((value) => {
-    resolverRef.current?.(value ?? true);
+  const settle = useCallback((value) => {
+    resolverRef.current?.(value);
     resolverRef.current = null;
     setConfirmState(null);
   }, []);
 
-  const handleCancel = useCallback(() => {
-    resolverRef.current?.(false);
-    resolverRef.current = null;
-    setConfirmState(null);
-  }, []);
+  const handleConfirm = useCallback((value) => settle(value ?? true), [settle]);
+  const handleCancel = useCallback(() => settle(false), [settle]);
 
   const showPrompt = useCallback(
     ({ title, message, defaultValue = "", confirmLabel = "OK", cancelLabel = "Cancel" }) =>
