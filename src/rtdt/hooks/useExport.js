@@ -54,50 +54,47 @@ const loadImageAsDataUrl = (src) =>
     img.src = src;
   });
 
-const renderBoardPngBlob = () =>
-  new Promise(async (resolve, reject) => {
-    try {
-      const svgEl = document.querySelector("#hero-board-container svg");
-      if (!svgEl) return reject(new Error("No SVG element found"));
+const renderBoardPngBlob = async () => {
+  const svgEl = document.querySelector("#hero-board-container svg");
+  if (!svgEl) throw new Error("No SVG element found");
 
-      const clone = svgEl.cloneNode(true);
-      const images = clone.querySelectorAll("image");
-      for (const imgEl of images) {
-        const href = imgEl.getAttribute("href") || "";
-        if (href && !href.startsWith("data:")) {
-          try {
-            const dataUrl = await rasterizeSvgImage(imgEl);
-            if (dataUrl) imgEl.setAttribute("href", dataUrl);
-          } catch (e) {
-            console.warn("Could not rasterize image for snapshot:", e);
-          }
-        }
+  const clone = svgEl.cloneNode(true);
+  const images = clone.querySelectorAll("image");
+  for (const imgEl of images) {
+    const href = imgEl.getAttribute("href") || "";
+    if (href && !href.startsWith("data:")) {
+      try {
+        const dataUrl = await rasterizeSvgImage(imgEl);
+        if (dataUrl) imgEl.setAttribute("href", dataUrl);
+      } catch (e) {
+        console.warn("Could not rasterize image for snapshot:", e);
       }
-
-      const svgString = new XMLSerializer().serializeToString(clone);
-      const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-
-      const canvas = document.createElement("canvas");
-      canvas.width = 1213;
-      canvas.height = 808;
-      const ctx = canvas.getContext("2d");
-
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, 1213, 808);
-        URL.revokeObjectURL(url);
-        canvas.toBlob((pngBlob) => resolve(pngBlob), "image/png");
-      };
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        reject(new Error("Could not render board"));
-      };
-      img.src = url;
-    } catch (err) {
-      reject(err);
     }
+  }
+
+  const svgString = new XMLSerializer().serializeToString(clone);
+  const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 1213;
+  canvas.height = 808;
+  const ctx = canvas.getContext("2d");
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, 1213, 808);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(resolve, "image/png");
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Could not render board"));
+    };
+    img.src = url;
   });
+};
 
 const copyBlobToClipboard = async (blob) => {
   await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
@@ -111,6 +108,21 @@ const downloadBlob = (blob, filename) => {
   URL.revokeObjectURL(a.href);
 };
 
+// Returns { copied: bool, filename: string }
+const captureSnapshot = async (heroName, { download = false } = {}) => {
+  const pngBlob = await renderBoardPngBlob();
+  const filename = `${sanitizeFilename(heroName)}.png`;
+  let copied = false;
+  try {
+    await copyBlobToClipboard(pngBlob);
+    copied = true;
+  } catch {
+    if (!download) downloadBlob(pngBlob, filename);
+  }
+  if (download) downloadBlob(pngBlob, filename);
+  return { copied, filename };
+};
+
 export function useExport({ hero, showAlert, showStatus }) {
   const [downloading, setDownloading] = useState(false);
   const [snapshotFlash, setSnapshotFlash] = useState(false);
@@ -118,6 +130,16 @@ export function useExport({ hero, showAlert, showStatus }) {
   const holdTimerRef = useRef(null);
   const holdEligibleRef = useRef(false);
   const holdBusyRef = useRef(false);
+  const heroRef = useRef(hero);
+  const showStatusRef = useRef(showStatus);
+
+  useEffect(() => {
+    heroRef.current = hero;
+  }, [hero]);
+
+  useEffect(() => {
+    showStatusRef.current = showStatus;
+  }, [showStatus]);
 
   const handleDownloadPdf = async () => {
     setDownloading(true);
@@ -269,11 +291,7 @@ export function useExport({ hero, showAlert, showStatus }) {
         }
       }
 
-      const filename =
-        hero.name && hero.name !== "HERO NAME"
-          ? `${hero.name.toLowerCase().replace(/\s+/g, "-")}-hero-board.pdf`
-          : "hero-board.pdf";
-      doc.save(filename);
+      doc.save(`${sanitizeFilename(hero.name)}-hero-board.pdf`);
     } catch (err) {
       console.error("PDF export failed:", err);
       showAlert({
@@ -282,52 +300,6 @@ export function useExport({ hero, showAlert, showStatus }) {
       });
     } finally {
       setDownloading(false);
-    }
-  };
-
-  // Click: clipboard copy (fallback to download)
-  const handleSnapshot = async () => {
-    try {
-      const pngBlob = await renderBoardPngBlob();
-      const filename = `${sanitizeFilename(hero.name)}.png`;
-      try {
-        await copyBlobToClipboard(pngBlob);
-        setSnapshotFlash(true);
-        setTimeout(() => setSnapshotFlash(false), 600);
-        showStatus("Image copied to clipboard");
-      } catch {
-        downloadBlob(pngBlob, filename);
-        showStatus("Downloaded as PNG (clipboard unavailable)");
-      }
-    } catch (err) {
-      console.error("Snapshot failed:", err);
-      showStatus("Snapshot failed", "error");
-    }
-  };
-
-  // Long press: clipboard copy + download
-  const handleSnapshotCombo = async () => {
-    try {
-      const pngBlob = await renderBoardPngBlob();
-      const filename = `${sanitizeFilename(hero.name)}.png`;
-      let copied = false;
-      try {
-        await copyBlobToClipboard(pngBlob);
-        copied = true;
-      } catch {
-        // clipboard unavailable — download will still happen
-      }
-      downloadBlob(pngBlob, filename);
-      setSnapshotFlash(true);
-      setTimeout(() => setSnapshotFlash(false), 600);
-      showStatus(
-        copied
-          ? "Copied & downloaded"
-          : "Downloaded as PNG (clipboard unavailable)",
-      );
-    } catch (err) {
-      console.error("Snapshot failed:", err);
-      showStatus("Snapshot failed", "error");
     }
   };
 
@@ -353,10 +325,27 @@ export function useExport({ hero, showAlert, showStatus }) {
     const wasEligible = holdEligibleRef.current;
     cancelHold();
     holdBusyRef.current = true;
-    const action = wasEligible ? handleSnapshotCombo() : handleSnapshot();
-    action.finally(() => {
-      holdBusyRef.current = false;
-    });
+    captureSnapshot(heroRef.current.name, { download: wasEligible })
+      .then(({ copied }) => {
+        setSnapshotFlash(true);
+        setTimeout(() => setSnapshotFlash(false), 600);
+        showStatusRef.current(
+          wasEligible
+            ? copied
+              ? "Copied & downloaded"
+              : "Downloaded as PNG (clipboard unavailable)"
+            : copied
+              ? "Image copied to clipboard"
+              : "Downloaded as PNG (clipboard unavailable)",
+        );
+      })
+      .catch((err) => {
+        console.error("Snapshot failed:", err);
+        showStatusRef.current("Snapshot failed", "error");
+      })
+      .finally(() => {
+        holdBusyRef.current = false;
+      });
   }, [cancelHold]);
 
   useEffect(() => {

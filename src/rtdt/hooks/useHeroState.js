@@ -3,11 +3,12 @@ import { loadHero, saveHero, getStorageBytes } from "../utils/heroIO";
 import { defaultHero, MAX_VIRTUES, createEmptyVirtue } from "../data/defaultHero";
 
 export function useHeroState() {
-  const [hero, setHero] = useState(loadHero);
+  const initial = loadHero();
+  const [hero, setHero] = useState(initial);
   const [portraitQuality, setPortraitQuality] = useState(1.0);
   const [storageWarning, setStorageWarning] = useState(null);
   const [storageBytes, setStorageBytes] = useState(() => getStorageBytes());
-  const savedHeroRef = useRef(JSON.stringify(loadHero()));
+  const savedHeroRef = useRef(JSON.stringify(initial));
 
   const markSaved = (h) => {
     savedHeroRef.current = JSON.stringify(h);
@@ -74,7 +75,13 @@ export function useHeroState() {
       return next;
     });
 
-  const hasChanges = () => JSON.stringify(hero) !== JSON.stringify(defaultHero);
+  const replaceHero = (h) => {
+    setHero(h);
+    saveAndCheck(h);
+    markSaved(h);
+  };
+
+  const isModifiedFromDefault = () => JSON.stringify(hero) !== JSON.stringify(defaultHero);
 
   return {
     hero,
@@ -86,11 +93,12 @@ export function useHeroState() {
     markSaved,
     hasUnsavedChanges,
     saveAndCheck,
+    replaceHero,
     updateHero,
     updateVirtue,
     addVirtue,
     removeVirtue,
     reorderVirtues,
-    hasChanges,
+    isModifiedFromDefault,
   };
 }

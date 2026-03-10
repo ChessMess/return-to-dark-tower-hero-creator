@@ -9,8 +9,14 @@ import {
   clearAllRecents,
 } from "../utils/heroIO";
 
+const writeToFileHandle = async (handle, json) => {
+  const writable = await handle.createWritable();
+  await writable.write(json);
+  await writable.close();
+};
+
 export function useFileIO({ heroState, confirm, showPrompt, showStatus }) {
-  const { hero, setHero, saveAndCheck, markSaved, hasUnsavedChanges } = heroState;
+  const { hero, replaceHero, hasUnsavedChanges } = heroState;
   const fileHandleRef = useRef(null);
   const [recents, setRecents] = useState([]);
 
@@ -18,19 +24,28 @@ export function useFileIO({ heroState, confirm, showPrompt, showStatus }) {
     loadRecents().then(setRecents);
   }, []);
 
-  const writeToFileHandle = async (handle, json) => {
-    const writable = await handle.createWritable();
-    await writable.write(json);
-    await writable.close();
+  const clearFileHandle = () => {
+    fileHandleRef.current = null;
+  };
+
+  const applyLoaded = (handle, loadedHero, statusMsg, addToRecentsFn) => {
+    fileHandleRef.current = handle;
+    replaceHero(loadedHero);
+    showStatus(statusMsg);
+    if (addToRecentsFn) addToRecentsFn();
   };
 
   const handleSaveJson = async () => {
     const json = heroToJson(hero);
+    const defaultName =
+      hero.name && hero.name !== "HERO NAME"
+        ? hero.name.toLowerCase().replace(/\s+/g, "-")
+        : "hero";
 
     if (fileHandleRef.current) {
       try {
         await writeToFileHandle(fileHandleRef.current, json);
-        markSaved(hero);
+        heroState.markSaved(hero);
         showStatus(`Saved to ${fileHandleRef.current.name}`);
         setRecents(await addToRecents(fileHandleRef.current, hero));
         return;
@@ -40,10 +55,6 @@ export function useFileIO({ heroState, confirm, showPrompt, showStatus }) {
     }
 
     if (window.showSaveFilePicker) {
-      const defaultName =
-        hero.name && hero.name !== "HERO NAME"
-          ? hero.name.toLowerCase().replace(/\s+/g, "-")
-          : "hero";
       try {
         const handle = await window.showSaveFilePicker({
           suggestedName: `${defaultName}.json`,
@@ -56,7 +67,7 @@ export function useFileIO({ heroState, confirm, showPrompt, showStatus }) {
         });
         await writeToFileHandle(handle, json);
         fileHandleRef.current = handle;
-        markSaved(hero);
+        heroState.markSaved(hero);
         showStatus(`Saved to ${handle.name}`);
         setRecents(await addToRecents(handle, hero));
         return;
@@ -66,10 +77,6 @@ export function useFileIO({ heroState, confirm, showPrompt, showStatus }) {
     }
 
     // Fallback: legacy download
-    const defaultName =
-      hero.name && hero.name !== "HERO NAME"
-        ? hero.name.toLowerCase().replace(/\s+/g, "-")
-        : "hero";
     const filename = await showPrompt({
       title: "Save Hero",
       message: "File name:",
@@ -83,7 +90,7 @@ export function useFileIO({ heroState, confirm, showPrompt, showStatus }) {
     a.download = filename.endsWith(".json") ? filename : `${filename}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    markSaved(hero);
+    heroState.markSaved(hero);
     showStatus("Hero saved to file");
   };
 
@@ -113,12 +120,9 @@ export function useFileIO({ heroState, confirm, showPrompt, showStatus }) {
         const data = JSON.parse(text);
         const result = validateHeroData(data);
         if (result.valid) {
-          fileHandleRef.current = handle;
-          setHero(result.hero);
-          saveAndCheck(result.hero);
-          markSaved(result.hero);
-          showStatus(`Loaded from ${handle.name}`);
-          setRecents(await addToRecents(handle, result.hero));
+          applyLoaded(handle, result.hero, `Loaded from ${handle.name}`, async () => {
+            setRecents(await addToRecents(handle, result.hero));
+          });
         } else {
           showStatus(result.error, "error");
         }
@@ -145,11 +149,7 @@ export function useFileIO({ heroState, confirm, showPrompt, showStatus }) {
           const data = JSON.parse(evt.target.result);
           const result = validateHeroData(data);
           if (result.valid) {
-            fileHandleRef.current = null;
-            setHero(result.hero);
-            saveAndCheck(result.hero);
-            markSaved(result.hero);
-            showStatus("Hero loaded from file");
+            applyLoaded(null, result.hero, "Hero loaded from file");
           } else {
             showStatus(result.error, "error");
           }
@@ -186,11 +186,7 @@ export function useFileIO({ heroState, confirm, showPrompt, showStatus }) {
       const data = JSON.parse(text);
       const result = validateHeroData(data);
       if (result.valid) {
-        fileHandleRef.current = null;
-        setHero(result.hero);
-        saveAndCheck(result.hero);
-        markSaved(result.hero);
-        showStatus("Hero pasted successfully");
+        applyLoaded(null, result.hero, "Hero pasted successfully");
         return true;
       } else {
         showStatus(result.error, "error");
@@ -215,11 +211,9 @@ export function useFileIO({ heroState, confirm, showPrompt, showStatus }) {
       const data = await loadHeroFromHandle(entry.handle);
       const result = validateHeroData(data);
       if (result.valid) {
-        fileHandleRef.current = entry.handle;
-        setHero(result.hero);
-        saveAndCheck(result.hero);
-        markSaved(result.hero);
-        showStatus(`Loaded from ${entry.fileName}`);
+        applyLoaded(entry.handle, result.hero, `Loaded from ${entry.fileName}`, async () => {
+          setRecents(await addToRecents(entry.handle, result.hero));
+        });
       } else {
         showStatus(result.error, "error");
       }
@@ -268,19 +262,8 @@ export function useFileIO({ heroState, confirm, showPrompt, showStatus }) {
     setRecents(await clearAllRecents());
   };
 
-  const formatTimeAgo = (ts) => {
-    const diff = Date.now() - ts;
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "just now";
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    const days = Math.floor(hrs / 24);
-    return `${days}d ago`;
-  };
-
   return {
-    fileHandleRef,
+    clearFileHandle,
     recents,
     handleSaveJson,
     handleLoadJson,
@@ -290,6 +273,5 @@ export function useFileIO({ heroState, confirm, showPrompt, showStatus }) {
     handleRemoveRecent,
     handleOpenRecentInNewWindow,
     handleClearRecents,
-    formatTimeAgo,
   };
 }

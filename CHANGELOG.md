@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.6.3] - 2026-03-10
+
+### Changed
+
+- **Hook Code Quality** — Internal refactor of the five custom hooks. No behavior changes.
+
 ## [2.7.0] - 2026-03-10
 
 ### Changed
@@ -220,6 +226,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Champion Terrain** — Selectable terrain type for champion ability
 
 [2.7.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.6.2...v2.7.0
+[2.6.3]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.6.2...v2.6.3
 [2.4.3]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.4.2...v2.4.3
 [2.4.2]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.4.0...v2.4.1

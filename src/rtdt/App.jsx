@@ -13,12 +13,13 @@ import { useFileIO } from "./hooks/useFileIO";
 import { useExport } from "./hooks/useExport";
 import { useGallery } from "./hooks/useGallery";
 import coverBg from "./assets/rtdt_cover2.jpg";
+import { formatTimeAgo } from "./utils/timeUtils";
 
 export default function V2App() {
   // --- Core state ---
   const heroState = useHeroState();
-  const { hero, setHero, portraitQuality, setPortraitQuality, storageWarning, storageBytes,
-          markSaved, saveAndCheck, hasChanges } = heroState;
+  const { hero, setHero, replaceHero, portraitQuality, setPortraitQuality, storageWarning, storageBytes,
+          isModifiedFromDefault } = heroState;
   const { confirmState, confirm, showAlert, showPrompt, handleConfirm, handleCancel } = useConfirm();
 
   // --- UI state ---
@@ -41,16 +42,16 @@ export default function V2App() {
 
   // --- Feature hooks ---
   const fileIO = useFileIO({ heroState, confirm, showPrompt, showStatus });
-  const { fileHandleRef, recents, handleSaveJson, handleLoadJson, handleCopyToClipboard,
+  const { clearFileHandle, recents, handleSaveJson, handleLoadJson, handleCopyToClipboard,
           handlePasteSubmit, handleLoadRecent, handleRemoveRecent, handleOpenRecentInNewWindow,
-          handleClearRecents, formatTimeAgo } = fileIO;
+          handleClearRecents } = fileIO;
 
   const { downloading, snapshotFlash, holding, handleDownloadPdf,
           onSnapshotPointerDown, onSnapshotPointerUp, cancelHold } =
     useExport({ hero, showAlert, showStatus });
 
   const { submitting, shareWarning, setShareWarning, handleShareToGallery, handleLoadFromGallery } =
-    useGallery({ heroState, fileHandleRef, confirm, showAlert, showStatus });
+    useGallery({ heroState, clearFileHandle, confirm, showAlert, showStatus });
 
   // --- Effects ---
   useEffect(() => {
@@ -86,10 +87,8 @@ export default function V2App() {
       if (handoff.hero) {
         const result = validateHeroData(handoff.hero);
         if (!result.valid) return;
-        fileHandleRef.current = null;
-        setHero(result.hero);
-        saveAndCheck(result.hero);
-        markSaved(result.hero);
+        clearFileHandle();
+        replaceHero(result.hero);
         showStatus(`Opened ${handoff.fileName || "hero"} in new tab`);
       }
     } catch {
@@ -99,7 +98,7 @@ export default function V2App() {
 
   // --- Local handlers ---
   const resetHero = async () => {
-    if (hasChanges()) {
+    if (isModifiedFromDefault()) {
       const ok = await confirm({
         title: "Reset Hero",
         message: "You have unsaved changes that will be lost. Reset anyway?",
@@ -109,7 +108,7 @@ export default function V2App() {
       if (!ok) return;
     }
     localStorage.removeItem("rtdt-hero-v2");
-    fileHandleRef.current = null;
+    clearFileHandle();
     setHero({
       ...defaultHero,
       virtues: defaultHero.virtues.map((v) => ({ ...v })),
