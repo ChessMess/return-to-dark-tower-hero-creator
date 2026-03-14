@@ -4,6 +4,8 @@ import { MAX_VIRTUES } from "../data/defaultHero";
 import { THEME_PRESETS, deriveThemeFromBaseColor, resolveTheme, validateThemeData } from "../data/themes";
 import CollapsibleSection from "./CollapsibleSection";
 import VirtueEditor from "./VirtueEditor";
+import ConfirmDialog from "./ConfirmDialog";
+import { useConfirm } from "../hooks/useConfirm";
 
 const ALLOWED_IMAGE_TYPES = new Set([
   "image/jpeg",
@@ -21,16 +23,27 @@ function ThemeSection({ hero, updateHero }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showPaste, setShowPaste] = useState(false);
   const [themeStatus, setThemeStatus] = useState(null);
+  const { confirmState, confirm, handleConfirm, handleCancel } = useConfirm();
 
   const showThemeMsg = (text, type = "success") => {
     setThemeStatus({ text, type });
     setTimeout(() => setThemeStatus(null), 3000);
   };
 
-  const selectPreset = useCallback((id) => {
+  const selectPreset = useCallback(async (id) => {
+    if (hero.theme === 'custom') {
+      const ok = await confirm({
+        title: 'Switch Theme?',
+        message: 'Your custom theme changes will be lost. Switch to a preset theme?',
+        confirmLabel: 'Switch Theme',
+        cancelLabel: 'Keep Custom',
+        destructive: true,
+      });
+      if (!ok) return;
+    }
     updateHero("theme", id);
     updateHero("customTheme", null);
-  }, [updateHero]);
+  }, [hero.theme, updateHero, confirm]);
 
   const handleBaseColor = useCallback((e) => {
     const derived = deriveThemeFromBaseColor(e.target.value);
@@ -242,6 +255,7 @@ function ThemeSection({ hero, updateHero }) {
           {themeStatus.text}
         </div>
       )}
+      <ConfirmDialog confirmState={confirmState} onConfirm={handleConfirm} onCancel={handleCancel} />
     </div>
   );
 }

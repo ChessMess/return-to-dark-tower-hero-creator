@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.8.1] - 2026-03-14
+
+### Added
+
+- **Custom Theme Loss Warning** — Switching away from a custom theme using the preset arrows or dropdown now shows a confirmation dialog before discarding custom colors. Preset-to-preset switching is unaffected.
+
 ## [2.8.0] - 2026-03-14
 
 ### Added
@@ -232,6 +238,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 - **Champion Terrain** — Selectable terrain type for champion ability
 
+[2.8.1]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.6.2...v2.7.0
 [2.6.3]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.6.2...v2.6.3
