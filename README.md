@@ -26,6 +26,7 @@ Create custom hero boards for [Return to Dark Tower](https://restorationgames.co
 - **Banner Action** — Editable text for the hero's banner action
 - **Flavor Text** — Single textarea with auto-wrapping and live character counter
 - **Collapsible Editor** — Form sections collapse/expand with persistent state
+- **Color Theming** — 6 preset themes matching official heroes, plus a custom base-color picker and advanced individual color controls
 - **Community Gallery** — Share your heroes with the community and browse others' creations
 - **No Backend Required** — Runs entirely in the browser as a static site (gallery uses Firebase free tier)
 

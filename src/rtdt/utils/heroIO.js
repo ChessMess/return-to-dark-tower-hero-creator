@@ -3,6 +3,7 @@ import {
   MAX_VIRTUES,
   createEmptyVirtue,
 } from "../data/defaultHero";
+import { THEME_PRESETS } from "../data/themes";
 
 const STORAGE_KEY = "rtdt-hero-v2";
 const V1_STORAGE_KEY = "rtdt-hero";
@@ -136,6 +137,18 @@ export function validateHeroData(data) {
       typeof data.contact === "string"
         ? sanitizeString(data.contact).slice(0, 250)
         : "",
+    theme:
+      typeof data.theme === "string" &&
+      (data.theme === "custom" || data.theme in THEME_PRESETS)
+        ? data.theme
+        : "orphaned_scion",
+    customTheme:
+      data.theme === "custom" &&
+      data.customTheme &&
+      typeof data.customTheme === "object" &&
+      Array.isArray(data.customTheme.boardColors)
+        ? data.customTheme
+        : null,
     virtues: [],
   };
 

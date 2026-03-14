@@ -27,26 +27,32 @@ src/
   main.jsx           # mounts RouterApp
   RouterApp.jsx      # BrowserRouter with / route
   index.css          # shared Tailwind entry
-  v2/                # hero board app
+  rtdt/              # hero board app
     App.jsx          # state owner + layout + PDF export
     components/
       HeroBoard.jsx
       HeroForm.jsx
-    data/defaultHero.js
-    utils/heroIO.js
+    data/
+      defaultHero.js
+      themes.js      # preset themes, source colors, HSL derivation
+    utils/
+      heroIO.js
+      svgTheme.js    # runtime SVG color replacement + blob URL generation
 ```
 
-### V2 details
+### RTDT details
 
 Uses `hero_board_template.svg` (1213×808px) as the design source. localStorage key: `"rtdt-hero-v2"`.
 
-**Data flow:** `src/v2/App.jsx` owns state and passes `hero` + updater callbacks into `HeroForm` and `HeroBoard`. State is persisted via `src/v2/utils/heroIO.js`.
+**Data flow:** `src/rtdt/App.jsx` owns state and passes `hero` + updater callbacks into `HeroForm` and `HeroBoard`. State is persisted via `src/rtdt/utils/heroIO.js`.
+
+**SVG Theming:** Board and virtue SVGs are imported as raw strings (`?raw`), themed via `replaceAll` on hex color values, then served as blob URLs. See `src/rtdt/utils/svgTheme.js`. Theme-dependent colors (7 green-family + 2 sentinels) are replaced; theme-independent colors (`#f0e9dc` gold trim, `#ffffff` white, `#231f20` black, `#9a393e` red) are never touched.
 
 **Recent Heroes:** Uses IndexedDB (`rtdt-hero-recents` database) to store File System Access API file handles for up to 5 recently saved/loaded heroes. Entries include metadata (hero name, author, revision, virtue count) but the actual hero data is read from the file on disk when loaded. Only available in browsers supporting the File System Access API (Chrome/Edge).
 
 **Save-to-Same-File:** On Chrome/Edge, save/load uses `showSaveFilePicker`/`showOpenFilePicker` to get a `FileSystemFileHandle`. The handle is stored in a ref so subsequent saves write directly to the same file. Falls back to legacy download/file-input on other browsers.
 
-**Compatibility:** `src/v2/utils/heroIO.js` still supports importing/migrating legacy V1 JSON data when detected.
+**Compatibility:** `src/rtdt/utils/heroIO.js` still supports importing/migrating legacy V1 JSON data when detected.
 
 ## Tailwind
 
@@ -54,7 +60,7 @@ Uses Tailwind CSS v4 via `@tailwindcss/vite` plugin. There is **no** `tailwind.c
 
 ## SVG Template Sync — CRITICAL
 
-### V2: `hero_board_template.svg` ↔ `src/v2/components/HeroBoard.jsx`
+### `hero_board_template.svg` ↔ `src/rtdt/components/HeroBoard.jsx`
 
 - The SVG template is the authoritative design source — all visual structure, coordinates, gradients, fonts, and layout live there.
 - The React component is the implementation of that template, with hero data bound into SVG elements.

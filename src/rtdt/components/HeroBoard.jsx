@@ -1,9 +1,3 @@
-import boardBgUrl from '../assets/hero_board_bg.svg';
-import advantageSvgUrl from '../assets/virtue_advantage.svg';
-import standardSvgUrl from '../assets/virtue_standard.svg';
-import championSvgUrl from '../assets/virtue_champion.svg';
-import standardDefaultSvgUrl from '../assets/virtue_standard_default.svg';
-import advantageDefaultSvgUrl from '../assets/virtue_advantage_default.svg';
 import {
   SLOT_POSITIONS,
   ADV_HOME, ADV_HOME_SLOT,
@@ -30,23 +24,23 @@ function splitFlavor(text) {
 // Empty placeholder path data (from virtue_empty.svg, single path)
 const EMPTY_PATH_D = "M 0,0 C -2.894,0 -5.242,2.344 -5.242,5.237 L -5.25,6.654 c 0,1.768 -1.442,3.198 -3.211,3.198 h -3.718 c -2.893,0 -5.237,2.348 -5.237,5.241 v 2.585 c 0,1.936 -1.12,3.64 -2.842,4.352 -2.55,1.039 -4.336,3.606 -4.336,6.225 v 5.353 c 0,1.713 -0.708,3.533 -2.107,5.4 -0.421,0.571 -0.412,1.344 0.025,1.932 1.276,1.696 1.945,3.507 1.945,5.242 l 0.137,6.679 c 0,2.735 1.726,5.242 4.284,6.267 1.731,0.696 2.894,2.447 2.894,4.371 v 2.584 c 0,2.893 2.353,5.241 5.237,5.241 h 3.516 c 1.837,0 3.361,1.494 3.395,3.331 l 0.026,1.258 c 0,2.92 2.357,5.268 5.242,5.268 h 137.613 c 2.885,0 5.241,-2.348 5.241,-5.242 l 0.026,-1.284 c 0.034,-1.837 1.555,-3.331 3.391,-3.331 h 3.516 c 2.885,0 5.241,-2.348 5.241,-5.241 v -2.584 c 0,-1.924 1.159,-3.675 2.894,-4.371 2.558,-1.025 4.28,-3.532 4.28,-6.232 l 0.142,-6.749 c 0,-1.7 0.67,-3.511 1.944,-5.207 0.439,-0.588 0.446,-1.361 0.026,-1.932 -1.4,-1.867 -2.112,-3.687 -2.112,-5.4 v -5.353 c 0,-2.619 -1.782,-5.186 -4.332,-6.225 -1.725,-0.712 -2.842,-2.416 -2.842,-4.352 v -2.585 c 0,-2.893 -2.356,-5.241 -5.241,-5.241 h -3.718 c -1.763,0 -3.206,-1.43 -3.215,-3.198 V 5.246 C 142.854,2.344 140.498,0 137.613,0 Z";
 
-function EmptyPlaceholder({ slotPos }) {
+function EmptyPlaceholder({ slotPos, themeColors }) {
   return (
     <path
       d={EMPTY_PATH_D}
-      style={{ fill: '#2a443e', fillOpacity: 1, fillRule: 'nonzero', stroke: 'none' }}
+      style={{ fill: themeColors.emptyPlaceholderFill, fillOpacity: 1, fillRule: 'nonzero', stroke: 'none' }}
       opacity="0.55"
       transform={`matrix(1.3333333,0,0,-1.3333333,${slotPos.x},${slotPos.y})`}
     />
   );
 }
 
-function AdvantageArtwork({ slotPos }) {
+function AdvantageArtwork({ slotPos, url }) {
   const dx = slotPos.x - ADV_HOME_SLOT.x;
   const dy = slotPos.y - ADV_HOME_SLOT.y;
   return (
     <image
-      href={advantageSvgUrl}
+      href={url}
       x={ADV_HOME.x + dx}
       y={ADV_HOME.y + dy}
       width={ADV_HOME.w}
@@ -55,12 +49,12 @@ function AdvantageArtwork({ slotPos }) {
   );
 }
 
-function StandardArtwork({ slotPos }) {
+function StandardArtwork({ slotPos, url }) {
   const dx = slotPos.x - STD_HOME_SLOT.x;
   const dy = slotPos.y - STD_HOME_SLOT.y;
   return (
     <image
-      href={standardSvgUrl}
+      href={url}
       x={STD_HOME.x + dx}
       y={STD_HOME.y + dy}
       width={STD_HOME.w}
@@ -69,12 +63,12 @@ function StandardArtwork({ slotPos }) {
   );
 }
 
-function AdvantageDefaultArtwork({ slotPos }) {
+function AdvantageDefaultArtwork({ slotPos, url }) {
   const dx = slotPos.x - ADV_HOME_SLOT.x;
   const dy = slotPos.y - ADV_HOME_SLOT.y;
   return (
     <image
-      href={advantageDefaultSvgUrl}
+      href={url}
       x={ADV_HOME.x + dx}
       y={ADV_HOME.y + dy}
       width={ADV_HOME.w}
@@ -83,12 +77,12 @@ function AdvantageDefaultArtwork({ slotPos }) {
   );
 }
 
-function StandardDefaultArtwork({ slotPos }) {
+function StandardDefaultArtwork({ slotPos, url }) {
   const dx = slotPos.x - STD_HOME_SLOT.x;
   const dy = slotPos.y - STD_HOME_SLOT.y;
   return (
     <image
-      href={standardDefaultSvgUrl}
+      href={url}
       x={STD_HOME.x + dx}
       y={STD_HOME.y + dy}
       width={STD_HOME.w}
@@ -97,12 +91,12 @@ function StandardDefaultArtwork({ slotPos }) {
   );
 }
 
-function ChampionArtwork({ slotPos }) {
+function ChampionArtwork({ slotPos, url }) {
   const dx = slotPos.x - CHP_HOME_SLOT.x;
   const dy = slotPos.y - CHP_HOME_SLOT.y;
   return (
     <image
-      href={championSvgUrl}
+      href={url}
       x={CHP_HOME.x + dx}
       y={CHP_HOME.y + dy}
       width={CHP_HOME.w}
@@ -129,7 +123,7 @@ function wrapText(text, maxChars = 26) {
   return lines;
 }
 
-function VirtueTitle({ slotPos, offset, children, fontSize = '11.25px' }) {
+function VirtueTitle({ slotPos, offset, children, fontSize = '11.25px', themeColors }) {
   return (
     <text
       transform={`matrix(1.3333333,0,0,1.0666667,${slotPos.x + offset.x},${slotPos.y + offset.y})`}
@@ -138,7 +132,7 @@ function VirtueTitle({ slotPos, offset, children, fontSize = '11.25px' }) {
         fontFamily: 'Karma, serif',
         fontWeight: 700,
         fontSize,
-        fill: '#000000',
+        fill: themeColors.virtueTitleFill,
       }}
     >
       <tspan x="0" y="0">{children}</tspan>
@@ -146,9 +140,9 @@ function VirtueTitle({ slotPos, offset, children, fontSize = '11.25px' }) {
   );
 }
 
-function VirtueSlot({ slotIndex, virtue, slotPos, hero }) {
+function VirtueSlot({ slotIndex, virtue, slotPos, hero, themedUrls, themeColors }) {
   if (!virtue) {
-    return <EmptyPlaceholder slotPos={slotPos} />;
+    return <EmptyPlaceholder slotPos={slotPos} themeColors={themeColors} />;
   }
 
   const isChampion = virtue.type === 'champion';
@@ -162,7 +156,7 @@ function VirtueSlot({ slotIndex, virtue, slotPos, hero }) {
     const titleLine2 = kingdom ? `THE ${kingdom}` : 'ABILITY';
     return (
       <g>
-        <ChampionArtwork slotPos={slotPos} />
+        <ChampionArtwork slotPos={slotPos} url={themedUrls.championUrl} />
         {/* 2-line champion title (centered) */}
         <text
           transform={`matrix(1.3333333,0,0,1.0666667,${slotPos.x + CHP_TITLE_OFFSET.x},${slotPos.y + CHP_TITLE_OFFSET.y})`}
@@ -171,7 +165,7 @@ function VirtueSlot({ slotIndex, virtue, slotPos, hero }) {
             fontFamily: 'Karma, serif',
             fontWeight: 700,
             fontSize: '9.5px',
-            fill: '#000000',
+            fill: themeColors.virtueTitleFill,
           }}
         >
           <tspan x="0" y="0">{titleLine1}</tspan>
@@ -185,7 +179,7 @@ function VirtueSlot({ slotIndex, virtue, slotPos, hero }) {
             fontFamily: 'Karma, serif',
             fontWeight: 700,
             fontSize: '9px',
-            fill: '#ffffff',
+            fill: themeColors.textPrimary,
           }}
         >
           {wrapText(virtue.description).map((line, i) => (
@@ -201,13 +195,13 @@ function VirtueSlot({ slotIndex, virtue, slotPos, hero }) {
 
   return (
     <g>
-      {virtue.type === 'advantage' && <AdvantageArtwork slotPos={slotPos} />}
-      {virtue.type === 'advantage_default' && <AdvantageDefaultArtwork slotPos={slotPos} />}
-      {virtue.type === 'standard' && <StandardArtwork slotPos={slotPos} />}
-      {virtue.type === 'standard_default' && <StandardDefaultArtwork slotPos={slotPos} />}
+      {virtue.type === 'advantage' && <AdvantageArtwork slotPos={slotPos} url={themedUrls.advantageUrl} />}
+      {virtue.type === 'advantage_default' && <AdvantageDefaultArtwork slotPos={slotPos} url={themedUrls.advantageDefaultUrl} />}
+      {virtue.type === 'standard' && <StandardArtwork slotPos={slotPos} url={themedUrls.standardUrl} />}
+      {virtue.type === 'standard_default' && <StandardDefaultArtwork slotPos={slotPos} url={themedUrls.standardDefaultUrl} />}
 
       {/* Virtue name */}
-      <VirtueTitle slotPos={slotPos} offset={titleOffset}>
+      <VirtueTitle slotPos={slotPos} offset={titleOffset} themeColors={themeColors}>
         {virtue.name}
       </VirtueTitle>
 
@@ -219,7 +213,7 @@ function VirtueSlot({ slotIndex, virtue, slotPos, hero }) {
           fontFamily: 'Karma, serif',
           fontWeight: 700,
           fontSize: '9px',
-          fill: '#ffffff',
+          fill: themeColors.textPrimary,
         }}
       >
         {wrapText(virtue.description).map((line, i) => (
@@ -230,15 +224,15 @@ function VirtueSlot({ slotIndex, virtue, slotPos, hero }) {
   );
 }
 
-export default function HeroBoard({ hero }) {
+export default function HeroBoard({ hero, themedUrls, themeColors }) {
   return (
     <svg
       viewBox="0 0 1213.228 807.6853"
       xmlns="http://www.w3.org/2000/svg"
       style={{ fontFamily: 'Karma, serif' }}
     >
-      {/* Static background */}
-      <image href={boardBgUrl} width="1213.228" height="807.6853" />
+      {/* Themed background */}
+      <image href={themedUrls.boardBgUrl} width="1213.228" height="807.6853" />
 
       {/* Portrait */}
       <defs>
@@ -266,6 +260,8 @@ export default function HeroBoard({ hero }) {
           virtue={hero.virtues[i]}
           slotPos={pos}
           hero={hero}
+          themedUrls={themedUrls}
+          themeColors={themeColors}
         />
       ))}
 
@@ -276,7 +272,7 @@ export default function HeroBoard({ hero }) {
           fontFamily: 'Karma, serif',
           fontWeight: 700,
           fontSize: '25.92px',
-          fill: '#ffffff',
+          fill: themeColors.textPrimary,
         }}
       >
         <tspan x="0" y="0">{hero.name}</tspan>
@@ -290,7 +286,7 @@ export default function HeroBoard({ hero }) {
           fontFamily: 'Karma, serif',
           fontWeight: 700,
           fontSize: '7.5px',
-          fill: '#f0e9dc',
+          fill: themeColors.textSecondary,
         }}
       >
         <tspan x="0" y="0">{hero.warriors}</tspan>
@@ -303,7 +299,7 @@ export default function HeroBoard({ hero }) {
           fontFamily: 'Karma, serif',
           fontWeight: 700,
           fontSize: '7.5px',
-          fill: '#f0e9dc',
+          fill: themeColors.textSecondary,
         }}
       >
         <tspan x="0" y="0">{hero.spirit}</tspan>
@@ -316,7 +312,7 @@ export default function HeroBoard({ hero }) {
           fontFamily: 'Karma, serif',
           fontWeight: 600,
           fontSize: '9px',
-          fill: '#ffffff',
+          fill: themeColors.textPrimary,
         }}
       >
         <tspan x="0" y="0">{hero.bannerAction}</tspan>
@@ -326,7 +322,7 @@ export default function HeroBoard({ hero }) {
       {(() => {
         const [ln1, ln2, ln3] = splitFlavor(hero.flavorText ?? '');
         return (
-          <g opacity="0.4">
+          <g opacity={themeColors.flavorOpacity}>
             <text
               transform="matrix(1.333,0,0,1.359,159,664.92)"
               textAnchor="middle"
@@ -335,7 +331,7 @@ export default function HeroBoard({ hero }) {
                 fontStyle: 'italic',
                 fontWeight: 'normal',
                 fontSize: '9.45px',
-                fill: '#ffffff',
+                fill: themeColors.textPrimary,
               }}
             >
               <tspan x="0" y="0">{ln1}</tspan>

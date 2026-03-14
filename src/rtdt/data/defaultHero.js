@@ -35,4 +35,6 @@ export const defaultHero = {
   revision_no: '',
   description: '',
   contact: '',
+  theme: 'orphaned_scion',
+  customTheme: null,
 };

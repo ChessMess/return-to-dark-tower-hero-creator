@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import HeroBoard from "./components/HeroBoard";
 import HeroForm from "./components/HeroForm";
 import RecentHeroRow from "./components/RecentHeroRow";
 import { defaultHero } from "./data/defaultHero";
 import { validateHeroData } from "./utils/heroIO";
+import { resolveTheme } from "./data/themes";
+import { buildThemedSvgUrls, revokeThemedSvgUrls } from "./utils/svgTheme";
 import GalleryModal from "./components/GalleryModal";
 import AdminPanel from "./components/AdminPanel";
 import ConfirmDialog from "./components/ConfirmDialog";
@@ -52,6 +54,34 @@ export default function V2App() {
 
   const { submitting, shareWarning, setShareWarning, handleShareToGallery, handleLoadFromGallery } =
     useGallery({ heroState, clearFileHandle, confirm, showAlert, showStatus });
+
+  // --- Theme ---
+  const resolvedTheme = useMemo(
+    () => resolveTheme(hero.theme, hero.customTheme),
+    [hero.theme, hero.customTheme],
+  );
+
+  const themedUrls = useMemo(
+    () => buildThemedSvgUrls(resolvedTheme),
+    [resolvedTheme],
+  );
+
+  const themeColors = useMemo(() => ({
+    textPrimary: resolvedTheme.textPrimary,
+    textSecondary: resolvedTheme.textSecondary,
+    virtueTitleFill: resolvedTheme.virtueTitleFill,
+    emptyPlaceholderFill: resolvedTheme.emptyPlaceholderFill,
+    flavorOpacity: resolvedTheme.flavorOpacity,
+  }), [resolvedTheme]);
+
+  const prevUrlsRef = useRef(null);
+  useEffect(() => {
+    if (prevUrlsRef.current && prevUrlsRef.current !== themedUrls) {
+      revokeThemedSvgUrls(prevUrlsRef.current);
+    }
+    prevUrlsRef.current = themedUrls;
+    return () => revokeThemedSvgUrls(themedUrls);
+  }, [themedUrls]);
 
   // --- Effects ---
   useEffect(() => {
@@ -385,7 +415,7 @@ export default function V2App() {
                 className="absolute inset-0 w-full h-full [backface-visibility:hidden]"
                 style={{ zIndex: 2 }}
               >
-                <HeroBoard hero={hero} />
+                <HeroBoard hero={hero} themedUrls={themedUrls} themeColors={themeColors} />
               </div>
               {/* Back face */}
               <div

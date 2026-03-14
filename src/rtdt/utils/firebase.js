@@ -173,6 +173,8 @@ export async function submitHero(hero) {
     revision_no: sanitizeString(hero.revision_no || ""),
     description: sanitizeString(hero.description || ""),
     virtues: sanitizedVirtues,
+    theme: hero.theme || "orphaned_scion",
+    customTheme: hero.theme === "custom" && hero.customTheme ? hero.customTheme : null,
     submittedBy: user.uid,
     createdAt: serverTimestamp(),
   };
