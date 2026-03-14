@@ -1,0 +1,551 @@
+{
+  "sentinel": "#f0e9da",
+  "changes": [
+    {
+      "label": "text_skull",
+      "line": 63850,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_skull",
+      "line": 63855,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_skull",
+      "line": 63860,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_skull",
+      "line": 63865,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_skull",
+      "line": 63870,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_village",
+      "line": 64815,
+      "from": "#607769",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_village",
+      "line": 64820,
+      "from": "#607769",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_village",
+      "line": 64825,
+      "from": "#607769",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_sanctuary",
+      "line": 65349,
+      "from": "#607769",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_sanctuary",
+      "line": 65354,
+      "from": "#607769",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_sanctuary",
+      "line": 65359,
+      "from": "#607769",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_sanctuary",
+      "line": 65364,
+      "from": "#607769",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_citadel",
+      "line": 65635,
+      "from": "#607769",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_citadel",
+      "line": 65640,
+      "from": "#607769",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_citadel",
+      "line": 65645,
+      "from": "#607769",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_citadel",
+      "line": 65650,
+      "from": "#607769",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_citadel",
+      "line": 65655,
+      "from": "#607769",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_reinforce",
+      "line": 65942,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_reinforce",
+      "line": 65947,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_reinforce",
+      "line": 65952,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_reinforce",
+      "line": 65957,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_reinforce",
+      "line": 65962,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_reinforce",
+      "line": 65967,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_reinforce",
+      "line": 65972,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_reinforce",
+      "line": 65977,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_reinforce",
+      "line": 65982,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_reinforce",
+      "line": 65987,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_reinforce",
+      "line": 65992,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_quest",
+      "line": 66683,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_quest",
+      "line": 66688,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_quest",
+      "line": 66693,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_quest",
+      "line": 66698,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_quest",
+      "line": 66703,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_quest",
+      "line": 66708,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_quest",
+      "line": 66713,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_quest",
+      "line": 66718,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_quest",
+      "line": 66723,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66931,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66936,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66941,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66946,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66951,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66956,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66961,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66966,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66971,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66976,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66981,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66986,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66991,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_battle",
+      "line": 66996,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_skulls",
+      "line": 67107,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_skulls",
+      "line": 67113,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_skulls",
+      "line": 67119,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_skulls",
+      "line": 67125,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_skulls",
+      "line": 67131,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_skulls",
+      "line": 67137,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67264,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67269,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67274,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67279,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67284,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67289,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67294,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67299,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67304,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67309,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67314,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67319,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67324,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67329,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67334,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67339,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67344,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67349,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67354,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67359,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67364,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67369,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67374,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67379,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_cleanse",
+      "line": 67384,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_move",
+      "line": 67601,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_move",
+      "line": 67607,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_move",
+      "line": 67613,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "text_move",
+      "line": 67619,
+      "from": "#efe0cd",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_banner",
+      "line": 68392,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_banner",
+      "line": 68397,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_banner",
+      "line": 68402,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_bazaar",
+      "line": 64418,
+      "from": "#607769",
+      "to": "#f0e9da"
+    },
+    {
+      "label": "icon_move",
+      "line": 68087,
+      "from": "#f0e9dc",
+      "to": "#f0e9da"
+    }
+  ]
+}

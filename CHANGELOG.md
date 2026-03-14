@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.8.0] - 2026-03-14
+
+### Added
+
+- **Board Color Theming** — New "Board Theme" section in the editor with 7 preset themes (Orphaned Scion, Relic Hunter, Brutal Warlord, Spymaster, Archwright, Haunted Recluse, Print Friendly), a single base-color picker for quick custom themes, and advanced individual pickers for background, section headers, header text, and flavor text opacity. Theme persists with hero data in localStorage and JSON exports.
+- **Themeable Icons** — All game-mechanic icons (battle, move, quest, cleanse, village, sanctuary, citadel, bazaar, banner, reinforce) and associated text labels (skull, skulls, move) are now independently color-themable. Each preset includes a unique theme-derived icon color; custom themes can override via the new "Icon Color" picker in Advanced Colors. Shared heroes carry their icon color through the community gallery.
+
 ## [2.6.3] - 2026-03-10
 
 ### Changed
@@ -225,6 +232,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 - **Champion Terrain** — Selectable terrain type for champion ability
 
+[2.8.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.6.2...v2.7.0
 [2.6.3]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.6.2...v2.6.3
 [2.4.3]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.4.2...v2.4.3

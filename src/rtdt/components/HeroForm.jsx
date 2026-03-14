@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { optimizeImage, isGif } from "../utils/heroIO";
 import { MAX_VIRTUES } from "../data/defaultHero";
+import { THEME_PRESETS, deriveThemeFromBaseColor, resolveTheme, validateThemeData } from "../data/themes";
 import CollapsibleSection from "./CollapsibleSection";
 import VirtueEditor from "./VirtueEditor";
 
@@ -13,6 +14,271 @@ const ALLOWED_IMAGE_TYPES = new Set([
 
 const inputClass =
   "mt-1 block w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500";
+
+const PRESET_ENTRIES = Object.entries(THEME_PRESETS);
+
+function ThemeSection({ hero, updateHero }) {
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showPaste, setShowPaste] = useState(false);
+  const [themeStatus, setThemeStatus] = useState(null);
+
+  const showThemeMsg = (text, type = "success") => {
+    setThemeStatus({ text, type });
+    setTimeout(() => setThemeStatus(null), 3000);
+  };
+
+  const selectPreset = useCallback((id) => {
+    updateHero("theme", id);
+    updateHero("customTheme", null);
+  }, [updateHero]);
+
+  const handleBaseColor = useCallback((e) => {
+    const derived = deriveThemeFromBaseColor(e.target.value);
+    updateHero("theme", "custom");
+    updateHero("customTheme", derived);
+  }, [updateHero]);
+
+  const updateCustomField = useCallback((field, value) => {
+    const current = hero.customTheme || THEME_PRESETS[hero.theme] || THEME_PRESETS.orphaned_scion;
+    const next = { ...current, [field]: value };
+    updateHero("theme", "custom");
+    updateHero("customTheme", next);
+  }, [hero.theme, hero.customTheme, updateHero]);
+
+  const handleCopyTheme = async () => {
+    const theme = resolveTheme(hero.theme, hero.customTheme);
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(theme, null, 2));
+      showThemeMsg("Theme copied to clipboard");
+    } catch {
+      showThemeMsg("Copy failed", "error");
+    }
+  };
+
+  const handlePasteTheme = () => {
+    const textarea = document.getElementById("theme-paste-textarea");
+    if (!textarea) return;
+    const text = textarea.value.trim();
+    if (!text) {
+      showThemeMsg("Paste a theme JSON first", "error");
+      return;
+    }
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      showThemeMsg("Invalid JSON", "error");
+      return;
+    }
+    const result = validateThemeData(data);
+    if (!result.valid) {
+      showThemeMsg(result.error, "error");
+      return;
+    }
+    updateHero("theme", "custom");
+    updateHero("customTheme", result.theme);
+    setShowPaste(false);
+    showThemeMsg(`Loaded theme: ${result.theme.name}`);
+  };
+
+  const activeTheme = hero.theme || "orphaned_scion";
+  const currentColors = hero.customTheme || THEME_PRESETS[activeTheme] || THEME_PRESETS.orphaned_scion;
+
+  return (
+    <div className="space-y-3">
+      {/* Preset selector */}
+      <div className="flex items-stretch gap-1">
+        <button
+          type="button"
+          onClick={() => {
+            const idx = PRESET_ENTRIES.findIndex(([id]) => id === activeTheme);
+            const prevIdx = idx <= 0 ? PRESET_ENTRIES.length - 1 : idx - 1;
+            selectPreset(PRESET_ENTRIES[prevIdx][0]);
+          }}
+          className="shrink-0 rounded bg-gray-700 border border-gray-600 px-1.5 py-1 text-xs text-gray-100 hover:border-amber-500 hover:text-amber-400 transition-colors"
+        >
+          ◀
+        </button>
+        <select
+          value={activeTheme === "custom" ? "custom" : activeTheme}
+          onChange={(e) => {
+            if (e.target.value === "custom") return;
+            selectPreset(e.target.value);
+          }}
+          className="min-w-0 flex-1 rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-gray-100 focus:outline-none focus:border-amber-500"
+        >
+          {PRESET_ENTRIES.map(([id, preset]) => (
+            <option key={id} value={id}>
+              {preset.name}
+            </option>
+          ))}
+          {activeTheme === "custom" && (
+            <option value="custom">Custom</option>
+          )}
+        </select>
+        <button
+          type="button"
+          onClick={() => {
+            const idx = PRESET_ENTRIES.findIndex(([id]) => id === activeTheme);
+            const nextIdx = idx < 0 || idx >= PRESET_ENTRIES.length - 1 ? 0 : idx + 1;
+            selectPreset(PRESET_ENTRIES[nextIdx][0]);
+          }}
+          className="shrink-0 rounded bg-gray-700 border border-gray-600 px-1.5 py-1 text-xs text-gray-100 hover:border-amber-500 hover:text-amber-400 transition-colors"
+        >
+          ▶
+        </button>
+      </div>
+
+      {/* Base color picker */}
+      <div className="flex items-center gap-2">
+        <label className="text-gray-400 text-xs shrink-0">Base Color</label>
+        <input
+          type="color"
+          value={currentColors.boardColors[0]}
+          onChange={handleBaseColor}
+          className="w-8 h-6 rounded border border-gray-600 bg-gray-700 cursor-pointer"
+        />
+        <span className="text-gray-500 text-xs font-mono">{currentColors.boardColors[0]}</span>
+      </div>
+
+      {/* Advanced toggle */}
+      <button
+        type="button"
+        onClick={() => setShowAdvanced((s) => !s)}
+        className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+      >
+        {showAdvanced ? "▲ Hide Advanced" : "▼ Advanced Colors"}
+      </button>
+
+      {showAdvanced && (
+        <div className="space-y-2 pl-1">
+          <ColorRow
+            label="Main Background"
+            value={currentColors.boardColors[0]}
+            onChange={(hex) => {
+              const derived = deriveThemeFromBaseColor(hex);
+              updateHero("theme", "custom");
+              updateHero("customTheme", derived);
+            }}
+          />
+          <ColorRow
+            label="Header Background"
+            value={currentColors.headerBgColor}
+            onChange={(hex) => updateCustomField("headerBgColor", hex)}
+          />
+          <ColorRow
+            label="Board Text"
+            value={currentColors.headerTextColor}
+            onChange={(hex) => updateCustomField("headerTextColor", hex)}
+          />
+          <ColorRow
+            label="Icon Color"
+            value={currentColors.iconColor || '#f0e9dc'}
+            onChange={(hex) => updateCustomField("iconColor", hex)}
+          />
+          <ColorRow
+            label="Flavor Text Opacity"
+            value={currentColors.flavorOpacity}
+            isOpacity
+            onChange={(val) => updateCustomField("flavorOpacity", val)}
+          />
+        </div>
+      )}
+
+      {/* Copy / Paste theme */}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={handleCopyTheme}
+          className="flex-1 rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors"
+        >
+          Copy Theme
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowPaste((s) => !s)}
+          className="flex-1 rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs py-1.5 uppercase tracking-wider transition-colors"
+        >
+          Paste Theme
+        </button>
+      </div>
+
+      {showPaste && (
+        <div className="space-y-2">
+          <textarea
+            id="theme-paste-textarea"
+            rows={6}
+            placeholder="Paste theme JSON here..."
+            autoFocus
+            className="w-full rounded bg-gray-700 border border-gray-600 px-2 py-1.5 text-xs text-gray-100 font-mono focus:outline-none focus:border-amber-500 resize-none"
+          />
+          <div className="flex gap-2 justify-end">
+            <button
+              type="button"
+              onClick={() => setShowPaste(false)}
+              className="rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs px-3 py-1 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handlePasteTheme}
+              className="rounded bg-amber-700 hover:bg-amber-600 text-white text-xs px-3 py-1 font-bold transition-colors"
+            >
+              Load
+            </button>
+          </div>
+        </div>
+      )}
+
+      {themeStatus && (
+        <div
+          className={`text-xs text-center py-1 rounded ${
+            themeStatus.type === "error"
+              ? "text-red-400 bg-red-900/30"
+              : "text-green-400 bg-green-900/30"
+          }`}
+        >
+          {themeStatus.text}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ColorRow({ label, value, onChange, isOpacity = false }) {
+  if (isOpacity) {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-gray-400 text-xs w-28 shrink-0">{label}</span>
+        <input
+          type="range"
+          min="0.1"
+          max="1.0"
+          step="0.05"
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="flex-1 accent-amber-500"
+        />
+        <span className="text-gray-500 text-xs font-mono w-8 text-right">
+          {Math.round(value * 100)}%
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-gray-400 text-xs w-28 shrink-0">{label}</span>
+      <input
+        type="color"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-8 h-6 rounded border border-gray-600 bg-gray-700 cursor-pointer"
+      />
+      <span className="text-gray-500 text-xs font-mono">{value}</span>
+    </div>
+  );
+}
 
 export default function HeroForm({
   hero,
@@ -33,7 +299,7 @@ export default function HeroForm({
       const saved = JSON.parse(localStorage.getItem("rtdt-v2-sections"));
       if (saved) return saved;
     } catch {}
-    return { identity: true, banner: true, virtues: true, author: true };
+    return { identity: true, banner: true, virtues: true, theme: true, author: true };
   });
 
   const toggle = (key) =>
@@ -340,6 +606,15 @@ export default function HeroForm({
           reorderVirtues={reorderVirtues}
           addVirtue={addVirtue}
         />
+      </CollapsibleSection>
+
+      {/* Board Theme */}
+      <CollapsibleSection
+        title="Board Theme"
+        isOpen={openSections.theme}
+        onToggle={() => toggle("theme")}
+      >
+        <ThemeSection hero={hero} updateHero={updateHero} />
       </CollapsibleSection>
 
       {/* Author Info */}
