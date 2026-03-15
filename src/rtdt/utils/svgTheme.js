@@ -45,6 +45,52 @@ function svgToBlobUrl(svgString) {
   return URL.createObjectURL(blob);
 }
 
+// SVG group IDs for baked text that gets hidden when dynamic overlays are active.
+// These groups contain path-based text in the template that we replace with live <text>.
+const HIDDEN_GROUP_IDS = [
+  'g118',  // move_subtitle
+  'g173',  // move_instructions
+  'g191',  // battle_subtitle
+  'g75',   // quest_subtitle
+  'g189',  // cleanse_subtitle
+  'g132',  // reinforce_subtitle
+  'g38',   // bazaar_instructions
+  'g49',   // village_instructions
+  'g5',    // sanctuary_instructions
+  'g4',    // citadel_instructions
+  'g88',   // end_of_turn_instructions
+];
+
+/**
+ * Hide baked text groups by injecting display:none into their style attributes.
+ * Groups may have style="display:inline", a different style, or no style attr at all.
+ */
+function hideBakedTextGroups(svgString) {
+  let result = svgString;
+  for (const id of HIDDEN_GROUP_IDS) {
+    const idAttr = `id="${id}"`;
+    const idx = result.indexOf(idAttr);
+    if (idx === -1) continue;
+
+    // Find the opening <g ... > that contains this id
+    const gStart = result.lastIndexOf('<g', idx);
+    const gEnd = result.indexOf('>', idx);
+    if (gStart === -1 || gEnd === -1) continue;
+
+    const tag = result.slice(gStart, gEnd + 1);
+
+    let newTag;
+    if (tag.includes('style="')) {
+      newTag = tag.replace(/style="[^"]*"/, 'style="display:none"');
+    } else {
+      newTag = tag.slice(0, -1) + ' style="display:none">';
+    }
+
+    result = result.slice(0, gStart) + newTag + result.slice(gEnd + 1);
+  }
+  return result;
+}
+
 /**
  * Build themed blob URLs for all 6 SVGs.
  *
@@ -65,7 +111,8 @@ export function buildThemedSvgUrls(theme) {
     theme.headerBgColor,
     theme.iconColor || '#f0e9dc',
   ];
-  const themedBoard = replaceColors(boardBgRaw, boardSources, boardTargets);
+  let themedBoard = replaceColors(boardBgRaw, boardSources, boardTargets);
+  themedBoard = hideBakedTextGroups(themedBoard);
 
   // Virtue SVGs: replace 2 dark fills
   const themedAdvantage = replaceColors(advantageRaw, VIRTUE_SOURCE_COLORS, theme.virtueColors);

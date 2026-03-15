@@ -10,13 +10,24 @@ export function createEmptyVirtue(name = 'VIRTUE') {
 }
 
 export const defaultHero = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   name: 'HERO NAME',
   warriors: 7,
   spirit: 1,
   portraitDataUrl: null,
   flavorText: 'Italicised flavour text, vague and mysterious.',
   bannerAction: 'Gain 1 potion',
+  moveSubtitle: '(SPLIT AS NEEDED)',
+  moveInstructions: 'Spend 1 * to double your move',
+  battleSubtitle: 'Battle a foe on your space',
+  questSubtitle: 'explore a dungeon or Complete a quest',
+  cleanseSubtitle: 'Remove all skulls from your space',
+  reinforceSubtitle: 'ON A SPACE WITH A BUILDING',
+  bazaarInstructions: 'Free: Gain 1 gear\n2 *: Gain 1 treasure',
+  villageInstructions: 'Free: Gain 6 #\n1 *: Gain 12 #',
+  sanctuaryInstructions: 'Free: Gain 1 *\n5 *: Remove all your\ncorruptions',
+  citadelInstructions: 'Free: Gain 1 potion\n5 *: Gain 1 virtue',
+  endOfTurnAction: 'Drop 1 ^ into the Tower',
   virtues: [
     {
       name: 'VIRTUE 1',
