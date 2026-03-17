@@ -6,7 +6,14 @@ import {
   ADV_TITLE_OFFSET, ADV_DESC_OFFSET,
   STD_TITLE_OFFSET, STD_DESC_OFFSET,
   CHP_TITLE_OFFSET, CHP_DESC_OFFSET,
+  MOVE_SUBTITLE_POS, MOVE_INSTRUCTIONS_POS,
+  BATTLE_SUBTITLE_POS, QUEST_SUBTITLE_POS,
+  CLEANSE_SUBTITLE_POS, REINFORCE_SUBTITLE_POS,
+  CITADEL_INSTRUCTIONS_POS, SANCTUARY_INSTRUCTIONS_POS,
+  VILLAGE_INSTRUCTIONS_POS, BAZAAR_INSTRUCTIONS_POS,
+  END_OF_TURN_POS,
 } from '../utils/boardLayout';
+import { IconTextLine, IconTextBlock } from '../utils/iconText';
 
 function splitFlavor(text) {
   if (!text) return ['', '', ''];
@@ -341,6 +348,115 @@ export default function HeroBoard({ hero, themedUrls, themeColors }) {
           </g>
         );
       })()}
+
+      {/* ---- Board text overlays (replace hidden baked text) ---- */}
+
+      {/* Move subtitle */}
+      <text
+        transform={`matrix(1.3333333,0,0,1.3333333,${MOVE_SUBTITLE_POS.x},${MOVE_SUBTITLE_POS.y})`}
+        style={{ fontFamily: 'Karma, serif', fontWeight: 700, fontSize: '6px', fill: themeColors.textPrimary }}
+      >
+        <tspan x="0" y="0">{hero.moveSubtitle}</tspan>
+      </text>
+
+      {/* Move instructions */}
+      <g transform={`matrix(1.3333333,0,0,1.3333333,${MOVE_INSTRUCTIONS_POS.x},${MOVE_INSTRUCTIONS_POS.y})`}>
+        <IconTextLine
+          text={hero.moveInstructions}
+          x={0} y={0}
+          textAnchor="start"
+          fontSize={7}
+          style={{ fontFamily: 'Karma, serif', fontWeight: 600, fontSize: '7px', fill: themeColors.textPrimary }}
+        />
+      </g>
+
+      {/* Heroic subtitles — left-aligned */}
+      <text
+        transform={`matrix(1.3333333,0,0,1.3333333,${CLEANSE_SUBTITLE_POS.x},${CLEANSE_SUBTITLE_POS.y})`}
+        style={{ fontFamily: 'Karma, serif', fontWeight: 600, fontSize: '7px', fill: themeColors.textPrimary }}
+      >
+        <tspan x="0" y="0">{hero.cleanseSubtitle}</tspan>
+      </text>
+
+      <text
+        transform={`matrix(1.3333333,0,0,1.3333333,${BATTLE_SUBTITLE_POS.x},${BATTLE_SUBTITLE_POS.y})`}
+        style={{ fontFamily: 'Karma, serif', fontWeight: 600, fontSize: '7px', fill: themeColors.textPrimary }}
+      >
+        <tspan x="0" y="0">{hero.battleSubtitle}</tspan>
+      </text>
+
+      {/* Quest subtitle — left-aligned, may wrap */}
+      <text
+        transform={`matrix(1.3333333,0,0,1.3333333,${QUEST_SUBTITLE_POS.x},${QUEST_SUBTITLE_POS.y})`}
+        style={{ fontFamily: 'Karma, serif', fontWeight: 600, fontSize: '7px', fill: themeColors.textPrimary }}
+      >
+        {wrapText(hero.questSubtitle, 28).map((line, i) => (
+          <tspan key={i} x="0" y={i * 9}>{line}</tspan>
+        ))}
+      </text>
+
+      <text
+        transform={`matrix(1.3333333,0,0,1.3333333,${REINFORCE_SUBTITLE_POS.x},${REINFORCE_SUBTITLE_POS.y})`}
+        style={{ fontFamily: 'Karma, serif', fontWeight: 600, fontSize: '7px', fill: themeColors.textPrimary }}
+      >
+        <tspan x="0" y="0">{hero.reinforceSubtitle}</tspan>
+      </text>
+
+      {/* Location instructions — left-aligned, with icon substitution */}
+      <g transform={`matrix(1.3333333,0,0,1.3333333,${CITADEL_INSTRUCTIONS_POS.x},${CITADEL_INSTRUCTIONS_POS.y})`}>
+        <IconTextBlock
+          text={hero.citadelInstructions}
+          x={0} y={0}
+          textAnchor="start"
+          fontSize={7}
+          lineHeight={9}
+          style={{ fontFamily: 'Karma, serif', fontWeight: 600, fontSize: '7px', fill: themeColors.textPrimary }}
+        />
+      </g>
+
+      <g transform={`matrix(1.3333333,0,0,1.3333333,${SANCTUARY_INSTRUCTIONS_POS.x},${SANCTUARY_INSTRUCTIONS_POS.y})`}>
+        <IconTextBlock
+          text={hero.sanctuaryInstructions}
+          x={0} y={0}
+          textAnchor="start"
+          fontSize={7}
+          lineHeight={9}
+          style={{ fontFamily: 'Karma, serif', fontWeight: 600, fontSize: '7px', fill: themeColors.textPrimary }}
+        />
+      </g>
+
+      <g transform={`matrix(1.3333333,0,0,1.3333333,${VILLAGE_INSTRUCTIONS_POS.x},${VILLAGE_INSTRUCTIONS_POS.y})`}>
+        <IconTextBlock
+          text={hero.villageInstructions}
+          x={0} y={0}
+          textAnchor="start"
+          fontSize={7}
+          lineHeight={9}
+          style={{ fontFamily: 'Karma, serif', fontWeight: 600, fontSize: '7px', fill: themeColors.textPrimary }}
+        />
+      </g>
+
+      <g transform={`matrix(1.3333333,0,0,1.3333333,${BAZAAR_INSTRUCTIONS_POS.x},${BAZAAR_INSTRUCTIONS_POS.y})`}>
+        <IconTextBlock
+          text={hero.bazaarInstructions}
+          x={0} y={0}
+          textAnchor="start"
+          fontSize={7}
+          lineHeight={9}
+          style={{ fontFamily: 'Karma, serif', fontWeight: 600, fontSize: '7px', fill: themeColors.textPrimary }}
+        />
+      </g>
+
+      {/* End of turn action — left-aligned */}
+      <g transform={`matrix(1.3333333,0,0,1.3333333,${END_OF_TURN_POS.x},${END_OF_TURN_POS.y})`}>
+        <IconTextLine
+          text={hero.endOfTurnAction}
+          x={0} y={0}
+          textAnchor="start"
+          fontSize={7}
+          style={{ fontFamily: 'Karma, serif', fontWeight: 600, fontSize: '7px', fill: themeColors.textPrimary }}
+        />
+      </g>
 
     </svg>
   );

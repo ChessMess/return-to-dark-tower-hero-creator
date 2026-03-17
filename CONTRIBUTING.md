@@ -6,8 +6,8 @@ Thank you for your interest in contributing! This document covers the developmen
 
 ```bash
 # Clone the repository
-git clone https://github.com/ChessMess/return-to-dark-tower-hero-creator.git
-cd return-to-dark-tower-hero-creator
+git clone https://github.com/ChessMess/board-game-creator.git
+cd board-game-creator
 
 # Install dependencies
 npm install
@@ -119,4 +119,4 @@ This project follows [Semantic Versioning](https://semver.org/):
 
 ## Questions?
 
-Open an [issue](https://github.com/ChessMess/return-to-dark-tower-hero-creator/issues) and we'll be happy to help.
+Open an [issue](https://github.com/ChessMess/board-game-creator/issues) and we'll be happy to help.

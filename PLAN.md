@@ -16,7 +16,7 @@ The project already has a complete, professionally designed `hero_card_template.
 ## File Structure
 
 ```
-return-to-dark-tower-hero-creator/
+board-game-creator/
 ├── .gitignore
 ├── README.md                    (clear install/run instructions)
 ├── index.html

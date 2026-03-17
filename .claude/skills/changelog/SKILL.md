@@ -55,7 +55,7 @@ After user approval, read CHANGELOG.md and insert the new section immediately af
 
 Also append a comparison link at the bottom of the file after the last existing `[X.Y.Z]:` line:
 ```
-[X.Y.Z]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/vPREV...vX.Y.Z
+[X.Y.Z]: https://github.com/ChessMess/board-game-creator/compare/vPREV...vX.Y.Z
 ```
 
 Where `vPREV` is the previous version tag (from `git describe --tags --abbrev=0`).

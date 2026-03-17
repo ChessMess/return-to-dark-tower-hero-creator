@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState } from "react";
+import { useSnapshot } from "../../shared/hooks/useSnapshot";
 import jsPDF from "jspdf";
 import { svg2pdf } from "svg2pdf.js";
 import coverBg from "../assets/rtdt_cover2.jpg";
@@ -54,92 +55,16 @@ const loadImageAsDataUrl = (src) =>
     img.src = src;
   });
 
-const renderBoardPngBlob = async () => {
-  const svgEl = document.querySelector("#hero-board-container svg");
-  if (!svgEl) throw new Error("No SVG element found");
-
-  const clone = svgEl.cloneNode(true);
-  const images = clone.querySelectorAll("image");
-  for (const imgEl of images) {
-    const href = imgEl.getAttribute("href") || "";
-    if (href && !href.startsWith("data:")) {
-      try {
-        const dataUrl = await rasterizeSvgImage(imgEl);
-        if (dataUrl) imgEl.setAttribute("href", dataUrl);
-      } catch (e) {
-        console.warn("Could not rasterize image for snapshot:", e);
-      }
-    }
-  }
-
-  const svgString = new XMLSerializer().serializeToString(clone);
-  const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-
-  const canvas = document.createElement("canvas");
-  canvas.width = 1213;
-  canvas.height = 808;
-  const ctx = canvas.getContext("2d");
-
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0, 1213, 808);
-      URL.revokeObjectURL(url);
-      canvas.toBlob(resolve, "image/png");
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("Could not render board"));
-    };
-    img.src = url;
-  });
-};
-
-const copyBlobToClipboard = async (blob) => {
-  await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-};
-
-const downloadBlob = (blob, filename) => {
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(a.href);
-};
-
-// Returns { copied: bool, filename: string }
-const captureSnapshot = async (heroName, { download = false } = {}) => {
-  const pngBlob = await renderBoardPngBlob();
-  const filename = `${sanitizeFilename(heroName)}.png`;
-  let copied = false;
-  try {
-    await copyBlobToClipboard(pngBlob);
-    copied = true;
-  } catch {
-    if (!download) downloadBlob(pngBlob, filename);
-  }
-  if (download) downloadBlob(pngBlob, filename);
-  return { copied, filename };
-};
-
 export function useExport({ hero, showAlert, showStatus }) {
   const [downloading, setDownloading] = useState(false);
-  const [snapshotFlash, setSnapshotFlash] = useState(false);
-  const [holding, setHolding] = useState(false);
-  const holdTimerRef = useRef(null);
-  const holdEligibleRef = useRef(false);
-  const holdBusyRef = useRef(false);
-  const heroRef = useRef(hero);
-  const showStatusRef = useRef(showStatus);
-
-  useEffect(() => {
-    heroRef.current = hero;
-  }, [hero]);
-
-  useEffect(() => {
-    showStatusRef.current = showStatus;
-  }, [showStatus]);
+  const snapshot = useSnapshot({
+    subjectName: hero.name,
+    svgSelector: "#hero-board-container svg",
+    boardW: 1213,
+    boardH: 808,
+    filenameFallback: "hero",
+    showStatus,
+  });
 
   const handleDownloadPdf = async () => {
     setDownloading(true);
@@ -303,63 +228,5 @@ export function useExport({ hero, showAlert, showStatus }) {
     }
   };
 
-  const cancelHold = useCallback(() => {
-    clearTimeout(holdTimerRef.current);
-    holdTimerRef.current = null;
-    holdEligibleRef.current = false;
-    setHolding(false);
-  }, []);
-
-  const onSnapshotPointerDown = useCallback((e) => {
-    if (holdBusyRef.current) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    holdEligibleRef.current = false;
-    holdTimerRef.current = setTimeout(() => {
-      holdEligibleRef.current = true;
-      setHolding(true);
-    }, 3000);
-  }, []);
-
-  const onSnapshotPointerUp = useCallback(() => {
-    if (holdBusyRef.current) return;
-    const wasEligible = holdEligibleRef.current;
-    cancelHold();
-    holdBusyRef.current = true;
-    captureSnapshot(heroRef.current.name, { download: wasEligible })
-      .then(({ copied }) => {
-        setSnapshotFlash(true);
-        setTimeout(() => setSnapshotFlash(false), 600);
-        showStatusRef.current(
-          wasEligible
-            ? copied
-              ? "Copied & downloaded"
-              : "Downloaded as PNG (clipboard unavailable)"
-            : copied
-              ? "Image copied to clipboard"
-              : "Downloaded as PNG (clipboard unavailable)",
-        );
-      })
-      .catch((err) => {
-        console.error("Snapshot failed:", err);
-        showStatusRef.current("Snapshot failed", "error");
-      })
-      .finally(() => {
-        holdBusyRef.current = false;
-      });
-  }, [cancelHold]);
-
-  useEffect(() => {
-    window.addEventListener("blur", cancelHold);
-    return () => window.removeEventListener("blur", cancelHold);
-  }, [cancelHold]);
-
-  return {
-    downloading,
-    snapshotFlash,
-    holding,
-    handleDownloadPdf,
-    onSnapshotPointerDown,
-    onSnapshotPointerUp,
-    cancelHold,
-  };
+  return { downloading, handleDownloadPdf, ...snapshot };
 }

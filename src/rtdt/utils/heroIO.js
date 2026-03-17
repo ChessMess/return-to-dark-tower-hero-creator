@@ -88,7 +88,7 @@ export function validateHeroData(data) {
   }
 
   const hero = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     name:
       typeof data.name === "string"
         ? sanitizeString(data.name).slice(0, 20)
@@ -121,6 +121,50 @@ export function validateHeroData(data) {
       typeof data.bannerAction === "string"
         ? sanitizeString(data.bannerAction).slice(0, 40)
         : defaultHero.bannerAction,
+    moveSubtitle:
+      typeof data.moveSubtitle === "string"
+        ? sanitizeString(data.moveSubtitle).slice(0, 30)
+        : defaultHero.moveSubtitle,
+    moveInstructions:
+      typeof data.moveInstructions === "string"
+        ? sanitizeString(data.moveInstructions).slice(0, 40)
+        : defaultHero.moveInstructions,
+    battleSubtitle:
+      typeof data.battleSubtitle === "string"
+        ? sanitizeString(data.battleSubtitle).slice(0, 40)
+        : defaultHero.battleSubtitle,
+    questSubtitle:
+      typeof data.questSubtitle === "string"
+        ? sanitizeString(data.questSubtitle).slice(0, 50)
+        : defaultHero.questSubtitle,
+    cleanseSubtitle:
+      typeof data.cleanseSubtitle === "string"
+        ? sanitizeString(data.cleanseSubtitle).slice(0, 50)
+        : defaultHero.cleanseSubtitle,
+    reinforceSubtitle:
+      typeof data.reinforceSubtitle === "string"
+        ? sanitizeString(data.reinforceSubtitle).slice(0, 30)
+        : defaultHero.reinforceSubtitle,
+    bazaarInstructions:
+      typeof data.bazaarInstructions === "string"
+        ? sanitizeString(data.bazaarInstructions).slice(0, 80)
+        : defaultHero.bazaarInstructions,
+    villageInstructions:
+      typeof data.villageInstructions === "string"
+        ? sanitizeString(data.villageInstructions).slice(0, 80)
+        : defaultHero.villageInstructions,
+    sanctuaryInstructions:
+      typeof data.sanctuaryInstructions === "string"
+        ? sanitizeString(data.sanctuaryInstructions).slice(0, 80)
+        : defaultHero.sanctuaryInstructions,
+    citadelInstructions:
+      typeof data.citadelInstructions === "string"
+        ? sanitizeString(data.citadelInstructions).slice(0, 80)
+        : defaultHero.citadelInstructions,
+    endOfTurnAction:
+      typeof data.endOfTurnAction === "string"
+        ? sanitizeString(data.endOfTurnAction).slice(0, 50)
+        : defaultHero.endOfTurnAction,
     author_name:
       typeof data.author_name === "string"
         ? sanitizeString(data.author_name).slice(0, 50)

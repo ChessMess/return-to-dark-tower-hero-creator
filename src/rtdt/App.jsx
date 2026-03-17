@@ -16,13 +16,29 @@ import { useExport } from "./hooks/useExport";
 import { useGallery } from "./hooks/useGallery";
 import coverBg from "./assets/rtdt_cover2.jpg";
 import { formatTimeAgo } from "./utils/timeUtils";
+import AppRouteSwitch from "../shared/components/AppRouteSwitch";
 
 export default function V2App() {
   // --- Core state ---
   const heroState = useHeroState();
-  const { hero, setHero, replaceHero, portraitQuality, setPortraitQuality, storageWarning, storageBytes,
-          isModifiedFromDefault } = heroState;
-  const { confirmState, confirm, showAlert, showPrompt, handleConfirm, handleCancel } = useConfirm();
+  const {
+    hero,
+    setHero,
+    replaceHero,
+    portraitQuality,
+    setPortraitQuality,
+    storageWarning,
+    storageBytes,
+    isModifiedFromDefault,
+  } = heroState;
+  const {
+    confirmState,
+    confirm,
+    showAlert,
+    showPrompt,
+    handleConfirm,
+    handleCancel,
+  } = useConfirm();
 
   // --- UI state ---
   const [statusMsg, setStatusMsg] = useState(null);
@@ -44,16 +60,42 @@ export default function V2App() {
 
   // --- Feature hooks ---
   const fileIO = useFileIO({ heroState, confirm, showPrompt, showStatus });
-  const { clearFileHandle, recents, handleSaveJson, handleLoadJson, handleCopyToClipboard,
-          handlePasteSubmit, handleLoadRecent, handleRemoveRecent, handleOpenRecentInNewWindow,
-          handleClearRecents } = fileIO;
+  const {
+    clearFileHandle,
+    recents,
+    handleSaveJson,
+    handleLoadJson,
+    handleCopyToClipboard,
+    handlePasteSubmit,
+    handleLoadRecent,
+    handleRemoveRecent,
+    handleOpenRecentInNewWindow,
+    handleClearRecents,
+  } = fileIO;
 
-  const { downloading, snapshotFlash, holding, handleDownloadPdf,
-          onSnapshotPointerDown, onSnapshotPointerUp, cancelHold } =
-    useExport({ hero, showAlert, showStatus });
+  const {
+    downloading,
+    snapshotFlash,
+    holding,
+    handleDownloadPdf,
+    onSnapshotPointerDown,
+    onSnapshotPointerUp,
+    cancelHold,
+  } = useExport({ hero, showAlert, showStatus });
 
-  const { submitting, shareWarning, setShareWarning, handleShareToGallery, handleLoadFromGallery } =
-    useGallery({ heroState, clearFileHandle, confirm, showAlert, showStatus });
+  const {
+    submitting,
+    shareWarning,
+    setShareWarning,
+    handleShareToGallery,
+    handleLoadFromGallery,
+  } = useGallery({
+    heroState,
+    clearFileHandle,
+    confirm,
+    showAlert,
+    showStatus,
+  });
 
   // --- Theme ---
   const resolvedTheme = useMemo(
@@ -66,13 +108,16 @@ export default function V2App() {
     [resolvedTheme],
   );
 
-  const themeColors = useMemo(() => ({
-    textPrimary: resolvedTheme.textPrimary,
-    textSecondary: resolvedTheme.textSecondary,
-    virtueTitleFill: resolvedTheme.virtueTitleFill,
-    emptyPlaceholderFill: resolvedTheme.emptyPlaceholderFill,
-    flavorOpacity: resolvedTheme.flavorOpacity,
-  }), [resolvedTheme]);
+  const themeColors = useMemo(
+    () => ({
+      textPrimary: resolvedTheme.textPrimary,
+      textSecondary: resolvedTheme.textSecondary,
+      virtueTitleFill: resolvedTheme.virtueTitleFill,
+      emptyPlaceholderFill: resolvedTheme.emptyPlaceholderFill,
+      flavorOpacity: resolvedTheme.flavorOpacity,
+    }),
+    [resolvedTheme],
+  );
 
   const prevUrlsRef = useRef(null);
   useEffect(() => {
@@ -158,7 +203,12 @@ export default function V2App() {
             </h1>
             <p className="text-xs text-gray-500">
               Return to Dark Tower
-              <span className="ml-1 text-gray-600 font-mono">v{typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "?.?.?"}</span>
+              <span className="ml-1 text-gray-600 font-mono">
+                v
+                {typeof __APP_VERSION__ !== "undefined"
+                  ? __APP_VERSION__
+                  : "?.?.?"}
+              </span>
               <button
                 type="button"
                 onClick={() => setShowAdmin(true)}
@@ -169,13 +219,16 @@ export default function V2App() {
               </button>
             </p>
           </div>
-          <button
-            type="button"
-            onClick={resetHero}
-            className="text-[10px] px-2 py-0.5 border border-gray-600 rounded text-gray-500 hover:text-red-400 hover:border-red-400 transition-colors"
-          >
-            Reset
-          </button>
+          <div className="flex items-end gap-2">
+            <button
+              type="button"
+              onClick={resetHero}
+              className="text-[10px] px-2 py-0.5 border border-gray-600 rounded text-gray-500 hover:text-red-400 hover:border-red-400 transition-colors"
+            >
+              Reset
+            </button>
+            <AppRouteSwitch />
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
@@ -307,6 +360,7 @@ export default function V2App() {
             >
               {sidebarOpen ? "\u00AB" : "\u00BB"}
             </button>
+            {!sidebarOpen && <AppRouteSwitch />}
             {(hero.author_name || hero.revision_no) && (
               <span className="text-xs text-gray-400 tracking-wider">
                 {hero.author_name && (
@@ -415,7 +469,11 @@ export default function V2App() {
                 className="absolute inset-0 w-full h-full [backface-visibility:hidden]"
                 style={{ zIndex: 2 }}
               >
-                <HeroBoard hero={hero} themedUrls={themedUrls} themeColors={themeColors} />
+                <HeroBoard
+                  hero={hero}
+                  themedUrls={themedUrls}
+                  themeColors={themeColors}
+                />
               </div>
               {/* Back face */}
               <div
@@ -518,17 +576,33 @@ export default function V2App() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-gray-900 border border-amber-700/60 rounded-lg p-6 w-80 space-y-4 shadow-xl">
             <div className="flex items-start gap-3">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5 text-amber-400 shrink-0 mt-0.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
               <h2 className="text-sm font-bold text-amber-400 uppercase tracking-wider">
                 Hero isn&apos;t ready to share
               </h2>
             </div>
-            <p className="text-xs text-gray-400">Please fix the following before sharing to the gallery:</p>
+            <p className="text-xs text-gray-400">
+              Please fix the following before sharing to the gallery:
+            </p>
             <ul className="space-y-1.5">
               {shareWarning.map((issue, i) => (
-                <li key={i} className="flex items-start gap-2 text-xs text-gray-200">
+                <li
+                  key={i}
+                  className="flex items-start gap-2 text-xs text-gray-200"
+                >
                   <span className="text-amber-500 mt-0.5">•</span>
                   {issue}
                 </li>
@@ -557,7 +631,9 @@ export default function V2App() {
       )}
 
       {/* Admin panel */}
-      {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} confirm={confirm} />}
+      {showAdmin && (
+        <AdminPanel onClose={() => setShowAdmin(false)} confirm={confirm} />
+      )}
 
       {/* Confirm dialog */}
       <ConfirmDialog

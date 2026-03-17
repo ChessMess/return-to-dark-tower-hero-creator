@@ -1,6 +1,6 @@
 {
-  "name": "return-to-dark-tower-hero-creator",
-  "version": "2.8.0",
+  "name": "board-game-creator",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "scripts": {

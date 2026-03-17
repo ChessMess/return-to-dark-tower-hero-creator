@@ -313,7 +313,7 @@ export default function HeroForm({
       const saved = JSON.parse(localStorage.getItem("rtdt-v2-sections"));
       if (saved) return saved;
     } catch {}
-    return { identity: true, banner: true, virtues: true, theme: true, author: true };
+    return { identity: true, banner: true, boardText: false, virtues: true, theme: true, author: true };
   });
 
   const toggle = (key) =>
@@ -605,6 +605,151 @@ export default function HeroForm({
             className={inputClass}
           />
         </label>
+      </CollapsibleSection>
+
+      {/* Board Text */}
+      <CollapsibleSection
+        title="Board Text"
+        isOpen={openSections.boardText}
+        onToggle={() => toggle("boardText")}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-500 text-xs">
+            Icons: <code className="text-amber-400">*</code> = spirit,{" "}
+            <code className="text-amber-400">#</code> = warriors,{" "}
+            <code className="text-amber-400">^</code> = skull
+          </p>
+
+          {/* Move */}
+          <div className="space-y-2">
+            <h4 className="text-gray-400 text-xs font-bold uppercase tracking-wider">Move</h4>
+            <label className="block">
+              <span className="text-gray-400 text-xs">Subtitle</span>
+              <input
+                type="text"
+                value={hero.moveSubtitle}
+                maxLength={30}
+                onChange={(e) => updateHero("moveSubtitle", e.target.value)}
+                className={inputClass}
+              />
+            </label>
+            <label className="block">
+              <span className="text-gray-400 text-xs">Instructions</span>
+              <input
+                type="text"
+                value={hero.moveInstructions}
+                maxLength={40}
+                onChange={(e) => updateHero("moveInstructions", e.target.value)}
+                className={inputClass}
+              />
+            </label>
+          </div>
+
+          {/* Heroic Subtitles */}
+          <div className="space-y-2">
+            <h4 className="text-gray-400 text-xs font-bold uppercase tracking-wider">Heroic Actions</h4>
+            <label className="block">
+              <span className="text-gray-400 text-xs">Battle</span>
+              <input
+                type="text"
+                value={hero.battleSubtitle}
+                maxLength={40}
+                onChange={(e) => updateHero("battleSubtitle", e.target.value)}
+                className={inputClass}
+              />
+            </label>
+            <label className="block">
+              <span className="text-gray-400 text-xs">Quest</span>
+              <input
+                type="text"
+                value={hero.questSubtitle}
+                maxLength={50}
+                onChange={(e) => updateHero("questSubtitle", e.target.value)}
+                className={inputClass}
+              />
+            </label>
+            <label className="block">
+              <span className="text-gray-400 text-xs">Cleanse</span>
+              <input
+                type="text"
+                value={hero.cleanseSubtitle}
+                maxLength={50}
+                onChange={(e) => updateHero("cleanseSubtitle", e.target.value)}
+                className={inputClass}
+              />
+            </label>
+            <label className="block">
+              <span className="text-gray-400 text-xs">Reinforce</span>
+              <input
+                type="text"
+                value={hero.reinforceSubtitle}
+                maxLength={30}
+                onChange={(e) => updateHero("reinforceSubtitle", e.target.value)}
+                className={inputClass}
+              />
+            </label>
+          </div>
+
+          {/* Location Instructions */}
+          <div className="space-y-2">
+            <h4 className="text-gray-400 text-xs font-bold uppercase tracking-wider">Location Instructions</h4>
+            <label className="block">
+              <span className="text-gray-400 text-xs">Bazaar</span>
+              <textarea
+                value={hero.bazaarInstructions}
+                maxLength={80}
+                rows={2}
+                onChange={(e) => updateHero("bazaarInstructions", e.target.value)}
+                className={`${inputClass} resize-none`}
+              />
+            </label>
+            <label className="block">
+              <span className="text-gray-400 text-xs">Village</span>
+              <textarea
+                value={hero.villageInstructions}
+                maxLength={80}
+                rows={2}
+                onChange={(e) => updateHero("villageInstructions", e.target.value)}
+                className={`${inputClass} resize-none`}
+              />
+            </label>
+            <label className="block">
+              <span className="text-gray-400 text-xs">Sanctuary</span>
+              <textarea
+                value={hero.sanctuaryInstructions}
+                maxLength={80}
+                rows={2}
+                onChange={(e) => updateHero("sanctuaryInstructions", e.target.value)}
+                className={`${inputClass} resize-none`}
+              />
+            </label>
+            <label className="block">
+              <span className="text-gray-400 text-xs">Citadel</span>
+              <textarea
+                value={hero.citadelInstructions}
+                maxLength={80}
+                rows={2}
+                onChange={(e) => updateHero("citadelInstructions", e.target.value)}
+                className={`${inputClass} resize-none`}
+              />
+            </label>
+          </div>
+
+          {/* End of Turn */}
+          <div className="space-y-2">
+            <h4 className="text-gray-400 text-xs font-bold uppercase tracking-wider">End of Turn</h4>
+            <label className="block">
+              <span className="text-gray-400 text-xs">Action</span>
+              <input
+                type="text"
+                value={hero.endOfTurnAction}
+                maxLength={50}
+                onChange={(e) => updateHero("endOfTurnAction", e.target.value)}
+                className={inputClass}
+              />
+            </label>
+          </div>
+        </div>
       </CollapsibleSection>
 
       {/* Virtues */}

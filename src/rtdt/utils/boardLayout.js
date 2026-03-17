@@ -30,3 +30,29 @@ export const STD_DESC_OFFSET  = { x: 90.95, y: -55.35 };
 
 export const CHP_TITLE_OFFSET = { x: 93.0,  y: -90.0  };
 export const CHP_DESC_OFFSET  = { x: 91.55, y: -40.0  };
+
+// ---------------------------------------------------------------------------
+// Board text overlay positions (derived from baked text transforms in SVG)
+// All coordinates are in the board's 1213×808 viewBox space.
+// ---------------------------------------------------------------------------
+
+// Move section — subtitle right of "MOVE 3" header, instructions below
+export const MOVE_SUBTITLE_POS      = { x: 485, y: 178 };
+export const MOVE_INSTRUCTIONS_POS   = { x: 415, y: 191 };
+
+// Heroic action subtitles — left-aligned with header text start
+export const CLEANSE_SUBTITLE_POS    = { x: 451, y: 277 };
+export const BATTLE_SUBTITLE_POS     = { x: 451, y: 335 };
+export const QUEST_SUBTITLE_POS      = { x: 451, y: 382 };
+
+// Reinforce subtitle — left-aligned with REINFORCE header text
+export const REINFORCE_SUBTITLE_POS  = { x: 413, y: 454 };
+
+// Location instruction blocks — right column, right of location name labels
+export const CITADEL_INSTRUCTIONS_POS    = { x: 518, y: 481 };
+export const SANCTUARY_INSTRUCTIONS_POS  = { x: 518, y: 524 };
+export const VILLAGE_INSTRUCTIONS_POS    = { x: 518, y: 581 };
+export const BAZAAR_INSTRUCTIONS_POS     = { x: 518, y: 620 };
+
+// End of turn — left-aligned under header
+export const END_OF_TURN_POS = { x: 377, y: 709 };

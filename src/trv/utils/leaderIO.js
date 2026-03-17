@@ -1,0 +1,282 @@
+import { defaultCrewLeader } from "../data/defaultCrewLeader";
+
+const STORAGE_KEY = "trv-crew-leader-v2";
+const DB_NAME = "trv-leader-recents";
+const STORE_NAME = "recents";
+const MAX_RECENTS = 5;
+
+/* ── localStorage persistence ── */
+
+export function loadLeader() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { ...defaultCrewLeader };
+    const parsed = JSON.parse(raw);
+    return {
+      ...defaultCrewLeader,
+      ...parsed,
+      slots: parsed.slots || defaultCrewLeader.slots,
+    };
+  } catch {
+    return { ...defaultCrewLeader };
+  }
+}
+
+export function saveLeader(leader) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(leader));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function clearLeaderStorage() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+/* ── Serialization ── */
+
+export function leaderToJson(leader) {
+  return JSON.stringify(leader, null, 2);
+}
+
+/* ── Validation ── */
+
+export function sanitizeString(str) {
+  if (typeof str !== "string") return "";
+  let s = str;
+  s = s.replace(/<script[\s>][\s\S]*?<\/script\s*>/gi, "");
+  s = s.replace(/<\/?[a-z][^>]*>/gi, "");
+  s = s.replace(/\b(javascript|data|vbscript)\s*:/gi, "");
+  s = s.replace(/\bon[a-z]+\s*=/gi, "");
+  return s;
+}
+
+export function validateLeaderData(data) {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    return { valid: false, error: "Invalid data: expected a JSON object." };
+  }
+
+  const leader = {
+    ...defaultCrewLeader,
+    schemaVersion: 2,
+    crewLeaderName:
+      typeof data.crewLeaderName === "string"
+        ? sanitizeString(data.crewLeaderName).slice(0, 30)
+        : defaultCrewLeader.crewLeaderName,
+    crewLeaderTitle:
+      typeof data.crewLeaderTitle === "string"
+        ? sanitizeString(data.crewLeaderTitle).slice(0, 40)
+        : defaultCrewLeader.crewLeaderTitle,
+    portraitDataUrl:
+      typeof data.portraitDataUrl === "string" &&
+      /^data:image\/(jpeg|png|gif|webp);base64,/.test(data.portraitDataUrl)
+        ? data.portraitDataUrl
+        : null,
+    specialAbilityName:
+      typeof data.specialAbilityName === "string"
+        ? sanitizeString(data.specialAbilityName).slice(0, 30)
+        : defaultCrewLeader.specialAbilityName,
+    specialAbilityDescription:
+      typeof data.specialAbilityDescription === "string"
+        ? sanitizeString(data.specialAbilityDescription).slice(0, 200)
+        : defaultCrewLeader.specialAbilityDescription,
+    commandTokens:
+      typeof data.commandTokens === "number"
+        ? Math.max(0, Math.min(9, Math.round(data.commandTokens)))
+        : defaultCrewLeader.commandTokens,
+    accentColor:
+      typeof data.accentColor === "string" && /^#[0-9a-f]{6}$/i.test(data.accentColor)
+        ? data.accentColor
+        : defaultCrewLeader.accentColor,
+    nameColor:
+      typeof data.nameColor === "string" && /^#[0-9a-f]{6}$/i.test(data.nameColor)
+        ? data.nameColor
+        : defaultCrewLeader.nameColor,
+    author_name:
+      typeof data.author_name === "string"
+        ? sanitizeString(data.author_name).slice(0, 40)
+        : defaultCrewLeader.author_name,
+    revision_no:
+      typeof data.revision_no === "string"
+        ? sanitizeString(data.revision_no).slice(0, 20)
+        : defaultCrewLeader.revision_no,
+    contact_info:
+      typeof data.contact_info === "string"
+        ? sanitizeString(data.contact_info).slice(0, 60)
+        : defaultCrewLeader.contact_info,
+    author_description:
+      typeof data.author_description === "string"
+        ? sanitizeString(data.author_description).slice(0, 200)
+        : defaultCrewLeader.author_description,
+  };
+
+  // Validate slots array
+  if (Array.isArray(data.slots)) {
+    leader.slots = data.slots.slice(0, 4).map((s, i) => {
+      const fallback = defaultCrewLeader.slots[i] || defaultCrewLeader.slots[0];
+      if (!s || typeof s !== "object") return { ...fallback };
+      return {
+        effectName:
+          typeof s.effectName === "string"
+            ? sanitizeString(s.effectName).slice(0, 20)
+            : fallback.effectName,
+        dice:
+          typeof s.dice === "string"
+            ? sanitizeString(s.dice).slice(0, 5)
+            : fallback.dice,
+        description:
+          typeof s.description === "string"
+            ? sanitizeString(s.description).slice(0, 200)
+            : fallback.description,
+      };
+    });
+  }
+
+  return { valid: true, leader };
+}
+
+/* ── Pending submission tracking ── */
+
+const PENDING_KEY = "trv-pending-submission";
+
+export function savePendingRef(hash, leaderName) {
+  try {
+    localStorage.setItem(PENDING_KEY, JSON.stringify({ hash, leaderName }));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function getPendingRef() {
+  try {
+    const raw = localStorage.getItem(PENDING_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearPendingRef() {
+  localStorage.removeItem(PENDING_KEY);
+}
+
+/* ── Recent Leaders (IndexedDB + File System Access API) ── */
+
+function openRecentsDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: "id" });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function loadRecents() {
+  try {
+    const db = await openRecentsDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction(STORE_NAME, "readonly");
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.getAll();
+      req.onsuccess = () => {
+        const entries = req.result || [];
+        entries.sort((a, b) => b.savedAt - a.savedAt);
+        resolve(entries);
+      };
+      req.onerror = () => resolve([]);
+    });
+  } catch {
+    return [];
+  }
+}
+
+export async function addToRecents(fileHandle, leader) {
+  try {
+    const db = await openRecentsDB();
+    const existing = await new Promise((resolve) => {
+      const tx = db.transaction(STORE_NAME, "readonly");
+      const req = tx.objectStore(STORE_NAME).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => resolve([]);
+    });
+
+    // Deduplicate by file name
+    const dupes = existing.filter((r) => r.fileName === fileHandle.name);
+
+    const entry = {
+      id: crypto.randomUUID?.() || String(Date.now()),
+      fileName: fileHandle.name,
+      savedAt: Date.now(),
+      handle: fileHandle,
+      leaderName: leader.crewLeaderName || "",
+      author_name: leader.author_name || "",
+      revision_no: leader.revision_no || "",
+      slotCount: leader.slots?.length || 0,
+    };
+
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    const store = tx.objectStore(STORE_NAME);
+    for (const d of dupes) store.delete(d.id);
+    store.put(entry);
+
+    // Trim to MAX_RECENTS (keep newest)
+    const remaining = existing
+      .filter((r) => r.fileName !== fileHandle.name)
+      .sort((a, b) => b.savedAt - a.savedAt);
+    const toRemove = remaining.slice(MAX_RECENTS - 1);
+    for (const r of toRemove) store.delete(r.id);
+
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+
+    return loadRecents();
+  } catch {
+    return loadRecents();
+  }
+}
+
+export async function removeFromRecents(id) {
+  try {
+    const db = await openRecentsDB();
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    tx.objectStore(STORE_NAME).delete(id);
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch {
+    /* ignore */
+  }
+  return loadRecents();
+}
+
+export async function clearAllRecents() {
+  try {
+    const db = await openRecentsDB();
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    tx.objectStore(STORE_NAME).clear();
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch {
+    /* ignore */
+  }
+  return [];
+}
+
+export async function loadLeaderFromHandle(fileHandle) {
+  const permission = await fileHandle.requestPermission({ mode: "read" });
+  if (permission !== "granted") throw new Error("Permission denied");
+  const file = await fileHandle.getFile();
+  const text = await file.text();
+  return JSON.parse(text);
+}
