@@ -1,6 +1,6 @@
 export const defaultCrewLeader = {
   schemaVersion: 2,
-  crewLeaderName: 'CREW LEADER',
+  crewLeaderName: '',
   crewLeaderTitle: '',
   portraitDataUrl: null,
 
@@ -10,10 +10,10 @@ export const defaultCrewLeader = {
 
   // 4 positional effect slots — sorted by dice value (lowest → slot 0)
   slots: [
-    { effectName: 'AIRSTRIKE', dice: 'ANY', description: '' },
-    { effectName: 'NITRO', dice: '1-3', description: '' },
-    { effectName: 'DRIFT', dice: '3-5', description: '' },
-    { effectName: 'REPAIR', dice: '6', description: '' },
+    { effectName: '', dice: '', description: '' },
+    { effectName: '', dice: '', description: '' },
+    { effectName: '', dice: '', description: '' },
+    { effectName: '', dice: '', description: '' },
   ],
 
   // Command token count (0–9)
