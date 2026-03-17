@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-03-17
+
+### Changed
+
+- **TRV Portrait Chamfered Corners** — Crew leader portrait now clips with chamfered (cut) corners matching the board template art, using an SVG polygon clipPath with 5px bleed to fully cover the underlying frame.
+- **TRV Name Letter Spacing** — Tightened letter spacing on the crew leader name for a more compact, stylized look.
+
 ## [3.0.0] - 2026-03-17
 
 ### Added
@@ -253,6 +260,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 - **Champion Terrain** — Selectable terrain type for champion ability
 
+[3.1.0]: https://github.com/ChessMess/board-game-creator/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/ChessMess/board-game-creator/compare/v2.8.1...v3.0.0
 [2.8.1]: https://github.com/ChessMess/board-game-creator/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/ChessMess/board-game-creator/compare/v2.7.0...v2.8.0

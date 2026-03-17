@@ -135,12 +135,19 @@ export default function CrewLeaderBoard({ leader }) {
       {/* Portrait */}
       <defs>
         <clipPath id="trvPortraitClip">
-          <rect
-            x={PORTRAIT.x}
-            y={PORTRAIT.y}
-            width={PORTRAIT.w}
-            height={PORTRAIT.h}
-          />
+          {(() => {
+            const B = 5; // bleed beyond guide to cover background frame art
+            const C = 15; // chamfer inset for cut corners
+            const l = PORTRAIT.x - B,
+              t = PORTRAIT.y - B;
+            const r = PORTRAIT.x + PORTRAIT.w + B,
+              b = PORTRAIT.y + PORTRAIT.h + B;
+            return (
+              <polygon
+                points={`${l + C},${t} ${r - C},${t} ${r},${t + C} ${r},${b - C} ${r - C},${b} ${l + C},${b} ${l},${b - C} ${l},${t + C}`}
+              />
+            );
+          })()}
         </clipPath>
         <clipPath id="trvHeadshotClip">
           <ellipse
@@ -154,10 +161,10 @@ export default function CrewLeaderBoard({ leader }) {
       {leader.portraitDataUrl && (
         <image
           href={leader.portraitDataUrl}
-          x={PORTRAIT.x}
-          y={PORTRAIT.y}
-          width={PORTRAIT.w}
-          height={PORTRAIT.h}
+          x={PORTRAIT.x - 5}
+          y={PORTRAIT.y - 5}
+          width={PORTRAIT.w + 10}
+          height={PORTRAIT.h + 10}
           preserveAspectRatio="xMidYMid slice"
           clipPath="url(#trvPortraitClip)"
         />
@@ -201,6 +208,7 @@ export default function CrewLeaderBoard({ leader }) {
           fontWeight: 400,
           fontSize: "74px",
           fontStyle: "italic",
+          letterSpacing: "-2px",
           fill: nameClr,
         }}
       >
