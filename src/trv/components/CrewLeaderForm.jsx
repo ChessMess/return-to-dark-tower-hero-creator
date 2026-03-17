@@ -207,50 +207,6 @@ export default function CrewLeaderForm({ leader, updateLeader, updateSlot }) {
         </div>
       </CollapsibleSection>
 
-      {/* ── Board Theme ── */}
-      <CollapsibleSection
-        title="Board Theme"
-        isOpen={openSections.theme}
-        onToggle={() => toggle("theme")}
-      >
-        <div className="space-y-3">
-          <label className="block">
-            <span className={labelClass}>Accent Color</span>
-            <div className="mt-1 flex items-center gap-2">
-              <input
-                type="color"
-                value={leader.accentColor || "#00ff00"}
-                onChange={(e) => updateLeader("accentColor", e.target.value)}
-                className="h-8 w-10 rounded border border-gray-600 bg-gray-700 cursor-pointer"
-              />
-              <span className="text-xs text-gray-300 font-mono">
-                {(leader.accentColor || "#00ff00").toUpperCase()}
-              </span>
-            </div>
-            <p className="mt-1 text-[10px] text-gray-500">
-              Applied to dice values and title.
-            </p>
-          </label>
-          <label className="block">
-            <span className={labelClass}>Name Color</span>
-            <div className="mt-1 flex items-center gap-2">
-              <input
-                type="color"
-                value={leader.nameColor || "#fff6d3"}
-                onChange={(e) => updateLeader("nameColor", e.target.value)}
-                className="h-8 w-10 rounded border border-gray-600 bg-gray-700 cursor-pointer"
-              />
-              <span className="text-xs text-gray-300 font-mono">
-                {(leader.nameColor || "#fff6d3").toUpperCase()}
-              </span>
-            </div>
-            <p className="mt-1 text-[10px] text-gray-500">
-              Applied to the crew leader name.
-            </p>
-          </label>
-        </div>
-      </CollapsibleSection>
-
       {/* ── Special Ability ── */}
       <CollapsibleSection
         title="Special Ability"
@@ -318,6 +274,50 @@ export default function CrewLeaderForm({ leader, updateLeader, updateSlot }) {
               />
             </label>
           </div>
+        </div>
+      </CollapsibleSection>
+
+      {/* ── Board Theme ── */}
+      <CollapsibleSection
+        title="Board Theme"
+        isOpen={openSections.theme}
+        onToggle={() => toggle("theme")}
+      >
+        <div className="space-y-3">
+          <label className="block">
+            <span className={labelClass}>Accent Color</span>
+            <div className="mt-1 flex items-center gap-2">
+              <input
+                type="color"
+                value={leader.accentColor || "#00ff00"}
+                onChange={(e) => updateLeader("accentColor", e.target.value)}
+                className="h-8 w-10 rounded border border-gray-600 bg-gray-700 cursor-pointer"
+              />
+              <span className="text-xs text-gray-300 font-mono">
+                {(leader.accentColor || "#00ff00").toUpperCase()}
+              </span>
+            </div>
+            <p className="mt-1 text-[10px] text-gray-500">
+              Applied to dice values and title.
+            </p>
+          </label>
+          <label className="block">
+            <span className={labelClass}>Name Color</span>
+            <div className="mt-1 flex items-center gap-2">
+              <input
+                type="color"
+                value={leader.nameColor || "#fff6d3"}
+                onChange={(e) => updateLeader("nameColor", e.target.value)}
+                className="h-8 w-10 rounded border border-gray-600 bg-gray-700 cursor-pointer"
+              />
+              <span className="text-xs text-gray-300 font-mono">
+                {(leader.nameColor || "#fff6d3").toUpperCase()}
+              </span>
+            </div>
+            <p className="mt-1 text-[10px] text-gray-500">
+              Applied to the crew leader name.
+            </p>
+          </label>
         </div>
       </CollapsibleSection>
 
