@@ -1,9 +1,9 @@
-# RTDT Hero Board Creator
+# Board Game Creator
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Live Site](https://img.shields.io/badge/Live%20Site-GitHub%20Pages-blue)](https://chessmess.github.io/board-game-creator/)
 
-Create custom hero boards for [Return to Dark Tower](https://restorationgames.com/return-to-dark-tower/).
+Create custom player boards for your favorite Restoration Games titles — starting with **Return to Dark Tower** and **Thunder Road: Vendetta**.
 
 ## Just want to use it?
 
@@ -11,23 +11,38 @@ Create custom hero boards for [Return to Dark Tower](https://restorationgames.co
 
 ---
 
-![Hero Board Preview](HeroBoardEmpty.png)
+## Games
 
-## Features
+### Return to Dark Tower — Hero Board Creator
+
+![Hero Board Preview](HeroBoardEmpty.png)
 
 - **Live SVG Preview** — See your hero board update in real time as you edit
 - **Vector PDF Export** — Download a print-ready PDF powered by jspdf + svg2pdf.js
-- **Snapshot Export** — Click the camera icon to copy the board as a PNG to your clipboard; hold for 3 seconds to copy and download simultaneously
+- **Snapshot Export** — Copy the board as a PNG to your clipboard; hold for 3 seconds to copy and download simultaneously
 - **Custom Portraits** — Drag-and-drop or click-to-upload with automatic clip-path framing
-- **Dynamic Virtue System** — 0–6 freely assignable virtue slots, each with a selectable type:
-  - **Standard** — name and description text
-  - **Advantage** — +1 type advantage
-  - **Champion** — +2 wild advantages with kingdom selection
+- **Dynamic Virtue System** — 0–6 freely assignable virtue slots (Standard, Advantage, or Champion)
 - **Banner Action** — Editable text for the hero's banner action
 - **Flavor Text** — Single textarea with auto-wrapping and live character counter
-- **Collapsible Editor** — Form sections collapse/expand with persistent state
-- **Color Theming** — 6 preset themes matching official heroes, plus a custom base-color picker and advanced individual color controls
+- **Color Theming** — 6 preset themes matching official heroes, plus custom base-color and advanced individual color controls
 - **Community Gallery** — Share your heroes with the community and browse others' creations
+
+### Thunder Road: Vendetta — Crew Leader Creator
+
+![Crew Leader Board Preview](CrewLeaderBoard.png)
+
+- **Live SVG Preview** — See your crew leader board update in real time as you edit
+- **Vector PDF Export** — Download a print-ready PDF
+- **Custom Portraits** — Drag-and-drop or click-to-upload
+- **Crew Leader Stats** — Configure your leader's abilities and attributes
+- **Community Gallery** — Share crew leaders and browse community creations
+
+### Shared Features
+
+- **Landing Page** — Split-screen game selector to choose your creator
+- **Collapsible Editor** — Form sections collapse/expand with persistent state
+- **Save / Load** — Save to JSON files with save-to-same-file support on Chrome/Edge
+- **Recent Files** — Quick access to your last 5 saved/loaded files
 - **No Backend Required** — Runs entirely in the browser as a static site (gallery uses Firebase free tier)
 
 ## Requirements
@@ -97,49 +112,34 @@ The `dist/` folder is a self-contained static site. Host it anywhere, or serve i
 npm run preview
 ```
 
-## Usage
-
-1. **Hero Identity** — Enter your hero's name and set starting Warriors and Spirit
-2. **Portrait** — Upload a custom portrait image (drag-and-drop or click to browse)
-3. **Banner Action** — Set your hero's banner action text
-4. **Flavor Text** — Add atmospheric flavor text (120 characters, auto-wraps on the board)
-5. **Virtues** — Add up to 6 virtues and choose a type for each (Standard, Advantage, or Champion)
-6. Click **Download PDF** to save your hero board as a print-ready PDF
-
-## Sharing Heroes to the Gallery
-
-You can share your custom hero with the community directly from the app:
-
-1. Create and customize your hero — give it a unique name and at least one custom virtue
-2. Click the **Share** button in the sidebar
-3. Sign in with your Google account (prompted automatically if not already signed in)
-4. Confirm the submission — your hero is sent for review
-5. Once approved by an admin, it will appear in the **Gallery** for everyone to browse, view, and download
-
-**What gets shared:** Hero name, stats, virtues, flavor text, banner action, portrait, and author info. Portrait images must be under 2 MB.
-
-**What doesn't get shared:** Contact info is not included in gallery submissions.
-
-**Requirements:** A Google account is required to submit. Heroes with default names or default virtue names will be rejected.
-
-**Duplicate prevention:** Submitting the same hero twice is automatically blocked. If you make changes to your hero, you can submit the updated version as a new entry.
-
 ## Project Structure
 
 ```
 src/
-├── main.jsx              — Mounts RouterApp
-├── RouterApp.jsx          — BrowserRouter with / route
-├── index.css              — Shared Tailwind entry
-└── v2/                    — Hero board creator
+├── main.jsx               — Mounts RouterApp
+├── RouterApp.jsx           — BrowserRouter: / landing, /rtdt, /trv
+├── LandingPage.jsx         — Split-screen game selector
+├── index.css               — Shared Tailwind entry
+├── shared/                 — Cross-game utilities
+│   ├── components/
+│   ├── hooks/
+│   └── utils/
+├── rtdt/                   — Return to Dark Tower hero board creator
+│   ├── App.jsx
+│   ├── components/
+│   │   ├── HeroBoard.jsx
+│   │   └── HeroForm.jsx
+│   ├── data/
+│   ├── hooks/
+│   └── utils/
+└── trv/                    — Thunder Road: Vendetta crew leader creator
     ├── App.jsx
     ├── components/
-    │   ├── HeroBoard.jsx  — Live SVG preview
-    │   └── HeroForm.jsx   — Editor form
+    │   ├── CrewLeaderBoard.jsx
+    │   └── CrewLeaderForm.jsx
     ├── data/
-    │   └── defaultHero.js — Default hero values
+    ├── hooks/
     └── utils/
-        └── heroIO.js      — Save/load/import/export
 ```
 
 ## Contributing
