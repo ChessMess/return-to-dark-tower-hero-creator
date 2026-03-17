@@ -1,13 +1,13 @@
 # RTDT Hero Board Creator
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Live Site](https://img.shields.io/badge/Live%20Site-GitHub%20Pages-blue)](https://chessmess.github.io/return-to-dark-tower-hero-creator/)
+[![Live Site](https://img.shields.io/badge/Live%20Site-GitHub%20Pages-blue)](https://chessmess.github.io/board-game-creator/)
 
 Create custom hero boards for [Return to Dark Tower](https://restorationgames.com/return-to-dark-tower/).
 
 ## Just want to use it?
 
-**[Open the app in your browser](https://chessmess.github.io/return-to-dark-tower-hero-creator/)** — no installation required.
+**[Open the app in your browser](https://chessmess.github.io/board-game-creator/)** — no installation required.
 
 ---
 
@@ -37,8 +37,8 @@ Create custom hero boards for [Return to Dark Tower](https://restorationgames.co
 ## Install & Run
 
 ```bash
-git clone https://github.com/ChessMess/return-to-dark-tower-hero-creator.git
-cd return-to-dark-tower-hero-creator
+git clone https://github.com/ChessMess/board-game-creator.git
+cd board-game-creator
 npm install
 npm run dev
 ```
@@ -144,7 +144,7 @@ src/
 
 ## Contributing
 
-Pull requests welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow, code standards, and the release process. Open an [issue](https://github.com/ChessMess/return-to-dark-tower-hero-creator/issues) first to discuss larger changes.
+Pull requests welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow, code standards, and the release process. Open an [issue](https://github.com/ChessMess/board-game-creator/issues) first to discuss larger changes.
 
 ## License
 

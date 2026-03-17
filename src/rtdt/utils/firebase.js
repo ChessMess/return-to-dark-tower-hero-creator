@@ -1,6 +1,12 @@
-import { initializeApp } from "firebase/app";
 import {
-  getDatabase,
+  db,
+  auth,
+  assertFirebaseAvailable,
+  signInWithGoogle,
+  getCurrentUser,
+  onAuthChange,
+  isAdmin,
+  signOutAdmin,
   ref,
   set,
   get,
@@ -10,68 +16,13 @@ import {
   orderByChild,
   limitToLast,
   serverTimestamp,
-} from "firebase/database";
-import {
-  getAuth,
-  signInWithPopup,
-  signOut,
-  GoogleAuthProvider,
-} from "firebase/auth";
+} from "../../shared/utils/firebaseCore";
 import { sanitizeString } from "./heroIO";
 
-const requiredFirebaseEnvVars = [
-  "VITE_FIREBASE_API_KEY",
-  "VITE_FIREBASE_AUTH_DOMAIN",
-  "VITE_FIREBASE_DATABASE_URL",
-  "VITE_FIREBASE_PROJECT_ID",
-  "VITE_FIREBASE_STORAGE_BUCKET",
-  "VITE_FIREBASE_MESSAGING_SENDER_ID",
-  "VITE_FIREBASE_APP_ID",
-];
+/* ── Auth: re-export from shared core ── */
 
-const missingFirebaseEnvVars = requiredFirebaseEnvVars.filter(
-  (name) => !import.meta.env[name],
-);
-
-const hasFirebaseConfig = missingFirebaseEnvVars.length === 0;
-
-if (!hasFirebaseConfig) {
-  console.warn(
-    `[firebase] Missing env vars: ${missingFirebaseEnvVars.join(", ")}. Gallery/admin features are disabled.`,
-  );
-}
-
-const firebaseConfig = hasFirebaseConfig
-  ? {
-      apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-      databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
-      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-      appId: import.meta.env.VITE_FIREBASE_APP_ID,
-    }
-  : null;
-
-const app = firebaseConfig ? initializeApp(firebaseConfig) : null;
-const db = app ? getDatabase(app) : null;
-const auth = app ? getAuth(app) : null;
-const googleProvider = new GoogleAuthProvider();
-
-function assertFirebaseAvailable(featureName) {
-  if (!hasFirebaseConfig || !db || !auth) {
-    throw new Error(
-      `${featureName} is unavailable because Firebase is not configured for this deployment.`,
-    );
-  }
-}
-
-/* ── Auth: Google sign-in for submissions ── */
-
-export async function signInWithGoogle() {
-  assertFirebaseAvailable("Sign in");
-  return signInWithPopup(auth, googleProvider);
-}
+export { signInWithGoogle, getCurrentUser, onAuthChange, isAdmin, signOutAdmin };
+export { signInWithGoogle as signInAdmin };
 
 /* ── Submit a hero to pending (requires sign-in) ── */
 
@@ -221,36 +172,6 @@ export async function fetchApprovedHeroes(limit = 50) {
   // newest first
   heroes.reverse();
   return heroes;
-}
-
-/* ── Admin: Auth ── */
-
-export function getCurrentUser() {
-  if (!auth) return null;
-  return auth.currentUser;
-}
-
-export function onAuthChange(callback) {
-  if (!auth) {
-    callback(null);
-    return () => {};
-  }
-  return auth.onAuthStateChanged(callback);
-}
-
-export { signInWithGoogle as signInAdmin };
-
-export async function signOutAdmin() {
-  assertFirebaseAvailable("Admin sign-out");
-  return signOut(auth);
-}
-
-export async function isAdmin() {
-  if (!auth) return false;
-  const user = auth.currentUser;
-  if (!user) return false;
-  const token = await user.getIdTokenResult();
-  return token.claims.admin === true;
 }
 
 /* ── Admin: Moderation ── */

@@ -56,7 +56,7 @@ Only include sections (Added / Fixed / Changed) that have entries. Use today's d
 
 Also append a comparison link at the bottom of the file after the last existing `[X.Y.Z]:` line:
 ```
-[X.Y.Z]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/vPREV...vX.Y.Z
+[X.Y.Z]: https://github.com/ChessMess/board-game-creator/compare/vPREV...vX.Y.Z
 ```
 
 ## Step 3 — Update package.json version

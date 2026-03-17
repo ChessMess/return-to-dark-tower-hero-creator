@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-03-17
+
+### Added
+
+- **Thunder Road Vendetta Crew Leader Creator** — Entirely new game creator with custom board template, crew leader data model, form editor, live SVG preview, and PDF export. Accessible at `/trv`.
+- **Landing Page** — Split-screen game selector with animated panels, hover effects, and themed typography for choosing between Return to Dark Tower and Thunder Road Vendetta creators.
+- **Shared Infrastructure** — Common Firebase core, snapshot hook, and route switching utilities extracted to `src/shared/` for cross-game reuse.
+- **Multi-Layer Inline Icons** — Spirit and warrior tokens on the RTDT hero board now use multi-layer inline SVG icons.
+
+### Changed
+
+- **Multi-Game Routing** — Root `/` now shows the landing page game selector; RTDT hero board creator moved to `/rtdt`, TRV crew leader creator at `/trv`.
+- **Rebranded to Board Game Creator** — Page title, 404 page, and documentation updated from "RTDT Hero Board Creator" to "Board Game Creator" to reflect multi-game support.
+- **Custom Theme Warning** — Switching away from a custom theme using preset arrows or dropdown now shows a confirmation dialog before discarding custom colors.
+
 ## [2.8.1] - 2026-03-14
 
 ### Added
@@ -238,21 +253,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 - **Champion Terrain** — Selectable terrain type for champion ability
 
-[2.8.1]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.8.0...v2.8.1
-[2.8.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.7.0...v2.8.0
-[2.7.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.6.2...v2.7.0
-[2.6.3]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.6.2...v2.6.3
-[2.4.3]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.4.2...v2.4.3
-[2.4.2]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.4.1...v2.4.2
-[2.4.1]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.4.0...v2.4.1
-[2.4.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.3.1...v2.4.0
-[2.3.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.2.0...v2.3.0
-[2.2.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/compare/v2.1.0...v2.2.0
-[2.1.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v2.1.0
-[2.0.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v2.0.0
-[1.4.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.4.0
-[1.3.1]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.3.1
-[1.3.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.3.0
-[1.2.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.2.0
-[1.1.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.1.0
-[1.0.0]: https://github.com/ChessMess/return-to-dark-tower-hero-creator/releases/tag/v1.0.0
+[3.0.0]: https://github.com/ChessMess/board-game-creator/compare/v2.8.1...v3.0.0
+[2.8.1]: https://github.com/ChessMess/board-game-creator/compare/v2.8.0...v2.8.1
+[2.8.0]: https://github.com/ChessMess/board-game-creator/compare/v2.7.0...v2.8.0
+[2.7.0]: https://github.com/ChessMess/board-game-creator/compare/v2.6.2...v2.7.0
+[2.6.3]: https://github.com/ChessMess/board-game-creator/compare/v2.6.2...v2.6.3
+[2.4.3]: https://github.com/ChessMess/board-game-creator/compare/v2.4.2...v2.4.3
+[2.4.2]: https://github.com/ChessMess/board-game-creator/compare/v2.4.1...v2.4.2
+[2.4.1]: https://github.com/ChessMess/board-game-creator/compare/v2.4.0...v2.4.1
+[2.4.0]: https://github.com/ChessMess/board-game-creator/compare/v2.3.1...v2.4.0
+[2.3.0]: https://github.com/ChessMess/board-game-creator/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/ChessMess/board-game-creator/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/ChessMess/board-game-creator/releases/tag/v2.1.0
+[2.0.0]: https://github.com/ChessMess/board-game-creator/releases/tag/v2.0.0
+[1.4.0]: https://github.com/ChessMess/board-game-creator/releases/tag/v1.4.0
+[1.3.1]: https://github.com/ChessMess/board-game-creator/releases/tag/v1.3.1
+[1.3.0]: https://github.com/ChessMess/board-game-creator/releases/tag/v1.3.0
+[1.2.0]: https://github.com/ChessMess/board-game-creator/releases/tag/v1.2.0
+[1.1.0]: https://github.com/ChessMess/board-game-creator/releases/tag/v1.1.0
+[1.0.0]: https://github.com/ChessMess/board-game-creator/releases/tag/v1.0.0

@@ -2,9 +2,48 @@
 
 @font-face {
   font-family: 'AzkolsKerning7';
-  src: url('./v2/assets/azkolskerning7-webfont.woff2') format('woff2'),
-       url('./v2/assets/azkolskerning7-webfont.woff') format('woff');
+  src: url('./rtdt/assets/azkolskerning7-webfont.woff2') format('woff2'),
+       url('./rtdt/assets/azkolskerning7-webfont.woff') format('woff');
   font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── TRV: Thunder Road Vendetta fonts ── */
+
+/* Compacta TRV — custom TRV display font, upright text (crew name, effect names, ability headings) */
+@font-face {
+  font-family: 'Compacta TRV';
+  src: url('./trv/assets/fonts/CompactaTRV.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Compacta BT Bold Italic — dice values, title/descriptor line */
+@font-face {
+  font-family: 'Compacta BT';
+  src: url('./trv/assets/fonts/CompactaBT-BoldItalic.otf') format('opentype'),
+       url('./trv/assets/fonts/CompactaBT-BoldItalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* BlaxSlabXXL — heavy display font for slot effect names (REPAIR, NITRO, DRIFT, AIRSTRIKE) */
+@font-face {
+  font-family: 'BlaxSlabXXL';
+  src: url('./trv/assets/fonts/BlaxSlabXXL.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Acumin Variable Concept — description/body text */
+@font-face {
+  font-family: 'Acumin Variable Concept';
+  src: url('./trv/assets/fonts/AcuminVariableConcept.otf') format('opentype');
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }

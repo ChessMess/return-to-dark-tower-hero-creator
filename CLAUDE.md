@@ -74,4 +74,4 @@ Uses Tailwind CSS v4 via `@tailwindcss/vite` plugin. There is **no** `tailwind.c
 
 ## Git
 
-Remote: `https://github.com/ChessMess/return-to-dark-tower-hero-creator.git`
+Remote: `https://github.com/ChessMess/board-game-creator.git`
