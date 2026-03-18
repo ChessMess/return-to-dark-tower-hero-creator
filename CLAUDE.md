@@ -54,6 +54,21 @@ Uses `hero_board_template.svg` (1213×808px) as the design source. localStorage 
 
 **Compatibility:** `src/rtdt/utils/heroIO.js` still supports importing/migrating legacy V1 JSON data when detected.
 
+## TRV Details
+
+**Reference:** See [TRV_REFERENCE.md](TRV_REFERENCE.md) for comprehensive crew leader board implementation guide.
+
+The Thunder Road Vendetta (TRV) crew leader board app runs at the `/trv` route. Uses similar architecture to RTDT but with key differences:
+
+- **Static SVG background** — `src/trv/assets/trv_board_bg.svg` is NOT dynamically themed (unlike RTDT's color replacement)
+- **Slots-based data model** — 4-slot array sorted by dice value, not fixed named fields
+- **Fixed text positioning** — All text x,y coordinates hardcoded in `src/trv/utils/boardLayout.js`; NO dynamic repositioning
+- **Theme colors** — Only `accentColor` (dice/title) and `nameColor` (leader name) are customizable
+- **Firebase gallery** — Community submission workflow with admin approval
+- **Command tokens** — Simple 0–9 counter (not ability-based like RTDT virtues)
+
+localStorage key: `"trv-crew-leader-v2"`. State owner: `src/trv/App.jsx` via `useLeaderState()` hook.
+
 ## Tailwind
 
 Uses Tailwind CSS v4 via `@tailwindcss/vite` plugin. There is **no** `tailwind.config.js` or `postcss.config.js`. The single CSS entry point is `src/index.css` which contains only `@import "tailwindcss"`.
