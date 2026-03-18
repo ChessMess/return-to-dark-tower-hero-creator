@@ -8,14 +8,21 @@ import { resolveTheme } from "./data/themes";
 import { buildThemedSvgUrls, revokeThemedSvgUrls } from "./utils/svgTheme";
 import GalleryModal from "./components/GalleryModal";
 import AdminPanel from "./components/AdminPanel";
-import ConfirmDialog from "./components/ConfirmDialog";
-import { useConfirm } from "./hooks/useConfirm";
 import { useHeroState } from "./hooks/useHeroState";
 import { useFileIO } from "./hooks/useFileIO";
 import { useExport } from "./hooks/useExport";
 import { useGallery } from "./hooks/useGallery";
 import coverBg from "./assets/rtdt_cover2.jpg";
-import { formatTimeAgo } from "./utils/timeUtils";
+import ConfirmDialog from "../shared/components/ConfirmDialog";
+import { useConfirm } from "../shared/hooks/useConfirm";
+import { formatTimeAgo } from "../shared/utils/timeUtils";
+import SidebarHeader from "../shared/components/SidebarHeader";
+import StatusMessage from "../shared/components/StatusMessage";
+import RecentsList from "../shared/components/RecentsList";
+import ZoomControls from "../shared/components/ZoomControls";
+import SnapshotButton from "../shared/components/SnapshotButton";
+import SidebarToggleButton from "../shared/components/SidebarToggleButton";
+import DesignerCredit from "../shared/components/DesignerCredit";
 import AppRouteSwitch from "../shared/components/AppRouteSwitch";
 
 export default function V2App() {
@@ -196,40 +203,13 @@ export default function V2App() {
       <aside
         className={`flex flex-col bg-gray-800 border-r border-gray-700 overflow-hidden transition-all duration-300 ${sidebarOpen ? "w-80" : "w-0 border-r-0"}`}
       >
-        <div className="px-4 py-3 border-b border-gray-700 bg-gray-900 flex items-center justify-between shrink-0">
-          <div>
-            <h1 className="text-sm font-bold text-amber-400 tracking-wider uppercase">
-              Hero Board Creator
-            </h1>
-            <p className="text-xs text-gray-500">
-              Return to Dark Tower
-              <span className="ml-1 text-gray-600 font-mono">
-                v
-                {typeof __APP_VERSION__ !== "undefined"
-                  ? __APP_VERSION__
-                  : "?.?.?"}
-              </span>
-              <button
-                type="button"
-                onClick={() => setShowAdmin(true)}
-                className="ml-1.5 text-gray-600 hover:text-amber-400 transition-colors"
-                title="Admin"
-              >
-                &bull;
-              </button>
-            </p>
-          </div>
-          <div className="flex items-end gap-2">
-            <button
-              type="button"
-              onClick={resetHero}
-              className="text-[10px] px-2 py-0.5 border border-gray-600 rounded text-gray-500 hover:text-red-400 hover:border-red-400 transition-colors"
-            >
-              Reset
-            </button>
-            <AppRouteSwitch />
-          </div>
-        </div>
+        <SidebarHeader
+          title="Hero Board Creator"
+          subtitle="Return to Dark Tower"
+          version={typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "?.?.?"}
+          onReset={resetHero}
+          onAdminClick={() => setShowAdmin(true)}
+        />
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
           <HeroForm
@@ -247,17 +227,7 @@ export default function V2App() {
         </div>
 
         <div className="px-4 py-3 border-t border-gray-700 bg-gray-900 shrink-0 space-y-2">
-          {statusMsg && (
-            <div
-              className={`text-xs text-center py-1 rounded ${
-                statusMsg.type === "error"
-                  ? "text-red-400 bg-red-900/30"
-                  : "text-green-400 bg-green-900/30"
-              }`}
-            >
-              {statusMsg.text}
-            </div>
-          )}
+          <StatusMessage message={statusMsg} />
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
@@ -306,34 +276,18 @@ export default function V2App() {
             </button>
           </div>
           {recents.length > 0 && (
-            <div className="space-y-1">
-              <div className="flex items-center justify-between">
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                  Recent Heroes
-                </h3>
-                <button
-                  type="button"
-                  onClick={handleClearRecents}
-                  className="w-4 h-4 flex items-center justify-center rounded text-gray-500 hover:text-red-400 hover:bg-gray-600 transition-colors text-xs leading-none"
-                  aria-label="Clear all recent heroes"
-                  title="Clear all"
-                >
-                  ×
-                </button>
-              </div>
-              <div className="max-h-32 overflow-y-auto space-y-1">
-                {recents.map((entry) => (
-                  <RecentHeroRow
-                    key={entry.id}
-                    entry={entry}
-                    onLoad={handleLoadRecent}
-                    onRemove={handleRemoveRecent}
-                    onOpenNewWindow={handleOpenRecentInNewWindow}
-                    formatTimeAgo={formatTimeAgo}
-                  />
-                ))}
-              </div>
-            </div>
+            <RecentsList label="Recent Heroes" onClearAll={handleClearRecents}>
+              {recents.map((entry) => (
+                <RecentHeroRow
+                  key={entry.id}
+                  entry={entry}
+                  onLoad={handleLoadRecent}
+                  onRemove={handleRemoveRecent}
+                  onOpenNewWindow={handleOpenRecentInNewWindow}
+                  formatTimeAgo={formatTimeAgo}
+                />
+              ))}
+            </RecentsList>
           )}
           <button
             type="button"
@@ -351,36 +305,9 @@ export default function V2App() {
         {/* Toolbar row */}
         <div className="flex items-center justify-between px-4 py-2 shrink-0">
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setSidebarOpen((o) => !o)}
-              aria-label="Toggle sidebar"
-              aria-expanded={sidebarOpen}
-              className="w-7 h-7 flex items-center justify-center rounded bg-gray-800 border border-gray-700 text-gray-400 hover:text-amber-400 hover:border-amber-500 transition-colors text-sm"
-            >
-              {sidebarOpen ? "\u00AB" : "\u00BB"}
-            </button>
+            <SidebarToggleButton open={sidebarOpen} onToggle={() => setSidebarOpen((o) => !o)} />
             {!sidebarOpen && <AppRouteSwitch />}
-            {(hero.author_name || hero.revision_no) && (
-              <span className="text-xs text-gray-400 tracking-wider">
-                {hero.author_name && (
-                  <>
-                    Hero designed by:{" "}
-                    <span className="text-amber-200 font-semibold">
-                      {hero.author_name}
-                    </span>
-                  </>
-                )}
-                {hero.author_name && hero.revision_no && (
-                  <span className="mx-1.5 text-gray-600">·</span>
-                )}
-                {hero.revision_no && (
-                  <span className="font-mono text-gray-300">
-                    {hero.revision_no}
-                  </span>
-                )}
-              </span>
-            )}
+            <DesignerCredit label="Hero designed by" name={hero.author_name} revision={hero.revision_no} />
           </div>
 
           <div className="flex items-center gap-2">
@@ -392,58 +319,17 @@ export default function V2App() {
               {isFlipped ? "Show Front" : "Show Back"}
             </button>
 
-            {/* Zoom controls */}
-            <div className="flex items-center gap-1 bg-gray-800/80 border border-gray-700 rounded-lg px-1 py-0">
-              <button
-                type="button"
-                onClick={() =>
-                  setZoom((z) => Math.max(0.25, +(z - 0.25).toFixed(2)))
-                }
-                className="px-2 py-1 flex items-center justify-center rounded text-gray-300 hover:bg-gray-700 text-xs font-bold transition-colors"
-              >
-                −
-              </button>
-              <button
-                type="button"
-                onClick={() => setZoom(1)}
-                className="px-1.5 py-1 flex items-center justify-center rounded text-gray-400 hover:bg-gray-700 text-xs tabular-nums transition-colors"
-              >
-                {Math.round(zoom * 100)}%
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)))
-                }
-                className="px-2 py-1 flex items-center justify-center rounded text-gray-300 hover:bg-gray-700 text-xs font-bold transition-colors"
-              >
-                +
-              </button>
-            </div>
+            <ZoomControls zoom={zoom} onZoom={setZoom} />
 
-            <button
-              type="button"
+            <SnapshotButton
               onPointerDown={onSnapshotPointerDown}
               onPointerUp={onSnapshotPointerUp}
               onPointerLeave={cancelHold}
               onPointerCancel={cancelHold}
               disabled={isFlipped}
-              className={`w-7 h-7 flex items-center justify-center rounded-lg border transition-all duration-300 disabled:opacity-40 disabled:pointer-events-none select-none touch-none ${holding ? "bg-amber-600 border-amber-400 text-white scale-110" : snapshotFlash ? "bg-amber-500 border-amber-400 text-white scale-110" : "bg-gray-800/80 border-gray-700 text-gray-300 hover:text-amber-400 hover:border-amber-500"}`}
-              title="Click to copy image · Hold 3s to copy & download"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-3.5 h-3.5"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
+              holding={holding}
+              flash={snapshotFlash}
+            />
           </div>
         </div>
 

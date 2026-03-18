@@ -1,5 +1,5 @@
 import { useState } from "react";
-import CollapsibleSection from "../../rtdt/components/CollapsibleSection";
+import CollapsibleSection from "../../shared/components/CollapsibleSection";
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 

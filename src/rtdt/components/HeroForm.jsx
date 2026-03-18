@@ -2,10 +2,10 @@ import { useState, useCallback } from "react";
 import { optimizeImage, isGif } from "../utils/heroIO";
 import { MAX_VIRTUES } from "../data/defaultHero";
 import { THEME_PRESETS, deriveThemeFromBaseColor, resolveTheme, validateThemeData } from "../data/themes";
-import CollapsibleSection from "./CollapsibleSection";
+import CollapsibleSection from "../../shared/components/CollapsibleSection";
 import VirtueEditor from "./VirtueEditor";
-import ConfirmDialog from "./ConfirmDialog";
-import { useConfirm } from "../hooks/useConfirm";
+import ConfirmDialog from "../../shared/components/ConfirmDialog";
+import { useConfirm } from "../../shared/hooks/useConfirm";
 
 const ALLOWED_IMAGE_TYPES = new Set([
   "image/jpeg",

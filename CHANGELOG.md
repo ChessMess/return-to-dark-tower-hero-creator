@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [3.1.1] - 2026-03-18
+
+### Changed
+
+- **Shared UI Components** — Extracted sidebar and toolbar components (SidebarHeader, StatusMessage, ZoomControls, SnapshotButton, RecentsList, SidebarToggleButton, DesignerCredit) into `src/shared/` for reuse across both game creators. Eliminated cross-directory imports between RTDT and TRV.
+
 ## [3.1.0] - 2026-03-17
 
 ### Changed
@@ -260,6 +266,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Virtues System** — Up to 5 virtues: virtue 1 with advantage type, virtues 2–5 with name and two description lines
 - **Champion Terrain** — Selectable terrain type for champion ability
 
+[3.1.1]: https://github.com/ChessMess/board-game-creator/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/ChessMess/board-game-creator/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/ChessMess/board-game-creator/compare/v2.8.1...v3.0.0
 [2.8.1]: https://github.com/ChessMess/board-game-creator/compare/v2.8.0...v2.8.1
