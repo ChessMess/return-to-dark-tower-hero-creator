@@ -313,17 +313,15 @@ export default function HeroBoard({ hero, themedUrls, themeColors }) {
       </text>
 
       {/* Banner action text */}
-      <text
-        transform="matrix(1.333,0,0,1.333,410.58,90.96)"
-        style={{
-          fontFamily: 'Karma, serif',
-          fontWeight: 600,
-          fontSize: '9px',
-          fill: themeColors.textPrimary,
-        }}
-      >
-        <tspan x="0" y="0">{hero.bannerAction}</tspan>
-      </text>
+      <g transform="matrix(1.333,0,0,1.333,410.58,90.96)">
+        <IconTextLine
+          text={hero.bannerAction}
+          x={0} y={0}
+          textAnchor="start"
+          fontSize={9}
+          style={{ fontFamily: 'Karma, serif', fontWeight: 600, fontSize: '9px', fill: themeColors.textPrimary }}
+        />
+      </g>
 
       {/* Flavor text */}
       {(() => {

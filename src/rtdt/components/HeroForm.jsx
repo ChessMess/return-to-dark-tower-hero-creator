@@ -313,7 +313,7 @@ export default function HeroForm({
       const saved = JSON.parse(localStorage.getItem("rtdt-v2-sections"));
       if (saved) return saved;
     } catch {}
-    return { identity: true, banner: true, boardText: false, virtues: true, theme: true, author: true };
+    return { identity: true, banner: true, boardText: false, endOfTurn: true, virtues: true, theme: true, author: true };
   });
 
   const toggle = (key) =>
@@ -589,27 +589,34 @@ export default function HeroForm({
         </div>
       </CollapsibleSection>
 
-      {/* Banner Action */}
+      {/* Start of Turn Text */}
       <CollapsibleSection
-        title="Banner Action"
+        title="Start of Turn Text"
         isOpen={openSections.banner}
         onToggle={() => toggle("banner")}
       >
-        <label className="block">
-          <span className="text-gray-400 text-xs">Action Text</span>
-          <input
-            type="text"
-            value={hero.bannerAction}
-            maxLength={40}
-            onChange={(e) => updateHero("bannerAction", e.target.value)}
-            className={inputClass}
-          />
-        </label>
+        <div className="space-y-3">
+          <p className="text-gray-500 text-xs">
+            Icons: <code className="text-amber-400">*</code> = spirit,{" "}
+            <code className="text-amber-400">#</code> = warriors,{" "}
+            <code className="text-amber-400">^</code> = skull
+          </p>
+          <label className="block">
+            <span className="text-gray-400 text-xs">Action Text</span>
+            <input
+              type="text"
+              value={hero.bannerAction}
+              maxLength={40}
+              onChange={(e) => updateHero("bannerAction", e.target.value)}
+              className={inputClass}
+            />
+          </label>
+        </div>
       </CollapsibleSection>
 
-      {/* Board Text */}
+      {/* Middle of Turn Text */}
       <CollapsibleSection
-        title="Board Text"
+        title="Middle of Turn Text"
         isOpen={openSections.boardText}
         onToggle={() => toggle("boardText")}
       >
@@ -735,20 +742,31 @@ export default function HeroForm({
             </label>
           </div>
 
-          {/* End of Turn */}
-          <div className="space-y-2">
-            <h4 className="text-gray-400 text-xs font-bold uppercase tracking-wider">End of Turn</h4>
-            <label className="block">
-              <span className="text-gray-400 text-xs">Action</span>
-              <input
-                type="text"
-                value={hero.endOfTurnAction}
-                maxLength={50}
-                onChange={(e) => updateHero("endOfTurnAction", e.target.value)}
-                className={inputClass}
-              />
-            </label>
-          </div>
+        </div>
+      </CollapsibleSection>
+
+      {/* End of Turn */}
+      <CollapsibleSection
+        title="End of Turn Text"
+        isOpen={openSections.endOfTurn}
+        onToggle={() => toggle("endOfTurn")}
+      >
+        <div className="space-y-3">
+          <p className="text-gray-500 text-xs">
+            Icons: <code className="text-amber-400">*</code> = spirit,{" "}
+            <code className="text-amber-400">#</code> = warriors,{" "}
+            <code className="text-amber-400">^</code> = skull
+          </p>
+          <label className="block">
+            <span className="text-gray-400 text-xs">Action</span>
+            <input
+              type="text"
+              value={hero.endOfTurnAction}
+              maxLength={50}
+              onChange={(e) => updateHero("endOfTurnAction", e.target.value)}
+              className={inputClass}
+            />
+          </label>
         </div>
       </CollapsibleSection>
 

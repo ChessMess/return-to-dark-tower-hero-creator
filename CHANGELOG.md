@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [3.1.2] - 2026-04-10
+
+### Changed
+
+- **Form Section Renames** — "Banner Action" renamed to "Start of Turn Text", "Board Text" renamed to "Middle of Turn Text". "End of Turn Text" action extracted from "Middle of Turn Text" into its own collapsible section. Icon substitution (`*`, `#`, `^`) now applies to all three turn sections in both form hints and live board rendering.
+
 ## [3.1.1] - 2026-03-18
 
 ### Changed
